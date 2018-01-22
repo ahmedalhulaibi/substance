@@ -11,7 +11,6 @@ SubstanceGen provides an interface for implementations to use data produced by S
 - MySQL/MariaDB
 - Postgres
 - JSON _planned_
-- SOAP WSDL _planned_
 
 ## SubstanceGen Code Generators
 
