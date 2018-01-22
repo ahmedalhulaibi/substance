@@ -5,7 +5,7 @@ import (
 	"database/sql"
 	"fmt"
 
-	"github.com/ahmedalhulaibi/go-graphqlator-cli/substance"
+	"github.com/ahmedalhulaibi/substance"
 )
 
 func init() {

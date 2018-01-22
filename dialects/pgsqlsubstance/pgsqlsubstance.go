@@ -6,7 +6,7 @@ import (
 	"strconv"
 	"strings"
 	"regexp"
-	"github.com/ahmedalhulaibi/go-graphqlator-cli/substance"
+	"github.com/ahmedalhulaibi/substance"
 )
 
 func init() {

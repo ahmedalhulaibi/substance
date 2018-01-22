@@ -3,8 +3,8 @@ package gqlgraphqlator
 import (
 	"fmt"
 
-	"github.com/ahmedalhulaibi/go-graphqlator-cli/substance"
-	"github.com/ahmedalhulaibi/go-graphqlator-cli/substancegen"
+	"github.com/ahmedalhulaibi/substance"
+	"github.com/ahmedalhulaibi/substance/substancegen"
 )
 
 func init() {
