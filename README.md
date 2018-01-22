@@ -10,7 +10,12 @@ SubstanceGen provides an interface for implementations to use data produced by S
 
 - MySQL/MariaDB
 - Postgres
+- JSON _planned_
+- SOAP WSDL _planned_
 
 ## SubstanceGen Code Generators
 
-- GraphQL via gqlschema
+- GraphQL Type Schema via `gqlschema`
+- GraphQL-Go Server _planned_
+- GoStructs _planned_
+- GORM _planned_
