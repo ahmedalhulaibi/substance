@@ -1,4 +1,4 @@
-package gqlgraphqlator
+package graphqlgo
 
 import (
 	"bytes"
