@@ -25,12 +25,13 @@ type GenObjectTag map[string][]string
 
 /*GenObjectProperty placeholder comment */
 type GenObjectProperty struct {
-	ScalarName string
-	ScalarType string
-	IsList     bool
-	Nullable   bool
-	KeyType    []string
-	Tags       GenObjectTag
+	ScalarName   string
+	ScalarType   string
+	IsList       bool
+	Nullable     bool
+	KeyType      []string
+	Tags         GenObjectTag
+	IsObjectType bool
 }
 
 /*GenObjectProperties placeholder comment */

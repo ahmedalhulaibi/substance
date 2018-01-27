@@ -188,10 +188,11 @@ func (g gql) ResolveRelationshipsFunc(dbType string, connectionString string, ta
 			gormTagForeign := "ForeignKey:" + colRel.ColumnName + ";"
 			gormTagAssociationForeign := "AssociationForeignKey:" + colRel.ReferenceColumnName + ";"
 			newGqlObjProperty := substancegen.GenObjectProperty{
-				ScalarName: colRel.TableName,
-				ScalarType: strings.TrimSuffix(colRel.TableName, "s"),
-				Nullable:   true,
-				IsList:     true,
+				ScalarName:   colRel.TableName,
+				ScalarType:   strings.TrimSuffix(colRel.TableName, "s"),
+				Nullable:     true,
+				IsList:       true,
+				IsObjectType: true,
 			}
 			newGqlObjProperty.Tags = make(substancegen.GenObjectTag)
 			newGqlObjProperty.Tags["gorm"] = append(newGqlObjProperty.Tags["gorm"], gormTagForeign, gormTagAssociationForeign)
@@ -200,10 +201,11 @@ func (g gql) ResolveRelationshipsFunc(dbType string, connectionString string, ta
 			gormTagForeign := "ForeignKey:" + colRel.ColumnName + ";"
 			gormTagAssociationForeign := "AssociationForeignKey:" + colRel.ReferenceColumnName + ";"
 			newGqlObjProperty := substancegen.GenObjectProperty{
-				ScalarName: strings.TrimSuffix(colRel.TableName, "s"),
-				ScalarType: strings.TrimSuffix(colRel.TableName, "s"),
-				Nullable:   true,
-				IsList:     false,
+				ScalarName:   strings.TrimSuffix(colRel.TableName, "s"),
+				ScalarType:   strings.TrimSuffix(colRel.TableName, "s"),
+				Nullable:     true,
+				IsList:       false,
+				IsObjectType: true,
 			}
 			newGqlObjProperty.Tags = make(substancegen.GenObjectTag)
 			newGqlObjProperty.Tags["gorm"] = append(newGqlObjProperty.Tags["gorm"], gormTagForeign, gormTagAssociationForeign)
