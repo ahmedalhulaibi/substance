@@ -28,12 +28,8 @@ func (p pgsql) GetCurrentDatabaseNameFunc(dbType string, connectionString string
 
 /*DescribeDatabase returns tables in database*/
 func (p pgsql) DescribeDatabaseFunc(dbType string, connectionString string) ([]substance.ColumnDescription, error) {
-	//prepend postgres:// to connection string
-	postgresString := "postgres://"
-	connString := postgresString + connectionString
-
 	//opening connection
-	db, err := sql.Open(dbType, connString)
+	db, err := sql.Open(dbType, connectionString)
 	defer db.Close()
 	if err != nil {
 		return nil, err
@@ -98,9 +94,7 @@ func (p pgsql) DescribeDatabaseFunc(dbType string, connectionString string) ([]s
 
 /*DescribeTable returns columns in database*/
 func (p pgsql) DescribeTableFunc(dbType string, connectionString string, tableName string) ([]substance.ColumnDescription, error) {
-	postgresString := "postgres://"
-	connString := postgresString + connectionString
-	db, err := sql.Open(dbType, connString)
+	db, err := sql.Open(dbType, connectionString)
 	defer db.Close()
 	if err != nil {
 		return nil, err
@@ -171,9 +165,7 @@ func (p pgsql) DescribeTableFunc(dbType string, connectionString string, tableNa
 
 /*DescribeTableRelationship returns all foreign column references in database table*/
 func (p pgsql) DescribeTableRelationshipFunc(dbType string, connectionString string, tableName string) ([]substance.ColumnRelationship, error) {
-	postgresString := "postgres://"
-	connString := postgresString + connectionString
-	db, err := sql.Open(dbType, connString)
+	db, err := sql.Open(dbType, connectionString)
 	defer db.Close()
 	if err != nil {
 		return nil, err
@@ -258,9 +250,7 @@ func (p pgsql) DescribeTableRelationshipFunc(dbType string, connectionString str
 }
 
 func (p pgsql) DescribeTableConstraintsFunc(dbType string, connectionString string, tableName string) ([]substance.ColumnConstraint, error) {
-	postgresString := "postgres://"
-	connString := postgresString + connectionString
-	db, err := sql.Open(dbType, connString)
+	db, err := sql.Open(dbType, connectionString)
 	defer db.Close()
 	if err != nil {
 		return nil, err
