@@ -1,7 +1,6 @@
 package graphqlgo
 
 import (
-	"fmt"
 	"strings"
 
 	"github.com/ahmedalhulaibi/substance"
@@ -10,11 +9,37 @@ import (
 
 func init() {
 	gqlPlugin := gql{}
+	gqlPlugin.GraphqlDataTypes = make(map[string]string)
+	gqlPlugin.GraphqlDataTypes["int"] = "graphql.Int"
+	gqlPlugin.GraphqlDataTypes["int8"] = "graphql.Int"
+	gqlPlugin.GraphqlDataTypes["int16"] = "graphql.Int"
+	gqlPlugin.GraphqlDataTypes["int32"] = "graphql.Int"
+	gqlPlugin.GraphqlDataTypes["int64"] = "graphql.Int"
+	gqlPlugin.GraphqlDataTypes["uint"] = "graphql.Int"
+	gqlPlugin.GraphqlDataTypes["uint8"] = "graphql.Int"
+	gqlPlugin.GraphqlDataTypes["uint16"] = "graphql.Int"
+	gqlPlugin.GraphqlDataTypes["uint32"] = "graphql.Int"
+	gqlPlugin.GraphqlDataTypes["uint64"] = "graphql.Int"
+	gqlPlugin.GraphqlDataTypes["byte"] = "graphql.Int"
+	gqlPlugin.GraphqlDataTypes["rune"] = "graphql.Int"
+	gqlPlugin.GraphqlDataTypes["bool"] = "graphql.Boolean"
+	gqlPlugin.GraphqlDataTypes["string"] = "graphql.String"
+	gqlPlugin.GraphqlDataTypes["float32"] = "graphql.Float"
+	gqlPlugin.GraphqlDataTypes["float64"] = "graphql.Float"
+	gqlPlugin.GraphqlDbTypeGormFlag = make(map[string]bool)
+	gqlPlugin.GraphqlDbTypeGormFlag["mysql"] = true
+	gqlPlugin.GraphqlDbTypeGormFlag["postgres"] = true
+	gqlPlugin.GraphqlDbTypeImports = make(map[string]string)
+	gqlPlugin.GraphqlDbTypeImports["mysql"] = "\n\t\"github.com/jinzhu/gorm\"\n\t_ \"github.com/jinzhu/gorm/dialects/mysql\""
+	gqlPlugin.GraphqlDbTypeImports["postgres"] = "\n\t\"github.com/jinzhu/gorm\"\n\t_ \"github.com/jinzhu/gorm/dialects/postgres\""
 	substancegen.Register("graphql-go", gqlPlugin)
 }
 
 type gql struct {
-	name string
+	Name                  string
+	GraphqlDataTypes      map[string]string
+	GraphqlDbTypeGormFlag map[string]bool
+	GraphqlDbTypeImports  map[string]string
 }
 
 func (g gql) GetObjectTypesFunc(dbType string, connectionString string, tableNames []string) map[string]substancegen.GenObjectType {
@@ -47,7 +72,9 @@ func (g gql) GetObjectTypesFunc(dbType string, connectionString string, tableNam
 			KeyType:    []string{colDesc.KeyType},
 		}
 		newGqlObjProperty.Tags = make(substancegen.GenObjectTag)
-		newGqlObjProperty.Tags["gorm"] = append(newGqlObjProperty.Tags["gorm"], "column:"+newGqlObjProperty.ScalarName+";")
+		if g.GraphqlDbTypeGormFlag[dbType] {
+			newGqlObjProperty.Tags["gorm"] = append(newGqlObjProperty.Tags["gorm"], "column:"+newGqlObjProperty.ScalarName+";")
+		}
 		gqlObjectTypes[colDesc.TableName].Properties[colDesc.PropertyName] = newGqlObjProperty
 	}
 	//resolve relationships
@@ -80,7 +107,7 @@ func (g gql) ResolveRelationshipsFunc(dbType string, connectionString string, ta
 
 		for _, constraint := range constraintDesc {
 			gqlKeyTypes := gqlObjectTypes[constraint.TableName].Properties[constraint.ColumnName].KeyType
-			fmt.Println("GQL Key Type ", constraint.TableName, constraint.ColumnName, gqlKeyTypes)
+			//fmt.Println("GQL Key Type ", constraint.TableName, constraint.ColumnName, gqlKeyTypes)
 			for _, gqlKeyType := range gqlKeyTypes {
 				switch {
 				case gqlKeyType == "":
@@ -93,7 +120,7 @@ func (g gql) ResolveRelationshipsFunc(dbType string, connectionString string, ta
 						Tags:       gqlObjectTypes[constraint.TableName].Properties[constraint.ColumnName].Tags,
 					}
 					isPrimary := (stringInSlice("p", newGqlObjProperty.KeyType) || stringInSlice("PRIMARY KEY", newGqlObjProperty.KeyType))
-					if isPrimary {
+					if isPrimary && g.GraphqlDbTypeGormFlag[dbType] {
 						newGqlObjProperty.Tags["gorm"] = append(newGqlObjProperty.Tags["gorm"], "primary_key"+";")
 					}
 
@@ -195,7 +222,9 @@ func (g gql) ResolveRelationshipsFunc(dbType string, connectionString string, ta
 				IsObjectType: true,
 			}
 			newGqlObjProperty.Tags = make(substancegen.GenObjectTag)
-			newGqlObjProperty.Tags["gorm"] = append(newGqlObjProperty.Tags["gorm"], gormTagForeign, gormTagAssociationForeign)
+			if g.GraphqlDbTypeGormFlag[dbType] {
+				newGqlObjProperty.Tags["gorm"] = append(newGqlObjProperty.Tags["gorm"], gormTagForeign, gormTagAssociationForeign)
+			}
 			gqlObjectTypes[colRel.ReferenceTableName].Properties[colRel.TableName] = newGqlObjProperty
 		} else if (isUnique || isPrimary) && isForeign {
 			gormTagForeign := "ForeignKey:" + colRel.ColumnName + ";"
@@ -208,7 +237,9 @@ func (g gql) ResolveRelationshipsFunc(dbType string, connectionString string, ta
 				IsObjectType: true,
 			}
 			newGqlObjProperty.Tags = make(substancegen.GenObjectTag)
-			newGqlObjProperty.Tags["gorm"] = append(newGqlObjProperty.Tags["gorm"], gormTagForeign, gormTagAssociationForeign)
+			if g.GraphqlDbTypeGormFlag[dbType] {
+				newGqlObjProperty.Tags["gorm"] = append(newGqlObjProperty.Tags["gorm"], gormTagForeign, gormTagAssociationForeign)
+			}
 			gqlObjectTypes[colRel.ReferenceTableName].Properties[colRel.TableName] = newGqlObjProperty
 
 		}

@@ -14,7 +14,6 @@ SubstanceGen provides an interface for implementations to use data produced by S
 
 ## SubstanceGen Code Generators
 
-- GraphQL Type Schema via `gqlschema`
-- GraphQL-Go Server _planned_
+- GraphQL-Go Server 
 - GoStructs _planned_
 - GORM _planned_

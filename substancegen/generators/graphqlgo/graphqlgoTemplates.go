@@ -1,14 +1,31 @@
 package graphqlgo
 
-var packageNameTemplate string = `package main\n`
+var GraphqlGoExecuteQueryFunc = `
+func executeQuery(query string, schema graphql.Schema) *graphql.Result {
+	result := graphql.Do(graphql.Params{
+		Schema:        schema,
+		RequestString: query,
+	})
+	if len(result.Errors) > 0 {
+		fmt.Printf("wrong result, unexpected errors: %v", result.Errors)
+	}
+	return result
+}
+`
 
-var mainImportTemplate string = `import (
-	"encoding/json"
-	"fmt"
-	_ "github.com/go-sql-driver/mysql"
-	"github.com/graphql-go/graphql"
-	"github.com/jinzhu/gorm"
-	_ "github.com/jinzhu/gorm/dialects/mysql"
-	"log"
-	"net/http"
-)\n`
+var GraphqlGoMainConfig = `
+rootQuery := graphql.ObjectConfig{Name: "RootQuery", Fields: fields}
+	schemaConfig := graphql.SchemaConfig{Query: graphql.NewObject(rootQuery)}
+	schema, err := graphql.NewSchema(schemaConfig)
+	if err != nil {
+		log.Fatalf("failed to create new schema, error: %v", err)
+	}
+
+	http.HandleFunc("/graphql", func(w http.ResponseWriter, r *http.Request) {
+		result := executeQuery(r.URL.Query().Get("query"), schema)
+		json.NewEncoder(w).Encode(result)
+	})
+
+	fmt.Println("Now server is running on port 8080")
+	http.ListenAndServe(":8080", nil)
+`

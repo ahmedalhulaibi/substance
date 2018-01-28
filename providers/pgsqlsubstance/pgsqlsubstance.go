@@ -3,9 +3,10 @@ package pgsqlsubstance
 import (
 	"database/sql"
 	"fmt"
+	"regexp"
 	"strconv"
 	"strings"
-	"regexp"
+
 	"github.com/ahmedalhulaibi/substance"
 )
 
@@ -13,7 +14,6 @@ func init() {
 	pgsqlPlugin := pgsql{}
 	substance.Register("postgres", &pgsqlPlugin)
 }
-
 
 type pgsql struct {
 	name string
@@ -219,7 +219,7 @@ func (p pgsql) DescribeTableRelationshipFunc(dbType string, connectionString str
 			//fmt.Printf("DescribeTableRelationshipFunc Value %T ", value)
 			switch value.(type) {
 			case string:
-				fmt.Println("\t", columns[i], ": ", value)
+				//fmt.Println("\t", columns[i], ": ", value)
 				switch columns[i] {
 				case "table_name":
 					newColDesc.TableName = string(value.(string))
@@ -227,7 +227,7 @@ func (p pgsql) DescribeTableRelationshipFunc(dbType string, connectionString str
 					newColDesc.ColumnName = string(value.(string))
 				}
 			case []byte:
-				fmt.Println("\t", columns[i], ": ", string(value.([]byte)))
+				//fmt.Println("\t", columns[i], ": ", string(value.([]byte)))
 
 				switch columns[i] {
 				case "ref_table":
@@ -321,10 +321,9 @@ func (p pgsql) DescribeTableConstraintsFunc(dbType string, connectionString stri
 	return columnDesc, nil
 }
 
-
-func (p pgsql) GetGoDataType (sqlType string) (string, error) {
+func (p pgsql) GetGoDataType(sqlType string) (string, error) {
 	for pattern, value := range regexDataTypePatterns {
-		match, err := regexp.MatchString(pattern,sqlType)
+		match, err := regexp.MatchString(pattern, sqlType)
 		if match && err == nil {
 			result := value
 			return result, nil
