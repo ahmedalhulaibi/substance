@@ -47,134 +47,148 @@ func (t testsql) DescribeDatabaseFunc(dbType string, connectionString string) ([
 /*DescribeTable returns columns in database*/
 func (t testsql) DescribeTableFunc(dbType string, connectionString string, tableName string) ([]substance.ColumnDescription, error) {
 	columnDesc := []substance.ColumnDescription{}
-	columnDesc = append(columnDesc, substance.ColumnDescription{
-		DatabaseName: "testDatabase",
-		TableName:    "TableNumberOne",
-		PropertyType: "int32",
-		PropertyName: "UniqueIdOne",
-		KeyType:      "p",
-		Nullable:     false,
-	})
-	columnDesc = append(columnDesc, substance.ColumnDescription{
-		DatabaseName: "testDatabase",
-		TableName:    "TableNumberOne",
-		PropertyType: "string",
-		PropertyName: "Name",
-		KeyType:      "",
-		Nullable:     false,
-	})
-	columnDesc = append(columnDesc, substance.ColumnDescription{
-		DatabaseName: "testDatabase",
-		TableName:    "TableNumberOne",
-		PropertyType: "float64",
-		PropertyName: "Salary",
-		KeyType:      "",
-		Nullable:     true,
-	})
-	columnDesc = append(columnDesc, substance.ColumnDescription{
-		DatabaseName: "testDatabase",
-		TableName:    "TableNumberTwo",
-		PropertyType: "UniqueIdTwo",
-		PropertyName: "int32",
-		KeyType:      "",
-		Nullable:     false,
-	})
-	columnDesc = append(columnDesc, substance.ColumnDescription{
-		DatabaseName: "testDatabase",
-		TableName:    "TableNumberTwo",
-		PropertyType: "ForeignIdOne",
-		PropertyName: "int32",
-		KeyType:      "f",
-		Nullable:     false,
-	})
-	columnDesc = append(columnDesc, substance.ColumnDescription{
-		DatabaseName: "testDatabase",
-		TableName:    "TableNumberThree",
-		PropertyType: "UniqueIdThree",
-		PropertyName: "int32",
-		KeyType:      "",
-		Nullable:     false,
-	})
-	columnDesc = append(columnDesc, substance.ColumnDescription{
-		DatabaseName: "testDatabase",
-		TableName:    "TableNumberThree",
-		PropertyType: "ForeignIdOne",
-		PropertyName: "int32",
-		KeyType:      "f",
-		Nullable:     false,
-	})
-	columnDesc = append(columnDesc, substance.ColumnDescription{
-		DatabaseName: "testDatabase",
-		TableName:    "TableNumberThree",
-		PropertyType: "ForeignIdTwo",
-		PropertyName: "int32",
-		KeyType:      "f",
-		Nullable:     true,
-	})
+	switch tableName {
+	case "TableNumberOne":
+		columnDesc = append(columnDesc, substance.ColumnDescription{
+			DatabaseName: "testDatabase",
+			TableName:    "TableNumberOne",
+			PropertyType: "int32",
+			PropertyName: "UniqueIdOne",
+			KeyType:      "",
+			Nullable:     false,
+		})
+		columnDesc = append(columnDesc, substance.ColumnDescription{
+			DatabaseName: "testDatabase",
+			TableName:    "TableNumberOne",
+			PropertyType: "string",
+			PropertyName: "Name",
+			KeyType:      "",
+			Nullable:     false,
+		})
+		columnDesc = append(columnDesc, substance.ColumnDescription{
+			DatabaseName: "testDatabase",
+			TableName:    "TableNumberOne",
+			PropertyType: "float64",
+			PropertyName: "Salary",
+			KeyType:      "",
+			Nullable:     true,
+		})
+	case "TableNumberTwo":
+		columnDesc = append(columnDesc, substance.ColumnDescription{
+			DatabaseName: "testDatabase",
+			TableName:    "TableNumberTwo",
+			PropertyType: "UniqueIdTwo",
+			PropertyName: "int32",
+			KeyType:      "",
+			Nullable:     false,
+		})
+		columnDesc = append(columnDesc, substance.ColumnDescription{
+			DatabaseName: "testDatabase",
+			TableName:    "TableNumberTwo",
+			PropertyType: "ForeignIdOne",
+			PropertyName: "int32",
+			KeyType:      "",
+			Nullable:     false,
+		})
+	case "TableNumberThree":
+		columnDesc = append(columnDesc, substance.ColumnDescription{
+			DatabaseName: "testDatabase",
+			TableName:    "TableNumberThree",
+			PropertyType: "UniqueIdThree",
+			PropertyName: "int32",
+			KeyType:      "",
+			Nullable:     false,
+		})
+		columnDesc = append(columnDesc, substance.ColumnDescription{
+			DatabaseName: "testDatabase",
+			TableName:    "TableNumberThree",
+			PropertyType: "ForeignIdOne",
+			PropertyName: "int32",
+			KeyType:      "",
+			Nullable:     false,
+		})
+		columnDesc = append(columnDesc, substance.ColumnDescription{
+			DatabaseName: "testDatabase",
+			TableName:    "TableNumberThree",
+			PropertyType: "ForeignIdTwo",
+			PropertyName: "int32",
+			KeyType:      "",
+			Nullable:     true,
+		})
+	}
 	return columnDesc, nil
 }
 
 /*DescribeTableRelationship returns all foreign column references in database table*/
 func (t testsql) DescribeTableRelationshipFunc(dbType string, connectionString string, tableName string) ([]substance.ColumnRelationship, error) {
 	columnRel := []substance.ColumnRelationship{}
-	columnRel = append(columnRel, substance.ColumnRelationship{
-		TableName:           "TableNumberTwo",
-		ColumnName:          "ForeignIdOne",
-		ReferenceTableName:  "TableNumberOne",
-		ReferenceColumnName: "UniqueIdOne",
-	})
-	columnRel = append(columnRel, substance.ColumnRelationship{
-		TableName:           "TableNumberThree",
-		ColumnName:          "ForeignIdOne",
-		ReferenceTableName:  "TableNumberOne",
-		ReferenceColumnName: "UniqueIdOne",
-	})
-	columnRel = append(columnRel, substance.ColumnRelationship{
-		TableName:           "TableNumberThree",
-		ColumnName:          "ForeignIdTwo",
-		ReferenceTableName:  "TableNumberTwo",
-		ReferenceColumnName: "UniqueIdTwo",
-	})
+	switch tableName {
+	case "TableNumberTwo":
+		columnRel = append(columnRel, substance.ColumnRelationship{
+			TableName:           "TableNumberTwo",
+			ColumnName:          "ForeignIdOne",
+			ReferenceTableName:  "TableNumberOne",
+			ReferenceColumnName: "UniqueIdOne",
+		})
+	case "TableNumberThree":
+		columnRel = append(columnRel, substance.ColumnRelationship{
+			TableName:           "TableNumberThree",
+			ColumnName:          "ForeignIdOne",
+			ReferenceTableName:  "TableNumberOne",
+			ReferenceColumnName: "UniqueIdOne",
+		})
+		columnRel = append(columnRel, substance.ColumnRelationship{
+			TableName:           "TableNumberThree",
+			ColumnName:          "ForeignIdTwo",
+			ReferenceTableName:  "TableNumberTwo",
+			ReferenceColumnName: "UniqueIdTwo",
+		})
+	}
 	return columnRel, nil
 }
 
 func (t testsql) DescribeTableConstraintsFunc(dbType string, connectionString string, tableName string) ([]substance.ColumnConstraint, error) {
 	columnConstraint := []substance.ColumnConstraint{}
-	columnConstraint = append(columnConstraint, substance.ColumnConstraint{
-		TableName:      "TableNumberOne",
-		ColumnName:     "UniqueIdOne",
-		ConstraintType: "p",
-	})
-	columnConstraint = append(columnConstraint, substance.ColumnConstraint{
-		TableName:      "TableNumberTwo",
-		ColumnName:     "UniqueIdTwo",
-		ConstraintType: "p",
-	})
-	columnConstraint = append(columnConstraint, substance.ColumnConstraint{
-		TableName:      "TableNumberTwo",
-		ColumnName:     "ForeignIdOne",
-		ConstraintType: "f",
-	})
-	columnConstraint = append(columnConstraint, substance.ColumnConstraint{
-		TableName:      "TableNumberThree",
-		ColumnName:     "UniqueIdThree",
-		ConstraintType: "p",
-	})
-	columnConstraint = append(columnConstraint, substance.ColumnConstraint{
-		TableName:      "TableNumberThree",
-		ColumnName:     "ForeignIdOne",
-		ConstraintType: "u",
-	})
-	columnConstraint = append(columnConstraint, substance.ColumnConstraint{
-		TableName:      "TableNumberThree",
-		ColumnName:     "ForeignIdOne",
-		ConstraintType: "f",
-	})
-	columnConstraint = append(columnConstraint, substance.ColumnConstraint{
-		TableName:      "TableNumberThree",
-		ColumnName:     "ForeignIdTwo",
-		ConstraintType: "f",
-	})
+	switch tableName {
+	case "TableNumberOne":
+		columnConstraint = append(columnConstraint, substance.ColumnConstraint{
+			TableName:      "TableNumberOne",
+			ColumnName:     "UniqueIdOne",
+			ConstraintType: "PRIMARY KEY",
+		})
+	case "TableNumberTwo":
+		columnConstraint = append(columnConstraint, substance.ColumnConstraint{
+			TableName:      "TableNumberTwo",
+			ColumnName:     "UniqueIdTwo",
+			ConstraintType: "PRIMARY KEY",
+		})
+		columnConstraint = append(columnConstraint, substance.ColumnConstraint{
+			TableName:      "TableNumberTwo",
+			ColumnName:     "ForeignIdOne",
+			ConstraintType: "FOREIGN KEY",
+		})
+	case "TableNumberThree":
+		columnConstraint = append(columnConstraint, substance.ColumnConstraint{
+			TableName:      "TableNumberThree",
+			ColumnName:     "UniqueIdThree",
+			ConstraintType: "PRIMARY KEY",
+		})
+		columnConstraint = append(columnConstraint, substance.ColumnConstraint{
+			TableName:      "TableNumberThree",
+			ColumnName:     "ForeignIdOne",
+			ConstraintType: "UNIQUE",
+		})
+		columnConstraint = append(columnConstraint, substance.ColumnConstraint{
+			TableName:      "TableNumberThree",
+			ColumnName:     "ForeignIdOne",
+			ConstraintType: "FOREIGN KEY",
+		})
+		columnConstraint = append(columnConstraint, substance.ColumnConstraint{
+			TableName:      "TableNumberThree",
+			ColumnName:     "ForeignIdTwo",
+			ConstraintType: "FOREIGN KEY",
+		})
+	}
 	return columnConstraint, nil
 }
 
