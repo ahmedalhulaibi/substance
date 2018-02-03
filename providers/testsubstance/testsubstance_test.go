@@ -73,40 +73,40 @@ func TestDescribeTable(t *testing.T) {
 	myColumnDesc = append(myColumnDesc, substance.ColumnDescription{
 		DatabaseName: "testDatabase",
 		TableName:    "TableNumberTwo",
-		PropertyType: "UniqueIdTwo",
-		PropertyName: "int32",
+		PropertyName: "UniqueIdTwo",
+		PropertyType: "int32",
 		KeyType:      "",
 		Nullable:     false,
 	})
 	myColumnDesc = append(myColumnDesc, substance.ColumnDescription{
 		DatabaseName: "testDatabase",
 		TableName:    "TableNumberTwo",
-		PropertyType: "ForeignIdOne",
-		PropertyName: "int32",
+		PropertyName: "ForeignIdOne",
+		PropertyType: "int32",
 		KeyType:      "f",
 		Nullable:     false,
 	})
 	myColumnDesc = append(myColumnDesc, substance.ColumnDescription{
 		DatabaseName: "testDatabase",
 		TableName:    "TableNumberThree",
-		PropertyType: "UniqueIdThree",
-		PropertyName: "int32",
+		PropertyName: "UniqueIdThree",
+		PropertyType: "int32",
 		KeyType:      "",
 		Nullable:     false,
 	})
 	myColumnDesc = append(myColumnDesc, substance.ColumnDescription{
 		DatabaseName: "testDatabase",
 		TableName:    "TableNumberThree",
-		PropertyType: "ForeignIdOne",
-		PropertyName: "int32",
+		PropertyName: "ForeignIdOne",
+		PropertyType: "int32",
 		KeyType:      "f",
 		Nullable:     false,
 	})
 	myColumnDesc = append(myColumnDesc, substance.ColumnDescription{
 		DatabaseName: "testDatabase",
 		TableName:    "TableNumberThree",
-		PropertyType: "ForeignIdTwo",
-		PropertyName: "int32",
+		PropertyName: "ForeignIdTwo",
+		PropertyType: "int32",
 		KeyType:      "f",
 		Nullable:     true,
 	})
