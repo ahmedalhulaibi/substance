@@ -74,37 +74,37 @@ func (t testsql) DescribeTableFunc(dbType string, connectionString string, table
 		columnDesc = append(columnDesc, substance.ColumnDescription{
 			DatabaseName: "testDatabase",
 			TableName:    "TableNumberTwo",
-			PropertyType: "UniqueIdTwo",
-			PropertyName: "int32",
+			PropertyName: "UniqueIdTwo",
+			PropertyType: "int32",
 			Nullable:     false,
 		})
 		columnDesc = append(columnDesc, substance.ColumnDescription{
 			DatabaseName: "testDatabase",
 			TableName:    "TableNumberTwo",
-			PropertyType: "ForeignIdOne",
-			PropertyName: "int32",
+			PropertyName: "ForeignIdOne",
+			PropertyType: "int32",
 			Nullable:     false,
 		})
 	case "TableNumberThree":
 		columnDesc = append(columnDesc, substance.ColumnDescription{
 			DatabaseName: "testDatabase",
 			TableName:    "TableNumberThree",
-			PropertyType: "UniqueIdThree",
-			PropertyName: "int32",
+			PropertyName: "UniqueIdThree",
+			PropertyType: "int32",
 			Nullable:     false,
 		})
 		columnDesc = append(columnDesc, substance.ColumnDescription{
 			DatabaseName: "testDatabase",
 			TableName:    "TableNumberThree",
-			PropertyType: "ForeignIdOne",
-			PropertyName: "int32",
+			PropertyName: "ForeignIdOne",
+			PropertyType: "int32",
 			Nullable:     false,
 		})
 		columnDesc = append(columnDesc, substance.ColumnDescription{
 			DatabaseName: "testDatabase",
 			TableName:    "TableNumberThree",
-			PropertyType: "ForeignIdTwo",
-			PropertyName: "int32",
+			PropertyName: "ForeignIdTwo",
+			PropertyType: "int32",
 			Nullable:     true,
 		})
 	}
