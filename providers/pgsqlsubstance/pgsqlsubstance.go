@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/ahmedalhulaibi/substance"
+	_ "github.com/lib/pq"
 )
 
 func init() {
@@ -21,8 +22,52 @@ type pgsql struct {
 
 /*GetCurrentDatabaseName returns currrent database schema name as string*/
 func (p pgsql) GetCurrentDatabaseNameFunc(dbType string, connectionString string) (string, error) {
-	returnValue := "postgres"
-	var err error
+	returnValue := "placeholder"
+	db, err := sql.Open(dbType, connectionString)
+	defer db.Close()
+	if err != nil {
+		return "", err
+	}
+
+	rows, err := db.Query(GetCurrentDatabaseNameQuery)
+	if err != nil {
+		return "", err
+	}
+
+	// Get column names
+	columns, err := rows.Columns()
+	if err != nil {
+		return "", err
+	}
+	// Make a slice for the values
+	values := make([]interface{}, len(columns))
+
+	// rows.Scan wants '[]interface{}' as an argument, so we must copy the
+	// references into such a slice
+	scanArgs := make([]interface{}, len(values))
+	for i := range values {
+		scanArgs[i] = &values[i]
+	}
+
+	for rows.Next() {
+		err = rows.Scan(scanArgs...)
+		if err != nil {
+			return "", err
+		}
+
+		// Print data
+		for i, value := range values {
+			switch value.(type) {
+			case []byte:
+				switch columns[i] {
+				case "current_database":
+					returnValue = string(value.([]byte))
+				}
+			}
+		}
+		//fmt.Println("-----------------------------------")
+	}
+
 	return returnValue, err
 }
 
