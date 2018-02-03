@@ -54,7 +54,6 @@ func (t testsql) DescribeTableFunc(dbType string, connectionString string, table
 			TableName:    "TableNumberOne",
 			PropertyType: "int32",
 			PropertyName: "UniqueIdOne",
-			KeyType:      " ",
 			Nullable:     false,
 		})
 		columnDesc = append(columnDesc, substance.ColumnDescription{
@@ -62,7 +61,6 @@ func (t testsql) DescribeTableFunc(dbType string, connectionString string, table
 			TableName:    "TableNumberOne",
 			PropertyType: "string",
 			PropertyName: "Name",
-			KeyType:      " ",
 			Nullable:     false,
 		})
 		columnDesc = append(columnDesc, substance.ColumnDescription{
@@ -70,7 +68,6 @@ func (t testsql) DescribeTableFunc(dbType string, connectionString string, table
 			TableName:    "TableNumberOne",
 			PropertyType: "float64",
 			PropertyName: "Salary",
-			KeyType:      " ",
 			Nullable:     true,
 		})
 	case "TableNumberTwo":
@@ -79,7 +76,6 @@ func (t testsql) DescribeTableFunc(dbType string, connectionString string, table
 			TableName:    "TableNumberTwo",
 			PropertyType: "UniqueIdTwo",
 			PropertyName: "int32",
-			KeyType:      " ",
 			Nullable:     false,
 		})
 		columnDesc = append(columnDesc, substance.ColumnDescription{
@@ -87,7 +83,6 @@ func (t testsql) DescribeTableFunc(dbType string, connectionString string, table
 			TableName:    "TableNumberTwo",
 			PropertyType: "ForeignIdOne",
 			PropertyName: "int32",
-			KeyType:      " ",
 			Nullable:     false,
 		})
 	case "TableNumberThree":
@@ -96,7 +91,6 @@ func (t testsql) DescribeTableFunc(dbType string, connectionString string, table
 			TableName:    "TableNumberThree",
 			PropertyType: "UniqueIdThree",
 			PropertyName: "int32",
-			KeyType:      " ",
 			Nullable:     false,
 		})
 		columnDesc = append(columnDesc, substance.ColumnDescription{
@@ -104,7 +98,6 @@ func (t testsql) DescribeTableFunc(dbType string, connectionString string, table
 			TableName:    "TableNumberThree",
 			PropertyType: "ForeignIdOne",
 			PropertyName: "int32",
-			KeyType:      " ",
 			Nullable:     false,
 		})
 		columnDesc = append(columnDesc, substance.ColumnDescription{
@@ -112,7 +105,6 @@ func (t testsql) DescribeTableFunc(dbType string, connectionString string, table
 			TableName:    "TableNumberThree",
 			PropertyType: "ForeignIdTwo",
 			PropertyName: "int32",
-			KeyType:      " ",
 			Nullable:     true,
 		})
 	}
