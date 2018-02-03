@@ -139,8 +139,43 @@ func (t testsql) DescribeTableRelationshipFunc(dbType string, connectionString s
 }
 
 func (t testsql) DescribeTableConstraintsFunc(dbType string, connectionString string, tableName string) ([]substance.ColumnConstraint, error) {
-	columnDesc := []substance.ColumnConstraint{}
-	return columnDesc, nil
+	columnConstraint := []substance.ColumnConstraint{}
+	columnConstraint = append(columnConstraint, substance.ColumnConstraint{
+		TableName:      "TableNumberOne",
+		ColumnName:     "UniqueIdOne",
+		ConstraintType: "p",
+	})
+	columnConstraint = append(columnConstraint, substance.ColumnConstraint{
+		TableName:      "TableNumberTwo",
+		ColumnName:     "UniqueIdTwo",
+		ConstraintType: "p",
+	})
+	columnConstraint = append(columnConstraint, substance.ColumnConstraint{
+		TableName:      "TableNumberTwo",
+		ColumnName:     "ForeignIdOne",
+		ConstraintType: "f",
+	})
+	columnConstraint = append(columnConstraint, substance.ColumnConstraint{
+		TableName:      "TableNumberThree",
+		ColumnName:     "UniqueIdThree",
+		ConstraintType: "p",
+	})
+	columnConstraint = append(columnConstraint, substance.ColumnConstraint{
+		TableName:      "TableNumberThree",
+		ColumnName:     "ForeignIdOne",
+		ConstraintType: "u",
+	})
+	columnConstraint = append(columnConstraint, substance.ColumnConstraint{
+		TableName:      "TableNumberThree",
+		ColumnName:     "ForeignIdOne",
+		ConstraintType: "f",
+	})
+	columnConstraint = append(columnConstraint, substance.ColumnConstraint{
+		TableName:      "TableNumberThree",
+		ColumnName:     "ForeignIdTwo",
+		ConstraintType: "f",
+	})
+	return columnConstraint, nil
 }
 
 func (t testsql) GetGoDataType(sqlType string) (string, error) {
