@@ -123,26 +123,27 @@ func (t testsql) DescribeTableFunc(dbType string, connectionString string, table
 func (t testsql) DescribeTableRelationshipFunc(dbType string, connectionString string, tableName string) ([]substance.ColumnRelationship, error) {
 	columnRel := []substance.ColumnRelationship{}
 	switch tableName {
-	case "TableNumberTwo":
+	case "TableNumberOne":
 		columnRel = append(columnRel, substance.ColumnRelationship{
 			TableName:           "TableNumberTwo",
 			ColumnName:          "ForeignIdOne",
 			ReferenceTableName:  "TableNumberOne",
 			ReferenceColumnName: "UniqueIdOne",
 		})
-	case "TableNumberThree":
 		columnRel = append(columnRel, substance.ColumnRelationship{
 			TableName:           "TableNumberThree",
 			ColumnName:          "ForeignIdOne",
 			ReferenceTableName:  "TableNumberOne",
 			ReferenceColumnName: "UniqueIdOne",
 		})
+	case "TableNumberTwo":
 		columnRel = append(columnRel, substance.ColumnRelationship{
 			TableName:           "TableNumberThree",
 			ColumnName:          "ForeignIdTwo",
 			ReferenceTableName:  "TableNumberTwo",
 			ReferenceColumnName: "UniqueIdTwo",
 		})
+	case "TableNumberThree":
 	}
 	return columnRel, nil
 }
