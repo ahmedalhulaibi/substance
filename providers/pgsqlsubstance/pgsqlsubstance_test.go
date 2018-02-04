@@ -196,9 +196,13 @@ func TestDescribeTableRelationship(t *testing.T) {
 	sort.Slice(columnRelResult, func(i, j int) bool {
 		return columnRelResult[i].ColumnName < columnRelResult[j].ColumnName
 	})
-	for i := range columnRelResult {
-		if !reflect.DeepEqual(columnRelResult[i], myColumnRel[i]) {
-			t.Errorf("Result does not match expected result: \nExpected:\n\t%v\nResult:\n%v\n\n", myColumnRel[i], columnRelResult[i])
+	if len(columnRelResult) != len(myColumnRel) {
+		t.Errorf("Result length does not match expected length: \nExpected:\n%v\nResult:\n%v", len(myColumnRel), len(columnRelResult))
+	} else {
+		for i := range columnRelResult {
+			if !reflect.DeepEqual(columnRelResult[i], myColumnRel[i]) {
+				t.Errorf("Result does not match expected result: \nExpected:\n\t%v\nResult:\n%v\n\n", myColumnRel[i], columnRelResult[i])
+			}
 		}
 	}
 }
@@ -226,9 +230,13 @@ func TestDescribeTableContraints(t *testing.T) {
 	sort.Slice(columnConstraintResult, func(i, j int) bool {
 		return columnConstraintResult[i].ColumnName < columnConstraintResult[j].ColumnName
 	})
-	for i := range columnConstraintResult {
-		if !reflect.DeepEqual(columnConstraintResult[i], myColumnConstraint[i]) {
-			t.Errorf("Result does not match expected result: \nExpected:\n\t%v\nResult:\n%v\n\n", myColumnConstraint[i], columnConstraintResult[i])
+	if len(columnConstraintResult) != len(myColumnConstraint) {
+		t.Errorf("Result length does not match expected length: \nExpected:\n%v\nResult:\n%v", len(myColumnConstraint), len(columnConstraintResult))
+	} else {
+		for i := range columnConstraintResult {
+			if !reflect.DeepEqual(columnConstraintResult[i], myColumnConstraint[i]) {
+				t.Errorf("Result does not match expected result: \nExpected:\n\t%v\nResult:\n%v\n\n", myColumnConstraint[i], columnConstraintResult[i])
+			}
 		}
 	}
 }
