@@ -110,7 +110,10 @@ func TestDescribeDb(t *testing.T) {
 		PropertyName: "antiorders",
 		TableName:    "antiorders",
 	})
-	columnDescResult, _ := pgsqlProvider.DescribeDatabaseFunc("postgres", "postgres://travis_test:password@localhost:5432/postgres")
+	columnDescResult, err := pgsqlProvider.DescribeDatabaseFunc("postgres", "postgres://travis_test:password@localhost:5432/postgres")
+	if err != nil {
+		t.Error(err)
+	}
 	sort.Slice(myColumnDesc, func(i, j int) bool {
 		return myColumnDesc[i].PropertyName < myColumnDesc[j].PropertyName
 	})
@@ -162,7 +165,10 @@ func TestDescribeTable(t *testing.T) {
 		TableName:    "persons",
 		Nullable:     true,
 	})
-	columnDescResult, _ := pgsqlProvider.DescribeTableFunc("postgres", "postgres://travis_test:password@localhost:5432/postgres", "persons")
+	columnDescResult, err := pgsqlProvider.DescribeTableFunc("postgres", "postgres://travis_test:password@localhost:5432/postgres", "persons")
+	if err != nil {
+		t.Error(err)
+	}
 	sort.Slice(myColumnDesc, func(i, j int) bool {
 		return myColumnDesc[i].PropertyName < myColumnDesc[j].PropertyName
 	})
@@ -189,7 +195,10 @@ func TestDescribeTableRelationship(t *testing.T) {
 		ReferenceTableName:  "persons",
 		ReferenceColumnName: "id",
 	})
-	columnRelResult, _ := pgsqlProvider.DescribeTableRelationshipFunc("postgres", "postgres://travis_test:password@localhost:5432/postgres", "orders")
+	columnRelResult, err := pgsqlProvider.DescribeTableRelationshipFunc("postgres", "postgres://travis_test:password@localhost:5432/postgres", "orders")
+	if err != nil {
+		t.Error(err)
+	}
 	sort.Slice(myColumnRel, func(i, j int) bool {
 		return myColumnRel[i].ColumnName < myColumnRel[j].ColumnName
 	})
@@ -223,7 +232,10 @@ func TestDescribeTableContraints(t *testing.T) {
 		ColumnName:     "personid",
 		ConstraintType: "f",
 	})
-	columnConstraintResult, _ := pgsqlProvider.DescribeTableConstraintsFunc("postgres", "postgres://travis_test:password@localhost:5432/postgres", "antiorders")
+	columnConstraintResult, err := pgsqlProvider.DescribeTableConstraintsFunc("postgres", "postgres://travis_test:password@localhost:5432/postgres", "antiorders")
+	if err != nil {
+		t.Error(err)
+	}
 	sort.Slice(myColumnConstraint, func(i, j int) bool {
 		return myColumnConstraint[i].ColumnName < myColumnConstraint[j].ColumnName
 	})

@@ -110,7 +110,10 @@ func TestDescribeDb(t *testing.T) {
 		PropertyName: "Persons",
 		TableName:    "Persons",
 	})
-	columnDescResult, _ := mysqlProvider.DescribeDatabaseFunc("mysql", "travis@tcp(127.0.0.1:3306)/delivery")
+	columnDescResult, err := mysqlProvider.DescribeDatabaseFunc("mysql", "travis@tcp(127.0.0.1:3306)/delivery")
+	if err != nil {
+		t.Error(err)
+	}
 	sort.Slice(myColumnDesc, func(i, j int) bool {
 		return myColumnDesc[i].PropertyName < myColumnDesc[j].PropertyName
 	})
@@ -162,7 +165,10 @@ func TestDescribeTable(t *testing.T) {
 		TableName:    "Persons",
 		Nullable:     true,
 	})
-	columnDescResult, _ := mysqlProvider.DescribeTableFunc("mysql", "travis@tcp(127.0.0.1:3306)/delivery", "Persons")
+	columnDescResult, err := mysqlProvider.DescribeTableFunc("mysql", "travis@tcp(127.0.0.1:3306)/delivery", "Persons")
+	if err != nil {
+		t.Error(err)
+	}
 	sort.Slice(myColumnDesc, func(i, j int) bool {
 		return myColumnDesc[i].PropertyName < myColumnDesc[j].PropertyName
 	})
@@ -194,7 +200,10 @@ func TestDescribeTableRelationship(t *testing.T) {
 		ReferenceTableName:  "Persons",
 		ReferenceColumnName: "ID",
 	})
-	columnRelResult, _ := mysqlProvider.DescribeTableRelationshipFunc("mysql", "travis@tcp(127.0.0.1:3306)/delivery", "Persons")
+	columnRelResult, err := mysqlProvider.DescribeTableRelationshipFunc("mysql", "travis@tcp(127.0.0.1:3306)/delivery", "Persons")
+	if err != nil {
+		t.Error(err)
+	}
 	sort.Slice(myColumnRel, func(i, j int) bool {
 		return myColumnRel[i].ColumnName < myColumnRel[j].ColumnName
 	})
@@ -232,7 +241,10 @@ func TestDescribeTableContraints(t *testing.T) {
 		ColumnName:     "PersonID",
 		ConstraintType: "UNIQUE",
 	})
-	columnConstraintResult, _ := mysqlProvider.DescribeTableConstraintsFunc("mysql", "travis@tcp(127.0.0.1:3306)/delivery", "AntiOrders")
+	columnConstraintResult, err := mysqlProvider.DescribeTableConstraintsFunc("mysql", "travis@tcp(127.0.0.1:3306)/delivery", "AntiOrders")
+	if err != nil {
+		t.Error(err)
+	}
 	sort.Slice(myColumnConstraint, func(i, j int) bool {
 		return myColumnConstraint[i].ColumnName < myColumnConstraint[j].ColumnName
 	})
