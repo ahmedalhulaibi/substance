@@ -7,13 +7,13 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/travisalhulaibi/substance"
+	"github.com/travis_testalhulaibi/substance"
 )
 
 func TestGetCurrDbName(t *testing.T) {
 	pgsqlProvider := pgsql{}
 	nameExpected := "postgres"
-	nameResult, err := pgsqlProvider.GetCurrentDatabaseNameFunc("postgres", "postgres://travis:password@127.0.0.1:5432/postgres")
+	nameResult, err := pgsqlProvider.GetCurrentDatabaseNameFunc("postgres", "postgres://travis_test:password@127.0.0.1:5432/postgres")
 	if nameResult != nameExpected {
 		t.Errorf("Expected '%s' as database name but got '%s'.", nameExpected, nameResult)
 	}
@@ -110,7 +110,7 @@ func TestDescribeDb(t *testing.T) {
 		PropertyName: "antiorders",
 		TableName:    "antiorders",
 	})
-	columnDescResult, _ := pgsqlProvider.DescribeDatabaseFunc("postgres", "postgres://travis:password@localhost:5432/postgres")
+	columnDescResult, _ := pgsqlProvider.DescribeDatabaseFunc("postgres", "postgres://travis_test:password@localhost:5432/postgres")
 	sort.Slice(myColumnDesc, func(i, j int) bool {
 		return myColumnDesc[i].PropertyName < myColumnDesc[j].PropertyName
 	})
@@ -162,7 +162,7 @@ func TestDescribeTable(t *testing.T) {
 		TableName:    "persons",
 		Nullable:     true,
 	})
-	columnDescResult, _ := pgsqlProvider.DescribeTableFunc("postgres", "postgres://travis:password@localhost:5432/postgres", "persons")
+	columnDescResult, _ := pgsqlProvider.DescribeTableFunc("postgres", "postgres://travis_test:password@localhost:5432/postgres", "persons")
 	sort.Slice(myColumnDesc, func(i, j int) bool {
 		return myColumnDesc[i].PropertyName < myColumnDesc[j].PropertyName
 	})
@@ -189,7 +189,7 @@ func TestDescribeTableRelationship(t *testing.T) {
 		ReferenceTableName:  "persons",
 		ReferenceColumnName: "id",
 	})
-	columnRelResult, _ := pgsqlProvider.DescribeTableRelationshipFunc("postgres", "postgres://travis:password@localhost:5432/postgres", "orders")
+	columnRelResult, _ := pgsqlProvider.DescribeTableRelationshipFunc("postgres", "postgres://travis_test:password@localhost:5432/postgres", "orders")
 	sort.Slice(myColumnRel, func(i, j int) bool {
 		return myColumnRel[i].ColumnName < myColumnRel[j].ColumnName
 	})
@@ -223,7 +223,7 @@ func TestDescribeTableContraints(t *testing.T) {
 		ColumnName:     "personid",
 		ConstraintType: "f",
 	})
-	columnConstraintResult, _ := pgsqlProvider.DescribeTableConstraintsFunc("postgres", "postgres://travis:password@localhost:5432/postgres", "antiorders")
+	columnConstraintResult, _ := pgsqlProvider.DescribeTableConstraintsFunc("postgres", "postgres://travis_test:password@localhost:5432/postgres", "antiorders")
 	sort.Slice(myColumnConstraint, func(i, j int) bool {
 		return myColumnConstraint[i].ColumnName < myColumnConstraint[j].ColumnName
 	})
