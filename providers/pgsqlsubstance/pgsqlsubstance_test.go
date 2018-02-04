@@ -13,7 +13,7 @@ import (
 func TestGetCurrDbName(t *testing.T) {
 	pgsqlProvider := pgsql{}
 	nameExpected := "postgres"
-	nameResult, err := pgsqlProvider.GetCurrentDatabaseNameFunc("postgres", "postgres://postgres@127.0.0.1:5432/postgres")
+	nameResult, err := pgsqlProvider.GetCurrentDatabaseNameFunc("postgres", "postgres://ahmed:password@127.0.0.1:5432/postgres")
 	if nameResult != nameExpected {
 		t.Errorf("Expected '%s' as database name but got '%s'.", nameExpected, nameResult)
 	}
