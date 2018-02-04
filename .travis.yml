@@ -10,3 +10,4 @@ before_install:
 
 script:
   - go test -v ./providers/testsubstance/
+  - go test -v ./providers/mysqlsubstance/
