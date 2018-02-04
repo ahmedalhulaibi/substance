@@ -1,3 +1,5 @@
+![build status](https://travis-ci.org/ahmedalhulaibi/substance.svg?branch=master)
+
 # substance
 
 _This project is a work in progress._
