@@ -2,7 +2,7 @@ language: go
 
 services:
   - mysql
-  - postgres
+  - postgresql
 
 before_install:
   - mysql -e 'CREATE DATABASE delivery;'
