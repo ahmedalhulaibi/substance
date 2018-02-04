@@ -1,4 +1,4 @@
-![build status](https://travis-ci.org/ahmedalhulaibi/substance.svg?branch=master)
+[![build status](https://travis-ci.org/ahmedalhulaibi/substance.svg?branch=master)](https://travis-ci.org/ahmedalhulaibi/substance)
 
 # substance
 
