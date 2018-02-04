@@ -9,8 +9,9 @@ import (
 func TestGetCurrDbName(t *testing.T) {
 	testProvider := testsql{}
 	name, _ := testProvider.GetCurrentDatabaseNameFunc("", "")
-	if name != "testDatabase" {
-		t.Errorf("Expected database name 'testDatabase' got '%s' instead.", name)
+	expectedName := "testDatabase"
+	if name != expectedName {
+		t.Errorf("Result does not match expected result: \nExpected:\n%s\nResult:\n%s", expectedName, name)
 	}
 }
 
@@ -22,14 +23,12 @@ func TestDescribeDb(t *testing.T) {
 		PropertyType: "Table",
 		PropertyName: "TableNumberOne",
 		TableName:    "TableNumberOne",
-	})
-	myColumnDesc = append(myColumnDesc, substance.ColumnDescription{
+	}, substance.ColumnDescription{
 		DatabaseName: "testDatabase",
 		PropertyType: "Table",
 		PropertyName: "TableNumberTwo",
 		TableName:    "TableNumberTwo",
-	})
-	myColumnDesc = append(myColumnDesc, substance.ColumnDescription{
+	}, substance.ColumnDescription{
 		DatabaseName: "testDatabase",
 		PropertyType: "Table",
 		PropertyName: "TableNumberThree",
@@ -38,7 +37,7 @@ func TestDescribeDb(t *testing.T) {
 	columnDescResult, _ := testProvider.DescribeDatabaseFunc("", "")
 	for i := range columnDescResult {
 		if columnDescResult[i] != myColumnDesc[i] {
-			t.Errorf("Result does not match case: \nExpected:\n%v\nResult:\n%v", myColumnDesc, columnDescResult)
+			t.Errorf("Result does not match expected result: \nExpected:\n%v\nResult:\n%v", myColumnDesc, columnDescResult)
 		}
 	}
 }
@@ -53,56 +52,49 @@ func TestDescribeTable(t *testing.T) {
 		PropertyName: "UniqueIdOne",
 		KeyType:      "p",
 		Nullable:     false,
-	})
-	myColumnDesc = append(myColumnDesc, substance.ColumnDescription{
+	}, substance.ColumnDescription{
 		DatabaseName: "testDatabase",
 		TableName:    "TableNumberOne",
 		PropertyType: "string",
 		PropertyName: "Name",
 		KeyType:      "",
 		Nullable:     false,
-	})
-	myColumnDesc = append(myColumnDesc, substance.ColumnDescription{
+	}, substance.ColumnDescription{
 		DatabaseName: "testDatabase",
 		TableName:    "TableNumberOne",
 		PropertyType: "float64",
 		PropertyName: "Salary",
 		KeyType:      "",
 		Nullable:     true,
-	})
-	myColumnDesc = append(myColumnDesc, substance.ColumnDescription{
+	}, substance.ColumnDescription{
 		DatabaseName: "testDatabase",
 		TableName:    "TableNumberTwo",
 		PropertyName: "UniqueIdTwo",
 		PropertyType: "int32",
 		KeyType:      "",
 		Nullable:     false,
-	})
-	myColumnDesc = append(myColumnDesc, substance.ColumnDescription{
+	}, substance.ColumnDescription{
 		DatabaseName: "testDatabase",
 		TableName:    "TableNumberTwo",
 		PropertyName: "ForeignIdOne",
 		PropertyType: "int32",
 		KeyType:      "f",
 		Nullable:     false,
-	})
-	myColumnDesc = append(myColumnDesc, substance.ColumnDescription{
+	}, substance.ColumnDescription{
 		DatabaseName: "testDatabase",
 		TableName:    "TableNumberThree",
 		PropertyName: "UniqueIdThree",
 		PropertyType: "int32",
 		KeyType:      "",
 		Nullable:     false,
-	})
-	myColumnDesc = append(myColumnDesc, substance.ColumnDescription{
+	}, substance.ColumnDescription{
 		DatabaseName: "testDatabase",
 		TableName:    "TableNumberThree",
 		PropertyName: "ForeignIdOne",
 		PropertyType: "int32",
 		KeyType:      "f",
 		Nullable:     false,
-	})
-	myColumnDesc = append(myColumnDesc, substance.ColumnDescription{
+	}, substance.ColumnDescription{
 		DatabaseName: "testDatabase",
 		TableName:    "TableNumberThree",
 		PropertyName: "ForeignIdTwo",
@@ -113,7 +105,7 @@ func TestDescribeTable(t *testing.T) {
 	columnDescResult, _ := testProvider.DescribeTableFunc("", "", "")
 	for i := range columnDescResult {
 		if columnDescResult[i] != myColumnDesc[i] {
-			t.Errorf("Result does not match case: \nExpected:\n\t%v\nResult:\n%v\n\n", myColumnDesc[i], columnDescResult[i])
+			t.Errorf("Result does not match expected result: \nExpected:\n\t%v\nResult:\n%v\n\n", myColumnDesc[i], columnDescResult[i])
 		}
 	}
 }
@@ -126,14 +118,12 @@ func TestDescribeTableRelationship(t *testing.T) {
 		ColumnName:          "ForeignIdOne",
 		ReferenceTableName:  "TableNumberOne",
 		ReferenceColumnName: "UniqueIdOne",
-	})
-	myColumnRel = append(myColumnRel, substance.ColumnRelationship{
+	}, substance.ColumnRelationship{
 		TableName:           "TableNumberThree",
 		ColumnName:          "ForeignIdOne",
 		ReferenceTableName:  "TableNumberOne",
 		ReferenceColumnName: "UniqueIdOne",
-	})
-	myColumnRel = append(myColumnRel, substance.ColumnRelationship{
+	}, substance.ColumnRelationship{
 		TableName:           "TableNumberThree",
 		ColumnName:          "ForeignIdTwo",
 		ReferenceTableName:  "TableNumberTwo",
@@ -142,7 +132,7 @@ func TestDescribeTableRelationship(t *testing.T) {
 	columnRelResult, _ := testProvider.DescribeTableRelationshipFunc("", "", "")
 	for i := range columnRelResult {
 		if columnRelResult[i] != myColumnRel[i] {
-			t.Errorf("Result does not match case: \nExpected:\n\t%v\nResult:\n%v\n\n", myColumnRel[i], columnRelResult[i])
+			t.Errorf("Result does not match expected result: \nExpected:\n\t%v\nResult:\n%v\n\n", myColumnRel[i], columnRelResult[i])
 		}
 	}
 }
@@ -154,33 +144,27 @@ func TestDescribeTableContraints(t *testing.T) {
 		TableName:      "TableNumberOne",
 		ColumnName:     "UniqueIdOne",
 		ConstraintType: "p",
-	})
-	myColumnConstraint = append(myColumnConstraint, substance.ColumnConstraint{
+	}, substance.ColumnConstraint{
 		TableName:      "TableNumberTwo",
 		ColumnName:     "UniqueIdTwo",
 		ConstraintType: "p",
-	})
-	myColumnConstraint = append(myColumnConstraint, substance.ColumnConstraint{
+	}, substance.ColumnConstraint{
 		TableName:      "TableNumberTwo",
 		ColumnName:     "ForeignIdOne",
 		ConstraintType: "f",
-	})
-	myColumnConstraint = append(myColumnConstraint, substance.ColumnConstraint{
+	}, substance.ColumnConstraint{
 		TableName:      "TableNumberThree",
 		ColumnName:     "UniqueIdThree",
 		ConstraintType: "p",
-	})
-	myColumnConstraint = append(myColumnConstraint, substance.ColumnConstraint{
+	}, substance.ColumnConstraint{
 		TableName:      "TableNumberThree",
 		ColumnName:     "ForeignIdOne",
 		ConstraintType: "u",
-	})
-	myColumnConstraint = append(myColumnConstraint, substance.ColumnConstraint{
+	}, substance.ColumnConstraint{
 		TableName:      "TableNumberThree",
 		ColumnName:     "ForeignIdOne",
 		ConstraintType: "f",
-	})
-	myColumnConstraint = append(myColumnConstraint, substance.ColumnConstraint{
+	}, substance.ColumnConstraint{
 		TableName:      "TableNumberThree",
 		ColumnName:     "ForeignIdTwo",
 		ConstraintType: "f",
@@ -188,7 +172,7 @@ func TestDescribeTableContraints(t *testing.T) {
 	columnConstraintResult, _ := testProvider.DescribeTableConstraintsFunc("", "", "")
 	for i := range columnConstraintResult {
 		if columnConstraintResult[i] != myColumnConstraint[i] {
-			t.Errorf("Result does not match case: \nExpected:\n\t%v\nResult:\n%v\n\n", myColumnConstraint[i], columnConstraintResult[i])
+			t.Errorf("Result does not match expected result: \nExpected:\n\t%v\nResult:\n%v\n\n", myColumnConstraint[i], columnConstraintResult[i])
 		}
 	}
 }
