@@ -15,3 +15,6 @@ script:
   - go test -v ./providers/testsubstance/
   - go test -v ./providers/mysqlsubstance/
   - go test -v ./providers/pgsqlsubstance/
+
+after_success:
+  - bash <(curl -s https://codecov.io/bash)
