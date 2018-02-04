@@ -13,7 +13,7 @@ import (
 func TestGetCurrDbName(t *testing.T) {
 	mysqlProvider := mysql{}
 	nameExpected := "delivery"
-	nameResult, err := mysqlProvider.GetCurrentDatabaseNameFunc("mysql", "ahmed:password@tcp(localhost:3306)/delivery")
+	nameResult, err := mysqlProvider.GetCurrentDatabaseNameFunc("mysql", "travis@tcp(127.0.0.1:3306)/delivery")
 	if nameResult != nameExpected {
 		t.Errorf("Expected '%s' as database name but got '%s'.", nameExpected, nameResult)
 	}
@@ -110,7 +110,7 @@ func TestDescribeDb(t *testing.T) {
 		PropertyName: "Persons",
 		TableName:    "Persons",
 	})
-	columnDescResult, _ := mysqlProvider.DescribeDatabaseFunc("mysql", "ahmed:password@tcp(localhost:3306)/delivery")
+	columnDescResult, _ := mysqlProvider.DescribeDatabaseFunc("mysql", "travis@tcp(127.0.0.1:3306)/delivery")
 	sort.Slice(myColumnDesc, func(i, j int) bool {
 		return myColumnDesc[i].PropertyName < myColumnDesc[j].PropertyName
 	})
@@ -162,7 +162,7 @@ func TestDescribeTable(t *testing.T) {
 		TableName:    "Persons",
 		Nullable:     true,
 	})
-	columnDescResult, _ := mysqlProvider.DescribeTableFunc("mysql", "ahmed:password@tcp(localhost:3306)/delivery", "Persons")
+	columnDescResult, _ := mysqlProvider.DescribeTableFunc("mysql", "travis@tcp(127.0.0.1:3306)/delivery", "Persons")
 	sort.Slice(myColumnDesc, func(i, j int) bool {
 		return myColumnDesc[i].PropertyName < myColumnDesc[j].PropertyName
 	})
@@ -194,7 +194,7 @@ func TestDescribeTableRelationship(t *testing.T) {
 		ReferenceTableName:  "Persons",
 		ReferenceColumnName: "ID",
 	})
-	columnRelResult, _ := mysqlProvider.DescribeTableRelationshipFunc("mysql", "ahmed:password@tcp(localhost:3306)/delivery", "Persons")
+	columnRelResult, _ := mysqlProvider.DescribeTableRelationshipFunc("mysql", "travis@tcp(127.0.0.1:3306)/delivery", "Persons")
 	sort.Slice(myColumnRel, func(i, j int) bool {
 		return myColumnRel[i].ColumnName < myColumnRel[j].ColumnName
 	})
@@ -232,7 +232,7 @@ func TestDescribeTableContraints(t *testing.T) {
 		ColumnName:     "PersonID",
 		ConstraintType: "UNIQUE",
 	})
-	columnConstraintResult, _ := mysqlProvider.DescribeTableConstraintsFunc("mysql", "ahmed:password@tcp(localhost:3306)/delivery", "AntiOrders")
+	columnConstraintResult, _ := mysqlProvider.DescribeTableConstraintsFunc("mysql", "travis@tcp(127.0.0.1:3306)/delivery", "AntiOrders")
 	sort.Slice(myColumnConstraint, func(i, j int) bool {
 		return myColumnConstraint[i].ColumnName < myColumnConstraint[j].ColumnName
 	})
