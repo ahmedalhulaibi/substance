@@ -1,4 +1,4 @@
 language: go
 
 script:
-  - go test ./providers/testsubstance/
+  - go test -v ./providers/testsubstance/
