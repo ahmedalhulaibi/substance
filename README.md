@@ -1,4 +1,4 @@
-[![build status](https://travis-ci.org/ahmedalhulaibi/substance.svg?branch=master)](https://travis-ci.org/ahmedalhulaibi/substance)
+[![build status](https://travis-ci.org/ahmedalhulaibi/substance.svg?branch=master)](https://travis-ci.org/ahmedalhulaibi/substance) [![Go Report Card](https://goreportcard.com/badge/github.com/ahmedalhulaibi/substance)](https://goreportcard.com/report/github.com/ahmedalhulaibi/substance)
 
 # substance
 
