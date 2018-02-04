@@ -1,11 +1,12 @@
 package mysqlsubstance
 
 import (
-	"regexp"
 	"database/sql"
 	"fmt"
+	"regexp"
 
 	"github.com/ahmedalhulaibi/substance"
+	_ "github.com/go-sql-driver/mysql"
 )
 
 func init() {
@@ -249,8 +250,8 @@ func (m mysql) DescribeTableRelationshipFunc(dbType string, connectionString str
 		scanArgs[i] = &values[i]
 	}
 
-	columnDesc := []substance.ColumnRelationship{}
-	newColDesc := substance.ColumnRelationship{}
+	columnRel := []substance.ColumnRelationship{}
+	newColRel := substance.ColumnRelationship{}
 
 	for rows.Next() {
 		err = rows.Scan(scanArgs...)
@@ -270,22 +271,22 @@ func (m mysql) DescribeTableRelationshipFunc(dbType string, connectionString str
 
 				switch columns[i] {
 				case "TABLE_NAME":
-					newColDesc.TableName = string(value.([]byte))
+					newColRel.TableName = string(value.([]byte))
 				case "COLUMN_NAME":
-					newColDesc.ColumnName = string(value.([]byte))
+					newColRel.ColumnName = string(value.([]byte))
 				case "REFERENCED_TABLE_NAME":
-					newColDesc.ReferenceTableName = string(value.([]byte))
+					newColRel.ReferenceTableName = string(value.([]byte))
 				case "REFERENCED_COLUMN_NAME":
-					newColDesc.ReferenceColumnName = string(value.([]byte))
+					newColRel.ReferenceColumnName = string(value.([]byte))
 				}
 			default:
 				//fmt.Println("\t", columns[i], ": ", value)
 			}
 		}
-		columnDesc = append(columnDesc, newColDesc)
+		columnRel = append(columnRel, newColRel)
 		//fmt.Println("-----------------------------------")
 	}
-	return columnDesc, nil
+	return columnRel, nil
 }
 
 /*DescribeTableRelationship returns all foreign column references in database table*/
@@ -321,8 +322,8 @@ func (m mysql) DescribeTableConstraintsFunc(dbType string, connectionString stri
 		scanArgs[i] = &values[i]
 	}
 
-	columnDesc := []substance.ColumnConstraint{}
-	newColDesc := substance.ColumnConstraint{}
+	columnCon := []substance.ColumnConstraint{}
+	newColCon := substance.ColumnConstraint{}
 
 	for rows.Next() {
 		err = rows.Scan(scanArgs...)
@@ -332,26 +333,26 @@ func (m mysql) DescribeTableConstraintsFunc(dbType string, connectionString stri
 
 		// Print data
 		for i, value := range values {
-			newColDesc.TableName = tableName
+			newColCon.TableName = tableName
 			switch value.(type) {
 			case []byte:
 				switch columns[i] {
 				case "Column":
-					newColDesc.ColumnName = string(value.([]byte))
+					newColCon.ColumnName = string(value.([]byte))
 				case "Constraint":
-					newColDesc.ConstraintType = string(value.([]byte))
+					newColCon.ConstraintType = string(value.([]byte))
 				}
 			}
 		}
-		columnDesc = append(columnDesc, newColDesc)
+		columnCon = append(columnCon, newColCon)
 		//fmt.Println("-----------------------------------")
 	}
-	return columnDesc, nil
+	return columnCon, nil
 }
 
-func (m mysql) GetGoDataType (sqlType string) (string, error) {
+func (m mysql) GetGoDataType(sqlType string) (string, error) {
 	for pattern, value := range regexDataTypePatterns {
-		match, err := regexp.MatchString(pattern,sqlType)
+		match, err := regexp.MatchString(pattern, sqlType)
 		if match && err == nil {
 			result := value
 			return result, nil
