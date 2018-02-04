@@ -7,7 +7,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/travis_testalhulaibi/substance"
+	"github.com/ahmedalhulaibi/substance"
 )
 
 func TestGetCurrDbName(t *testing.T) {
