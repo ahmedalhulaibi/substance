@@ -1,6 +1,8 @@
 package testsubstance
 
 import (
+	"reflect"
+	"sort"
 	"testing"
 
 	"github.com/ahmedalhulaibi/substance"
@@ -12,6 +14,15 @@ func TestGetCurrDbName(t *testing.T) {
 	expectedName := "testDatabase"
 	if name != expectedName {
 		t.Errorf("Result does not match expected result: \nExpected:\n%s\nResult:\n%s", expectedName, name)
+	}
+}
+
+func TestGetGoDataType(t *testing.T) {
+	testProvider := testsql{}
+	dataType, _ := testProvider.GetGoDataType("")
+	expectedDataType := ""
+	if dataType != expectedDataType {
+		t.Errorf("Result does not match expected result: \nExpected:\n%s\nResult:\n%s", expectedDataType, dataType)
 	}
 }
 
@@ -102,10 +113,25 @@ func TestDescribeTable(t *testing.T) {
 		KeyType:      "f",
 		Nullable:     true,
 	})
-	columnDescResult, _ := testProvider.DescribeTableFunc("", "", "")
-	for i := range columnDescResult {
-		if columnDescResult[i] != myColumnDesc[i] {
-			t.Errorf("Result does not match expected result: \nExpected:\n\t%v\nResult:\n%v\n\n", myColumnDesc[i], columnDescResult[i])
+	columnDescResultOne, _ := testProvider.DescribeTableFunc("", "", "TableNumberOne")
+	columnDescResultTwo, _ := testProvider.DescribeTableFunc("", "", "TableNumberTwo")
+	columnDescResultThree, _ := testProvider.DescribeTableFunc("", "", "TableNumberThree")
+	columnDescResult := append(columnDescResultOne, columnDescResultTwo...)
+	columnDescResult = append(columnDescResult, columnDescResultThree...)
+
+	sort.Slice(myColumnDesc, func(i, j int) bool {
+		return myColumnDesc[i].PropertyName < myColumnDesc[j].PropertyName
+	})
+	sort.Slice(columnDescResult, func(i, j int) bool {
+		return columnDescResult[i].PropertyName < columnDescResult[j].PropertyName
+	})
+	if len(columnDescResult) != len(myColumnDesc) {
+		t.Errorf("Result length does not match expected length: \nExpected:\n%v\nResult:\n%v", len(myColumnDesc), len(columnDescResult))
+	} else {
+		for i := range columnDescResult {
+			if !reflect.DeepEqual(columnDescResult[i], myColumnDesc[i]) {
+				t.Errorf("Result does not match expected result: \nExpected:\n%v\nResult:\n%v", myColumnDesc, columnDescResult)
+			}
 		}
 	}
 }
@@ -129,10 +155,25 @@ func TestDescribeTableRelationship(t *testing.T) {
 		ReferenceTableName:  "TableNumberTwo",
 		ReferenceColumnName: "UniqueIdTwo",
 	})
-	columnRelResult, _ := testProvider.DescribeTableRelationshipFunc("", "", "")
-	for i := range columnRelResult {
-		if columnRelResult[i] != myColumnRel[i] {
-			t.Errorf("Result does not match expected result: \nExpected:\n\t%v\nResult:\n%v\n\n", myColumnRel[i], columnRelResult[i])
+	columnRelResultOne, _ := testProvider.DescribeTableRelationshipFunc("", "", "TableNumberOne")
+	columnRelResultTwo, _ := testProvider.DescribeTableRelationshipFunc("", "", "TableNumberTwo")
+	columnRelResultThree, _ := testProvider.DescribeTableRelationshipFunc("", "", "TableNumberThree")
+	columnRelResult := append(columnRelResultOne, columnRelResultTwo...)
+	columnRelResult = append(columnRelResult, columnRelResultThree...)
+
+	sort.Slice(myColumnRel, func(i, j int) bool {
+		return myColumnRel[i].ColumnName < myColumnRel[j].ColumnName
+	})
+	sort.Slice(columnRelResult, func(i, j int) bool {
+		return columnRelResult[i].ColumnName < columnRelResult[j].ColumnName
+	})
+	if len(columnRelResult) != len(myColumnRel) {
+		t.Errorf("Result length does not match expected length: \nExpected:\n%v\nResult:\n%v", len(myColumnRel), len(columnRelResult))
+	} else {
+		for i := range columnRelResult {
+			if !reflect.DeepEqual(columnRelResult[i], myColumnRel[i]) {
+				t.Errorf("Result does not match expected result: \nExpected:\n\t%v\nResult:\n%v\n\n", myColumnRel[i], columnRelResult[i])
+			}
 		}
 	}
 }
@@ -169,10 +210,25 @@ func TestDescribeTableContraints(t *testing.T) {
 		ColumnName:     "ForeignIdTwo",
 		ConstraintType: "f",
 	})
-	columnConstraintResult, _ := testProvider.DescribeTableConstraintsFunc("", "", "")
-	for i := range columnConstraintResult {
-		if columnConstraintResult[i] != myColumnConstraint[i] {
-			t.Errorf("Result does not match expected result: \nExpected:\n\t%v\nResult:\n%v\n\n", myColumnConstraint[i], columnConstraintResult[i])
+	columnConstraintResultOne, _ := testProvider.DescribeTableConstraintsFunc("", "", "TableNumberOne")
+	columnConstraintResultTwo, _ := testProvider.DescribeTableConstraintsFunc("", "", "TableNumberTwo")
+	columnConstraintResultThree, _ := testProvider.DescribeTableConstraintsFunc("", "", "TableNumberThree")
+	columnConstraintResult := append(columnConstraintResultOne, columnConstraintResultTwo...)
+	columnConstraintResult = append(columnConstraintResult, columnConstraintResultThree...)
+
+	sort.Slice(myColumnConstraint, func(i, j int) bool {
+		return myColumnConstraint[i].ColumnName < myColumnConstraint[j].ColumnName
+	})
+	sort.Slice(columnConstraintResult, func(i, j int) bool {
+		return columnConstraintResult[i].ColumnName < columnConstraintResult[j].ColumnName
+	})
+	if len(columnConstraintResult) != len(myColumnConstraint) {
+		t.Errorf("Result length does not match expected length: \nExpected:\n%v\nResult:\n%v", len(myColumnConstraint), len(columnConstraintResult))
+	} else {
+		for i := range columnConstraintResult {
+			if !reflect.DeepEqual(columnConstraintResult[i], myColumnConstraint[i]) {
+				t.Errorf("Result does not match expected result: \nExpected:\n\t%v\nResult:\n%v\n\n", myColumnConstraint[i], columnConstraintResult[i])
+			}
 		}
 	}
 }
