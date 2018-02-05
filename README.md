@@ -1,5 +1,3 @@
-[![build status](https://travis-ci.org/ahmedalhulaibi/substance.svg?branch=master)](https://travis-ci.org/ahmedalhulaibi/substance) [![Go Report Card](https://goreportcard.com/badge/github.com/ahmedalhulaibi/substance)](https://goreportcard.com/report/github.com/ahmedalhulaibi/substance)
-
 # substance
 
 _This project is a work in progress._
@@ -7,6 +5,19 @@ _This project is a work in progress._
 Substance provides an interface for implementations extract schema data from a data provider (mysql, postgres, etc.).
 
 SubstanceGen provides an interface for implementations to use data produced by Substance to generate code.
+
+## Status
+
+| Build                             | Code coverage                           | Report card                           |
+| :-------------------------------: | :-------------------------------------: | :-----------------------------------: |
+| [![Build][build-badge]][build-link] | [![Code coverage][cov-badge]][cov-link] | [![Report card][rc-badge]][rc-link]   |
+
+[build-badge]: https://travis-ci.org/ahmedalhulaibi/substance.svg?branch=master "Travis-CI build status"
+[build-link]: https://travis-ci.org/ahmedalhulaibi/substance "Travis-CI build status link"
+[cov-badge]: https://codecov.io/gh/ahmedalhulaibi/substance/branch/master/graph/badge.svg "Code coverage status"
+[cov-link]: https://codecov.io/gh/ahmedalhulaibi/substance "Code coverage status"
+[rc-badge]: https://goreportcard.com/badge/github.com/ahmedalhulaibi/substance "Report card status"
+[rc-link]: https://goreportcard.com/report/github.com/ahmedalhulaibi/substance "Report card status"
 
 ## Substance Supported Data Providers
 
