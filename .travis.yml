@@ -12,9 +12,9 @@ before_install:
   - psql -c "GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO travis_test;" -U postgres
 
 script:
-  - go test -v ./providers/testsubstance/
-  - go test -v ./providers/mysqlsubstance/
-  - go test -v ./providers/pgsqlsubstance/
+  - go test -v ./providers/testsubstance/ -coverprofile=coverage.txt -covermode=atomic
+  - go test -v ./providers/mysqlsubstance/ -coverprofile=coverage.txt -covermode=atomic
+  - go test -v ./providers/pgsqlsubstance/ -coverprofile=coverage.txt -covermode=atomic
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)
