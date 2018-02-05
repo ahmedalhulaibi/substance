@@ -61,56 +61,48 @@ func TestDescribeTable(t *testing.T) {
 		TableName:    "TableNumberOne",
 		PropertyType: "int32",
 		PropertyName: "UniqueIdOne",
-		KeyType:      "p",
 		Nullable:     false,
 	}, substance.ColumnDescription{
 		DatabaseName: "testDatabase",
 		TableName:    "TableNumberOne",
 		PropertyType: "string",
 		PropertyName: "Name",
-		KeyType:      "",
 		Nullable:     false,
 	}, substance.ColumnDescription{
 		DatabaseName: "testDatabase",
 		TableName:    "TableNumberOne",
 		PropertyType: "float64",
 		PropertyName: "Salary",
-		KeyType:      "",
 		Nullable:     true,
 	}, substance.ColumnDescription{
 		DatabaseName: "testDatabase",
 		TableName:    "TableNumberTwo",
 		PropertyName: "UniqueIdTwo",
 		PropertyType: "int32",
-		KeyType:      "",
 		Nullable:     false,
 	}, substance.ColumnDescription{
 		DatabaseName: "testDatabase",
 		TableName:    "TableNumberTwo",
 		PropertyName: "ForeignIdOne",
 		PropertyType: "int32",
-		KeyType:      "f",
 		Nullable:     false,
 	}, substance.ColumnDescription{
 		DatabaseName: "testDatabase",
 		TableName:    "TableNumberThree",
 		PropertyName: "UniqueIdThree",
 		PropertyType: "int32",
-		KeyType:      "",
 		Nullable:     false,
 	}, substance.ColumnDescription{
 		DatabaseName: "testDatabase",
 		TableName:    "TableNumberThree",
 		PropertyName: "ForeignIdOne",
 		PropertyType: "int32",
-		KeyType:      "f",
 		Nullable:     false,
 	}, substance.ColumnDescription{
 		DatabaseName: "testDatabase",
 		TableName:    "TableNumberThree",
 		PropertyName: "ForeignIdTwo",
 		PropertyType: "int32",
-		KeyType:      "f",
 		Nullable:     true,
 	})
 	columnDescResultOne, _ := testProvider.DescribeTableFunc("", "", "TableNumberOne")
@@ -184,31 +176,31 @@ func TestDescribeTableContraints(t *testing.T) {
 	myColumnConstraint = append(myColumnConstraint, substance.ColumnConstraint{
 		TableName:      "TableNumberOne",
 		ColumnName:     "UniqueIdOne",
-		ConstraintType: "p",
+		ConstraintType: "PRIMARY KEY",
 	}, substance.ColumnConstraint{
 		TableName:      "TableNumberTwo",
 		ColumnName:     "UniqueIdTwo",
-		ConstraintType: "p",
+		ConstraintType: "PRIMARY KEY",
 	}, substance.ColumnConstraint{
 		TableName:      "TableNumberTwo",
 		ColumnName:     "ForeignIdOne",
-		ConstraintType: "f",
+		ConstraintType: "FOREIGN KEY",
 	}, substance.ColumnConstraint{
 		TableName:      "TableNumberThree",
 		ColumnName:     "UniqueIdThree",
-		ConstraintType: "p",
+		ConstraintType: "PRIMARY KEY",
 	}, substance.ColumnConstraint{
 		TableName:      "TableNumberThree",
 		ColumnName:     "ForeignIdOne",
-		ConstraintType: "u",
+		ConstraintType: "UNIQUE",
 	}, substance.ColumnConstraint{
 		TableName:      "TableNumberThree",
 		ColumnName:     "ForeignIdOne",
-		ConstraintType: "f",
+		ConstraintType: "FOREIGN KEY",
 	}, substance.ColumnConstraint{
 		TableName:      "TableNumberThree",
 		ColumnName:     "ForeignIdTwo",
-		ConstraintType: "f",
+		ConstraintType: "FOREIGN KEY",
 	})
 	columnConstraintResultOne, _ := testProvider.DescribeTableConstraintsFunc("", "", "TableNumberOne")
 	columnConstraintResultTwo, _ := testProvider.DescribeTableConstraintsFunc("", "", "TableNumberTwo")
