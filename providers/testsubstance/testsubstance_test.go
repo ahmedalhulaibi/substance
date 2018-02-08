@@ -122,7 +122,7 @@ func TestDescribeTable(t *testing.T) {
 	} else {
 		for i := range columnDescResult {
 			if !reflect.DeepEqual(columnDescResult[i], myColumnDesc[i]) {
-				t.Errorf("Result does not match expected result: \nExpected:\n%v\nResult:\n%v", myColumnDesc, columnDescResult)
+				t.Errorf("Result does not match expected result: \nExpected:\n%v\nResult:\n%v", myColumnDesc[i], columnDescResult[i])
 			}
 		}
 	}

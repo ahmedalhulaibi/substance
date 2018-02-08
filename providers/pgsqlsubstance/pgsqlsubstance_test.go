@@ -122,6 +122,7 @@ func TestDescribeDb(t *testing.T) {
 	})
 	if len(columnDescResult) != len(myColumnDesc) {
 		t.Errorf("Result length does not match expected length: \nExpected:\n%v\nResult:\n%v", len(myColumnDesc), len(columnDescResult))
+		t.Errorf("Result does not match expected result: \nExpected:\n%v\nResult:\n%v", myColumnDesc, columnDescResult)
 	} else {
 		for i := range columnDescResult {
 			if !reflect.DeepEqual(columnDescResult[i], myColumnDesc[i]) {
@@ -177,6 +178,7 @@ func TestDescribeTable(t *testing.T) {
 	})
 	if len(columnDescResult) != len(myColumnDesc) {
 		t.Errorf("Result length does not match expected length: \nExpected:\n%v\nResult:\n%v", len(myColumnDesc), len(columnDescResult))
+		t.Errorf("Result does not match expected result: \nExpected:\n%v\nResult:\n%v", myColumnDesc, columnDescResult)
 	} else {
 		for i := range columnDescResult {
 			if !reflect.DeepEqual(columnDescResult[i], myColumnDesc[i]) {
@@ -207,6 +209,7 @@ func TestDescribeTableRelationship(t *testing.T) {
 	})
 	if len(columnRelResult) != len(myColumnRel) {
 		t.Errorf("Result length does not match expected length: \nExpected:\n%v\nResult:\n%v", len(myColumnRel), len(columnRelResult))
+		t.Errorf("Result does not match expected result: \nExpected:\n%v\nResult:\n%v", myColumnRel, columnRelResult)
 	} else {
 		for i := range columnRelResult {
 			if !reflect.DeepEqual(columnRelResult[i], myColumnRel[i]) {
@@ -244,6 +247,7 @@ func TestDescribeTableContraints(t *testing.T) {
 	})
 	if len(columnConstraintResult) != len(myColumnConstraint) {
 		t.Errorf("Result length does not match expected length: \nExpected:\n%v\nResult:\n%v", len(myColumnConstraint), len(columnConstraintResult))
+		t.Errorf("Result does not match expected result: \nExpected:\n%v\nResult:\n%v", myColumnConstraint, columnConstraintResult)
 	} else {
 		for i := range columnConstraintResult {
 			if !reflect.DeepEqual(columnConstraintResult[i], myColumnConstraint[i]) {
