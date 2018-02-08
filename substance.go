@@ -64,7 +64,7 @@ func DescribeTableRelationship(dbType string, connectionString string, tableName
 	return substancePlugins[dbType].DescribeTableRelationshipFunc(dbType, connectionString, tableName)
 }
 
-/*DescribeTableRelationship returns all foreign column references in database table*/
+/*DescribeTableConstraints returns all column constraints in a database table*/
 func DescribeTableConstraints(dbType string, connectionString string, tableName string) ([]ColumnConstraint, error) {
 	return substancePlugins[dbType].DescribeTableConstraintsFunc(dbType, connectionString, tableName)
 }
