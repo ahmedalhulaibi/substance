@@ -22,7 +22,6 @@ func (g gql) OutputCodeFunc(dbType string, connectionString string, gqlObjectTyp
 	}
 	buff.WriteString(GraphqlGoExecuteQueryFunc)
 	g.GenGraphqlGoMainFunc(dbType, connectionString, gqlObjectTypes, &buff)
-	fmt.Print(buff.String())
 	return buff
 }
 
