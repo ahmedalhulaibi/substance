@@ -3,8 +3,9 @@ package graphqlgo
 import (
 	"bytes"
 	"fmt"
-	"strings"
 	"unicode"
+
+	"github.com/jinzhu/inflection"
 
 	"github.com/ahmedalhulaibi/substance/substancegen"
 )
@@ -44,7 +45,7 @@ func (g Gql) GenPackageImports(dbType string, buff *bytes.Buffer) {
 }
 
 func (g Gql) GenObjectTypeToStringFunc(gqlObjectType substancegen.GenObjectType, buff *bytes.Buffer) {
-	gqlObjectTypeNameSingular := strings.TrimSuffix(gqlObjectType.Name, "s")
+	gqlObjectTypeNameSingular := inflection.Singular(gqlObjectType.Name)
 	buff.WriteString(fmt.Sprintf("\ntype %s struct {\n", gqlObjectTypeNameSingular))
 	for _, property := range gqlObjectType.Properties {
 		g.GenObjectPropertyToStringFunc(property, buff)
@@ -79,15 +80,15 @@ func (g Gql) GenObjectTagToStringFunc(genObjectTags substancegen.GenObjectTag, b
 }
 
 func (g Gql) GenGormObjectTableNameOverrideFunc(gqlObjectType substancegen.GenObjectType, buff *bytes.Buffer) {
-	gqlObjectTypeNameSingular := strings.TrimSuffix(gqlObjectType.Name, "s")
+	gqlObjectTypeNameSingular := inflection.Singular(gqlObjectType.Name)
 	buff.WriteString(fmt.Sprintf("\nfunc (%s) TableName() string {\n\treturn \"%s\"\n}\n", gqlObjectTypeNameSingular, gqlObjectType.Name))
 }
 
 func (g Gql) GenGraphqlGoTypeFunc(gqlObjectType substancegen.GenObjectType, buff *bytes.Buffer) {
-	a := []rune(strings.TrimSuffix(gqlObjectType.Name, "s"))
+	a := []rune(inflection.Singular(gqlObjectType.Name))
 	a[0] = unicode.ToLower(a[0])
 	gqlObjectTypeNameLowCamel := string(a)
-	gqlObjectTypeNameSingular := strings.TrimSuffix(gqlObjectType.Name, "s")
+	gqlObjectTypeNameSingular := inflection.Singular(gqlObjectType.Name)
 	buff.WriteString(fmt.Sprintf("\nvar %sType = graphql.NewObject(\n\tgraphql.ObjectConfig{\n\t\tName: \"%s\",\n\t\tFields: graphql.Fields{\n\t\t\t", gqlObjectTypeNameLowCamel, gqlObjectTypeNameSingular))
 
 	for _, property := range gqlObjectType.Properties {
@@ -100,7 +101,7 @@ func (g Gql) GenGraphqlGoTypeFunc(gqlObjectType substancegen.GenObjectType, buff
 func (g Gql) GenGraphqlGoTypePropertyFunc(gqlObjectProperty substancegen.GenObjectProperty, buff *bytes.Buffer) {
 	var gqlPropertyTypeName string
 	if gqlObjectProperty.IsObjectType {
-		a := []rune(strings.TrimSuffix(gqlObjectProperty.ScalarName, "s"))
+		a := []rune(inflection.Singular(gqlObjectProperty.ScalarName))
 		a[0] = unicode.ToLower(a[0])
 		gqlPropertyTypeName = fmt.Sprintf("%sType", string(a))
 	} else {
@@ -131,8 +132,8 @@ func (g Gql) GenGraphqlGoMainFunc(dbType string, connectionString string, gqlObj
 }
 
 func (g Gql) GenGraphqlGoQueryFieldsFunc(gqlObjectType substancegen.GenObjectType, buff *bytes.Buffer) {
-	gqlObjectTypeNameSingular := strings.TrimSuffix(gqlObjectType.Name, "s")
-	a := []rune(strings.TrimSuffix(gqlObjectType.Name, "s"))
+	gqlObjectTypeNameSingular := inflection.Singular(gqlObjectType.Name)
+	a := []rune(inflection.Singular(gqlObjectType.Name))
 	a[0] = unicode.ToLower(a[0])
 	gqlObjectTypeNameLowCamel := string(a)
 	buff.WriteString(fmt.Sprintf("\n\t\t\"%s\": &graphql.Field{\n\t\t\tType: %sType,", gqlObjectTypeNameSingular, gqlObjectTypeNameLowCamel))
@@ -177,7 +178,7 @@ func (g Gql) GenGraphqlGoSampleQuery(gqlObjectTypes map[string]substancegen.GenO
 }
 
 func (g Gql) GenGraphlGoSampleObjectQuery(gqlObjectTypes map[string]substancegen.GenObjectType, gqlObjectType substancegen.GenObjectType, buff *bytes.Buffer) {
-	gqlObjectTypeNameSingular := strings.TrimSuffix(gqlObjectType.Name, "s")
+	gqlObjectTypeNameSingular := inflection.Singular(gqlObjectType.Name)
 	buff.WriteString(fmt.Sprintf("%s{", gqlObjectTypeNameSingular))
 	for _, propVal := range gqlObjectType.Properties {
 		if !propVal.IsObjectType {
