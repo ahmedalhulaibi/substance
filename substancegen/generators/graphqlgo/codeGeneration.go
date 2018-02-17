@@ -99,7 +99,13 @@ func (g Gql) GenGraphqlGoTypeFunc(gqlObjectType substancegen.GenObjectType, buff
 }
 
 func (g Gql) GenGraphqlGoTypePropertyFunc(gqlObjectProperty substancegen.GenObjectProperty, buff *bytes.Buffer) {
+	gqlPropertyTypeName := g.ResolveGraphqlGoFieldType(gqlObjectProperty)
+	buff.WriteString(fmt.Sprintf("\n\t\t\t\"%s\": &graphql.Field{\n\t\t\t\tType: %s,\n\t\t\t},", gqlObjectProperty.ScalarName, gqlPropertyTypeName))
+}
+
+func (g Gql) ResolveGraphqlGoFieldType(gqlObjectProperty substancegen.GenObjectProperty) string {
 	var gqlPropertyTypeName string
+
 	if gqlObjectProperty.IsObjectType {
 		a := []rune(inflection.Singular(gqlObjectProperty.ScalarName))
 		a[0] = unicode.ToLower(a[0])
@@ -109,11 +115,14 @@ func (g Gql) GenGraphqlGoTypePropertyFunc(gqlObjectProperty substancegen.GenObje
 	}
 
 	if gqlObjectProperty.IsList {
-		buff.WriteString(fmt.Sprintf("\n\t\t\t\"%s\": &graphql.Field{\n\t\t\t\tType: graphql.NewList(%s),\n\t\t\t},", gqlObjectProperty.ScalarName, gqlPropertyTypeName))
-	} else {
-		buff.WriteString(fmt.Sprintf("\n\t\t\t\"%s\": &graphql.Field{\n\t\t\t\tType: %s,\n\t\t\t},", gqlObjectProperty.ScalarName, gqlPropertyTypeName))
-
+		gqlPropertyTypeName = fmt.Sprintf("graphql.NewList(%s)", gqlPropertyTypeName)
 	}
+
+	if !gqlObjectProperty.Nullable {
+		gqlPropertyTypeName = fmt.Sprintf("graphql.NewNonNull(%s)", gqlPropertyTypeName)
+	}
+
+	return gqlPropertyTypeName
 }
 
 func (g Gql) GenGraphqlGoMainFunc(dbType string, connectionString string, gqlObjectTypes map[string]substancegen.GenObjectType, buff *bytes.Buffer) {
