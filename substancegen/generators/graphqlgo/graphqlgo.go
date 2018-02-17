@@ -1,14 +1,13 @@
 package graphqlgo
 
 import (
-	"strings"
-
 	"github.com/ahmedalhulaibi/substance"
 	"github.com/ahmedalhulaibi/substance/substancegen"
+	"github.com/jinzhu/inflection"
 )
 
 func init() {
-	gqlPlugin := gql{}
+	gqlPlugin := Gql{}
 	gqlPlugin.GraphqlDataTypes = make(map[string]string)
 	gqlPlugin.GraphqlDataTypes["int"] = "graphql.Int"
 	gqlPlugin.GraphqlDataTypes["int8"] = "graphql.Int"
@@ -35,14 +34,15 @@ func init() {
 	substancegen.Register("graphql-go", gqlPlugin)
 }
 
-type gql struct {
+type Gql struct {
 	Name                  string
 	GraphqlDataTypes      map[string]string
 	GraphqlDbTypeGormFlag map[string]bool
 	GraphqlDbTypeImports  map[string]string
 }
 
-func (g gql) GetObjectTypesFunc(dbType string, connectionString string, tableNames []string) map[string]substancegen.GenObjectType {
+/*GetObjectTypesFunc*/
+func (g Gql) GetObjectTypesFunc(dbType string, connectionString string, tableNames []string) map[string]substancegen.GenObjectType {
 	//init array of column descriptions for all tables
 	tableDesc := []substance.ColumnDescription{}
 
@@ -69,7 +69,7 @@ func (g gql) GetObjectTypesFunc(dbType string, connectionString string, tableNam
 			ScalarName: colDesc.PropertyName,
 			ScalarType: colDesc.PropertyType,
 			Nullable:   colDesc.Nullable,
-			KeyType:    []string{colDesc.KeyType},
+			KeyType:    []string{""},
 		}
 		newGqlObjProperty.Tags = make(substancegen.GenObjectTag)
 		if g.GraphqlDbTypeGormFlag[dbType] {
@@ -86,7 +86,7 @@ func (g gql) GetObjectTypesFunc(dbType string, connectionString string, tableNam
 	return gqlObjectTypes
 }
 
-func (g gql) ResolveRelationshipsFunc(dbType string, connectionString string, tableNames []string, gqlObjectTypes map[string]substancegen.GenObjectType) map[string]substancegen.GenObjectType {
+func (g Gql) ResolveRelationshipsFunc(dbType string, connectionString string, tableNames []string, gqlObjectTypes map[string]substancegen.GenObjectType) map[string]substancegen.GenObjectType {
 	relationshipDesc := []substance.ColumnRelationship{}
 	constraintDesc := []substance.ColumnConstraint{}
 
@@ -216,7 +216,7 @@ func (g gql) ResolveRelationshipsFunc(dbType string, connectionString string, ta
 			gormTagAssociationForeign := "AssociationForeignKey:" + colRel.ReferenceColumnName + ";"
 			newGqlObjProperty := substancegen.GenObjectProperty{
 				ScalarName:   colRel.TableName,
-				ScalarType:   strings.TrimSuffix(colRel.TableName, "s"),
+				ScalarType:   inflection.Singular(colRel.TableName),
 				Nullable:     true,
 				IsList:       true,
 				IsObjectType: true,
@@ -230,8 +230,8 @@ func (g gql) ResolveRelationshipsFunc(dbType string, connectionString string, ta
 			gormTagForeign := "ForeignKey:" + colRel.ColumnName + ";"
 			gormTagAssociationForeign := "AssociationForeignKey:" + colRel.ReferenceColumnName + ";"
 			newGqlObjProperty := substancegen.GenObjectProperty{
-				ScalarName:   strings.TrimSuffix(colRel.TableName, "s"),
-				ScalarType:   strings.TrimSuffix(colRel.TableName, "s"),
+				ScalarName:   inflection.Singular(colRel.TableName),
+				ScalarType:   inflection.Singular(colRel.TableName),
 				Nullable:     true,
 				IsList:       false,
 				IsObjectType: true,

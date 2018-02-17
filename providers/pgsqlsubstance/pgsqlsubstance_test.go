@@ -13,7 +13,7 @@ import (
 func TestGetCurrDbName(t *testing.T) {
 	pgsqlProvider := pgsql{}
 	nameExpected := "postgres"
-	nameResult, err := pgsqlProvider.GetCurrentDatabaseNameFunc("postgres", "postgres://ahmed:password@localhost:5432/postgres")
+	nameResult, err := pgsqlProvider.GetCurrentDatabaseNameFunc("postgres", "postgres://travis_test:password@127.0.0.1:5432/postgres")
 	if nameResult != nameExpected {
 		t.Errorf("Expected '%s' as database name but got '%s'.", nameExpected, nameResult)
 	}
@@ -110,7 +110,10 @@ func TestDescribeDb(t *testing.T) {
 		PropertyName: "antiorders",
 		TableName:    "antiorders",
 	})
-	columnDescResult, _ := pgsqlProvider.DescribeDatabaseFunc("postgres", "postgres://ahmed:password@localhost:5432/postgres")
+	columnDescResult, err := pgsqlProvider.DescribeDatabaseFunc("postgres", "postgres://travis_test:password@localhost:5432/postgres")
+	if err != nil {
+		t.Error(err)
+	}
 	sort.Slice(myColumnDesc, func(i, j int) bool {
 		return myColumnDesc[i].PropertyName < myColumnDesc[j].PropertyName
 	})
@@ -119,6 +122,7 @@ func TestDescribeDb(t *testing.T) {
 	})
 	if len(columnDescResult) != len(myColumnDesc) {
 		t.Errorf("Result length does not match expected length: \nExpected:\n%v\nResult:\n%v", len(myColumnDesc), len(columnDescResult))
+		t.Errorf("Result does not match expected result: \nExpected:\n%v\nResult:\n%v", myColumnDesc, columnDescResult)
 	} else {
 		for i := range columnDescResult {
 			if !reflect.DeepEqual(columnDescResult[i], myColumnDesc[i]) {
@@ -162,7 +166,10 @@ func TestDescribeTable(t *testing.T) {
 		TableName:    "persons",
 		Nullable:     true,
 	})
-	columnDescResult, _ := pgsqlProvider.DescribeTableFunc("postgres", "postgres://ahmed:password@localhost:5432/postgres", "persons")
+	columnDescResult, err := pgsqlProvider.DescribeTableFunc("postgres", "postgres://travis_test:password@localhost:5432/postgres", "persons")
+	if err != nil {
+		t.Error(err)
+	}
 	sort.Slice(myColumnDesc, func(i, j int) bool {
 		return myColumnDesc[i].PropertyName < myColumnDesc[j].PropertyName
 	})
@@ -171,6 +178,7 @@ func TestDescribeTable(t *testing.T) {
 	})
 	if len(columnDescResult) != len(myColumnDesc) {
 		t.Errorf("Result length does not match expected length: \nExpected:\n%v\nResult:\n%v", len(myColumnDesc), len(columnDescResult))
+		t.Errorf("Result does not match expected result: \nExpected:\n%v\nResult:\n%v", myColumnDesc, columnDescResult)
 	} else {
 		for i := range columnDescResult {
 			if !reflect.DeepEqual(columnDescResult[i], myColumnDesc[i]) {
@@ -189,7 +197,10 @@ func TestDescribeTableRelationship(t *testing.T) {
 		ReferenceTableName:  "persons",
 		ReferenceColumnName: "id",
 	})
-	columnRelResult, _ := pgsqlProvider.DescribeTableRelationshipFunc("postgres", "postgres://ahmed:password@localhost:5432/postgres", "orders")
+	columnRelResult, err := pgsqlProvider.DescribeTableRelationshipFunc("postgres", "postgres://travis_test:password@localhost:5432/postgres", "orders")
+	if err != nil {
+		t.Error(err)
+	}
 	sort.Slice(myColumnRel, func(i, j int) bool {
 		return myColumnRel[i].ColumnName < myColumnRel[j].ColumnName
 	})
@@ -198,6 +209,7 @@ func TestDescribeTableRelationship(t *testing.T) {
 	})
 	if len(columnRelResult) != len(myColumnRel) {
 		t.Errorf("Result length does not match expected length: \nExpected:\n%v\nResult:\n%v", len(myColumnRel), len(columnRelResult))
+		t.Errorf("Result does not match expected result: \nExpected:\n%v\nResult:\n%v", myColumnRel, columnRelResult)
 	} else {
 		for i := range columnRelResult {
 			if !reflect.DeepEqual(columnRelResult[i], myColumnRel[i]) {
@@ -223,7 +235,10 @@ func TestDescribeTableContraints(t *testing.T) {
 		ColumnName:     "personid",
 		ConstraintType: "f",
 	})
-	columnConstraintResult, _ := pgsqlProvider.DescribeTableConstraintsFunc("postgres", "postgres://ahmed:password@localhost:5432/postgres", "antiorders")
+	columnConstraintResult, err := pgsqlProvider.DescribeTableConstraintsFunc("postgres", "postgres://travis_test:password@localhost:5432/postgres", "antiorders")
+	if err != nil {
+		t.Error(err)
+	}
 	sort.Slice(myColumnConstraint, func(i, j int) bool {
 		return myColumnConstraint[i].ColumnName < myColumnConstraint[j].ColumnName
 	})
@@ -232,6 +247,7 @@ func TestDescribeTableContraints(t *testing.T) {
 	})
 	if len(columnConstraintResult) != len(myColumnConstraint) {
 		t.Errorf("Result length does not match expected length: \nExpected:\n%v\nResult:\n%v", len(myColumnConstraint), len(columnConstraintResult))
+		t.Errorf("Result does not match expected result: \nExpected:\n%v\nResult:\n%v", myColumnConstraint, columnConstraintResult)
 	} else {
 		for i := range columnConstraintResult {
 			if !reflect.DeepEqual(columnConstraintResult[i], myColumnConstraint[i]) {

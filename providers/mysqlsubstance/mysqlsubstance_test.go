@@ -13,7 +13,7 @@ import (
 func TestGetCurrDbName(t *testing.T) {
 	mysqlProvider := mysql{}
 	nameExpected := "delivery"
-	nameResult, err := mysqlProvider.GetCurrentDatabaseNameFunc("mysql", "ahmed:password@tcp(localhost:3306)/delivery")
+	nameResult, err := mysqlProvider.GetCurrentDatabaseNameFunc("mysql", "travis@tcp(127.0.0.1:3306)/delivery")
 	if nameResult != nameExpected {
 		t.Errorf("Expected '%s' as database name but got '%s'.", nameExpected, nameResult)
 	}
@@ -110,7 +110,10 @@ func TestDescribeDb(t *testing.T) {
 		PropertyName: "Persons",
 		TableName:    "Persons",
 	})
-	columnDescResult, _ := mysqlProvider.DescribeDatabaseFunc("mysql", "ahmed:password@tcp(localhost:3306)/delivery")
+	columnDescResult, err := mysqlProvider.DescribeDatabaseFunc("mysql", "travis@tcp(127.0.0.1:3306)/delivery")
+	if err != nil {
+		t.Error(err)
+	}
 	sort.Slice(myColumnDesc, func(i, j int) bool {
 		return myColumnDesc[i].PropertyName < myColumnDesc[j].PropertyName
 	})
@@ -137,6 +140,7 @@ func TestDescribeTable(t *testing.T) {
 		PropertyName: "ID",
 		TableName:    "Persons",
 		Nullable:     false,
+		KeyType:      "PRI",
 	}, substance.ColumnDescription{
 		DatabaseName: "delivery",
 		PropertyType: "string",
@@ -162,7 +166,10 @@ func TestDescribeTable(t *testing.T) {
 		TableName:    "Persons",
 		Nullable:     true,
 	})
-	columnDescResult, _ := mysqlProvider.DescribeTableFunc("mysql", "ahmed:password@tcp(localhost:3306)/delivery", "Persons")
+	columnDescResult, err := mysqlProvider.DescribeTableFunc("mysql", "travis@tcp(127.0.0.1:3306)/delivery", "Persons")
+	if err != nil {
+		t.Error(err)
+	}
 	sort.Slice(myColumnDesc, func(i, j int) bool {
 		return myColumnDesc[i].PropertyName < myColumnDesc[j].PropertyName
 	})
@@ -171,6 +178,7 @@ func TestDescribeTable(t *testing.T) {
 	})
 	if len(columnDescResult) != len(myColumnDesc) {
 		t.Errorf("Result length does not match expected length: \nExpected:\n%v\nResult:\n%v", len(myColumnDesc), len(columnDescResult))
+		t.Errorf("Result does not match expected result: \nExpected:\n%v\nResult:\n%v", myColumnDesc, columnDescResult)
 	} else {
 		for i := range columnDescResult {
 			if !reflect.DeepEqual(columnDescResult[i], myColumnDesc[i]) {
@@ -194,7 +202,10 @@ func TestDescribeTableRelationship(t *testing.T) {
 		ReferenceTableName:  "Persons",
 		ReferenceColumnName: "ID",
 	})
-	columnRelResult, _ := mysqlProvider.DescribeTableRelationshipFunc("mysql", "ahmed:password@tcp(localhost:3306)/delivery", "Persons")
+	columnRelResult, err := mysqlProvider.DescribeTableRelationshipFunc("mysql", "travis@tcp(127.0.0.1:3306)/delivery", "Persons")
+	if err != nil {
+		t.Error(err)
+	}
 	sort.Slice(myColumnRel, func(i, j int) bool {
 		return myColumnRel[i].ColumnName < myColumnRel[j].ColumnName
 	})
@@ -203,6 +214,7 @@ func TestDescribeTableRelationship(t *testing.T) {
 	})
 	if len(columnRelResult) != len(myColumnRel) {
 		t.Errorf("Result length does not match expected length: \nExpected:\n%v\nResult:\n%v", len(myColumnRel), len(columnRelResult))
+		t.Errorf("Result does not match expected result: \nExpected:\n%v\nResult:\n%v", myColumnRel, columnRelResult)
 	} else {
 		for i := range columnRelResult {
 			if !reflect.DeepEqual(columnRelResult[i], myColumnRel[i]) {
@@ -232,7 +244,10 @@ func TestDescribeTableContraints(t *testing.T) {
 		ColumnName:     "PersonID",
 		ConstraintType: "UNIQUE",
 	})
-	columnConstraintResult, _ := mysqlProvider.DescribeTableConstraintsFunc("mysql", "ahmed:password@tcp(localhost:3306)/delivery", "AntiOrders")
+	columnConstraintResult, err := mysqlProvider.DescribeTableConstraintsFunc("mysql", "travis@tcp(127.0.0.1:3306)/delivery", "AntiOrders")
+	if err != nil {
+		t.Error(err)
+	}
 	sort.Slice(myColumnConstraint, func(i, j int) bool {
 		return myColumnConstraint[i].ColumnName < myColumnConstraint[j].ColumnName
 	})
@@ -241,6 +256,7 @@ func TestDescribeTableContraints(t *testing.T) {
 	})
 	if len(columnConstraintResult) != len(myColumnConstraint) {
 		t.Errorf("Result length does not match expected length: \nExpected:\n%v\nResult:\n%v", len(myColumnConstraint), len(columnConstraintResult))
+		t.Errorf("Result does not match expected result: \nExpected:\n%v\nResult:\n%v", myColumnConstraint, columnConstraintResult)
 	} else {
 		for i := range columnConstraintResult {
 			if !reflect.DeepEqual(columnConstraintResult[i], myColumnConstraint[i]) {
