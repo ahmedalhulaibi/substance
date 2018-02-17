@@ -8,6 +8,19 @@ import (
 
 func init() {
 	gqlPlugin := Gql{}
+	gqlPlugin.Initialize(&gqlPlugin)
+	substancegen.Register("graphql-go", gqlPlugin)
+}
+
+type Gql struct {
+	Name                  string
+	GraphqlDataTypes      map[string]string
+	GraphqlDbTypeGormFlag map[string]bool
+	GraphqlDbTypeImports  map[string]string
+}
+
+/*Initialize Gql data type mapping, Gorm db config*/
+func (g Gql) Initialize(gqlPlugin *Gql) {
 	gqlPlugin.GraphqlDataTypes = make(map[string]string)
 	gqlPlugin.GraphqlDataTypes["int"] = "graphql.Int"
 	gqlPlugin.GraphqlDataTypes["int8"] = "graphql.Int"
@@ -31,14 +44,6 @@ func init() {
 	gqlPlugin.GraphqlDbTypeImports = make(map[string]string)
 	gqlPlugin.GraphqlDbTypeImports["mysql"] = "\n\t\"github.com/jinzhu/gorm\"\n\t_ \"github.com/jinzhu/gorm/dialects/mysql\""
 	gqlPlugin.GraphqlDbTypeImports["postgres"] = "\n\t\"github.com/jinzhu/gorm\"\n\t_ \"github.com/jinzhu/gorm/dialects/postgres\""
-	substancegen.Register("graphql-go", gqlPlugin)
-}
-
-type Gql struct {
-	Name                  string
-	GraphqlDataTypes      map[string]string
-	GraphqlDbTypeGormFlag map[string]bool
-	GraphqlDbTypeImports  map[string]string
 }
 
 /*GetObjectTypesFunc*/
