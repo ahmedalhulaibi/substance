@@ -46,6 +46,15 @@ type ColumnConstraint struct {
 	ConstraintType string
 }
 
+/*QueryResult Struct to store results from ExecuteQuery*/
+type QueryResult struct {
+	Rows     *sql.Rows
+	Columns  []string
+	Values   []interface{}
+	ScanArgs []interface{}
+	Err      error
+}
+
 /*GetCurrentDatabaseName returns currrent database schema name as string*/
 func GetCurrentDatabaseName(dbType string, connectionString string) (string, error) {
 	return substancePlugins[dbType].GetCurrentDatabaseNameFunc(dbType, connectionString)
@@ -72,36 +81,36 @@ func DescribeTableConstraints(dbType string, connectionString string, tableName 
 }
 
 /*ExecuteQuery executes a sql query with one or no tableName, specific to mysqlsubstnace and pgsqlsubstance*/
-func ExecuteQuery(dbType string, connectionString string, tableName string, query string) (rows *sql.Rows, columns []string, values []interface{}, scanArgs []interface{}, err error) {
+func ExecuteQuery(dbType string, connectionString string, tableName string, query string) QueryResult {
 	db, err := sql.Open(dbType, connectionString)
 	defer db.Close()
 	if err != nil {
-		return rows, columns, values, scanArgs, err
+		return QueryResult{Err: err}
 	}
-
+	var rows *sql.Rows
 	if tableName == "" {
 		rows, err = db.Query(query)
 	} else {
 		rows, err = db.Query(query, tableName)
 	}
 	if err != nil {
-		return rows, columns, values, scanArgs, err
+		return QueryResult{Err: err, Rows: rows}
 	}
 
 	// Get column names
-	columns, err = rows.Columns()
+	columns, err := rows.Columns()
 	if err != nil {
-		return rows, columns, values, scanArgs, err
+		return QueryResult{Err: err, Rows: rows, Columns: columns}
 	}
 	// Make a slice for the values
-	values = make([]interface{}, len(columns))
+	values := make([]interface{}, len(columns))
 
 	// rows.Scan wants '[]interface{}' as an argument, so we must copy the
 	// references into such a slice
-	scanArgs = make([]interface{}, len(values))
+	scanArgs := make([]interface{}, len(values))
 	for i := range values {
 		scanArgs[i] = &values[i]
 	}
 
-	return rows, columns, values, scanArgs, err
+	return QueryResult{Err: err, Rows: rows, Columns: columns, ScanArgs: scanArgs, Values: values}
 }

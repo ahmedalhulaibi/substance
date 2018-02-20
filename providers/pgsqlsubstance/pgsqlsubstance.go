@@ -30,22 +30,22 @@ func (p pgsql) GetCurrentDatabaseNameFunc(dbType string, connectionString string
 		return "", err
 	}
 
-	rows, columns, values, scanArgs, err := substance.ExecuteQuery(dbType, connectionString, "", GetCurrentDatabaseNameQuery)
-	if err != nil {
-		return "", err
+	queryResult := substance.ExecuteQuery(dbType, connectionString, "", GetCurrentDatabaseNameQuery)
+	if queryResult.Err != nil {
+		return "", queryResult.Err
 	}
 
-	for rows.Next() {
-		err = rows.Scan(scanArgs...)
+	for queryResult.Rows.Next() {
+		err = queryResult.Rows.Scan(queryResult.ScanArgs...)
 		if err != nil {
 			return "", err
 		}
 
 		// Print data
-		for i, value := range values {
+		for i, value := range queryResult.Values {
 			switch value.(type) {
 			case []byte:
-				switch columns[i] {
+				switch queryResult.Columns[i] {
 				case "current_database":
 					returnValue = string(value.([]byte))
 				}
@@ -66,17 +66,17 @@ func (p pgsql) DescribeDatabaseFunc(dbType string, connectionString string) ([]s
 		return nil, err
 	}
 
-	rows, columns, values, scanArgs, err := substance.ExecuteQuery(dbType, connectionString, "", DescribeDatabaseQuery)
+	queryResult := substance.ExecuteQuery(dbType, connectionString, "", DescribeDatabaseQuery)
 
-	if err != nil {
-		return nil, err
+	if queryResult.Err != nil {
+		return nil, queryResult.Err
 	}
 
 	//setup array of column descriptions
 	columnDesc := []substance.ColumnDescription{}
 
 	//get database name
-	databaseName, err := substance.GetCurrentDatabaseName(dbType, connectionString)
+	databaseName, err := p.GetCurrentDatabaseNameFunc(dbType, connectionString)
 	if err != nil {
 		return nil, err
 	}
@@ -84,17 +84,17 @@ func (p pgsql) DescribeDatabaseFunc(dbType string, connectionString string) ([]s
 	//newColDesc to be added to columnDesc array
 	newColDesc := substance.ColumnDescription{DatabaseName: databaseName, PropertyType: "Table"}
 
-	for rows.Next() {
-		err = rows.Scan(scanArgs...)
+	for queryResult.Rows.Next() {
+		err = queryResult.Rows.Scan(queryResult.ScanArgs...)
 		if err != nil {
 			return nil, err
 		}
 
 		// Print data
-		for i, value := range values {
+		for i, value := range queryResult.Values {
 			switch value.(type) {
 			case []byte:
-				switch columns[i] {
+				switch queryResult.Columns[i] {
 				case "tablename":
 					newColDesc.TableName = string(value.([]byte))
 					newColDesc.PropertyName = string(value.([]byte))
@@ -114,10 +114,10 @@ func (p pgsql) DescribeTableFunc(dbType string, connectionString string, tableNa
 		return nil, err
 	}
 
-	rows, columns, values, scanArgs, err := substance.ExecuteQuery(dbType, connectionString, tableName, DescribeTableQuery)
+	queryResult := substance.ExecuteQuery(dbType, connectionString, tableName, DescribeTableQuery)
 
-	if err != nil {
-		return nil, err
+	if queryResult.Err != nil {
+		return nil, queryResult.Err
 	}
 
 	columnDesc := []substance.ColumnDescription{}
@@ -126,30 +126,25 @@ func (p pgsql) DescribeTableFunc(dbType string, connectionString string, tableNa
 	if err != nil {
 		return nil, err
 	}
+
 	newColDesc := substance.ColumnDescription{DatabaseName: databaseName, TableName: tableName}
 
-	//get all column constraints to determine key type
-	//columnConstraints, err := subsInterface.DescribeTableConstraintsFunc(dbType, connectionString, tableName)
-	// if err != nil {
-	// 	return nil, err
-	// }
-
-	for rows.Next() {
-		err = rows.Scan(scanArgs...)
+	for queryResult.Rows.Next() {
+		err = queryResult.Rows.Scan(queryResult.ScanArgs...)
 		if err != nil {
 			return nil, err
 		}
 
 		// Print data
-		for i, value := range values {
+		for i, value := range queryResult.Values {
 			switch value.(type) {
 			case bool:
-				switch columns[i] {
+				switch queryResult.Columns[i] {
 				case "isNotNull":
 					newColDesc.Nullable = !value.(bool)
 				}
 			case []byte:
-				switch columns[i] {
+				switch queryResult.Columns[i] {
 				case "Field":
 					newColDesc.PropertyName = string(value.([]byte))
 				case "Type":
@@ -171,9 +166,9 @@ func (p pgsql) DescribeTableRelationshipFunc(dbType string, connectionString str
 		return nil, err
 	}
 
-	rows, columns, values, scanArgs, err := substance.ExecuteQuery(dbType, connectionString, tableName, DescribeTableRelationshipQuery)
-	if err != nil {
-		return nil, err
+	queryResult := substance.ExecuteQuery(dbType, connectionString, tableName, DescribeTableRelationshipQuery)
+	if queryResult.Err != nil {
+		return nil, queryResult.Err
 	}
 
 	columnTableDesc, err := substance.DescribeTable(dbType, connectionString, tableName)
@@ -183,19 +178,19 @@ func (p pgsql) DescribeTableRelationshipFunc(dbType string, connectionString str
 	columnDesc := []substance.ColumnRelationship{}
 	newColDesc := substance.ColumnRelationship{}
 	//newColDesc.TableName = tableName
-	for rows.Next() {
-		err = rows.Scan(scanArgs...)
+	for queryResult.Rows.Next() {
+		err = queryResult.Rows.Scan(queryResult.ScanArgs...)
 		if err != nil {
 			return nil, err
 		}
 
 		// Print data
-		for i, value := range values {
+		for i, value := range queryResult.Values {
 			//fmt.Printf("DescribeTableRelationshipFunc Value %T ", value)
 			switch value.(type) {
 			case string:
 				//fmt.Println("\t", columns[i], ": ", value)
-				switch columns[i] {
+				switch queryResult.Columns[i] {
 				case "table_name":
 					newColDesc.TableName = string(value.(string))
 				case "column":
@@ -204,7 +199,7 @@ func (p pgsql) DescribeTableRelationshipFunc(dbType string, connectionString str
 			case []byte:
 				//fmt.Println("\t", columns[i], ": ", string(value.([]byte)))
 
-				switch columns[i] {
+				switch queryResult.Columns[i] {
 				case "ref_table":
 					newColDesc.ReferenceTableName = string(value.([]byte))
 					columnTableDesc, err = substance.DescribeTable(dbType, connectionString, newColDesc.ReferenceTableName)
@@ -239,26 +234,26 @@ func (p pgsql) DescribeTableConstraintsFunc(dbType string, connectionString stri
 		return nil, err
 	}
 
-	rows, columns, values, scanArgs, err := substance.ExecuteQuery(dbType, connectionString, tableName, DescribeTableConstraintsQuery)
-	if err != nil {
-		return nil, err
+	queryResult := substance.ExecuteQuery(dbType, connectionString, tableName, DescribeTableConstraintsQuery)
+	if queryResult.Err != nil {
+		return nil, queryResult.Err
 	}
 	columnDesc := []substance.ColumnConstraint{}
 	newColDesc := substance.ColumnConstraint{}
 
-	for rows.Next() {
-		err = rows.Scan(scanArgs...)
+	for queryResult.Rows.Next() {
+		err = queryResult.Rows.Scan(queryResult.ScanArgs...)
 		if err != nil {
 			return nil, err
 		}
 
 		// Print data
-		for i, value := range values {
+		for i, value := range queryResult.Values {
 			switch value.(type) {
 			case string:
 				//fmt.Println("\t", columns[i], ": ", string(value.(string)))
 
-				switch columns[i] {
+				switch queryResult.Columns[i] {
 				case "table_name":
 					newColDesc.TableName = string(value.(string))
 				case "column":
