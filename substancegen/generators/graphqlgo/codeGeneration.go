@@ -227,7 +227,7 @@ func (g Gql) GenObjectGormCrud(gqlObjectType substancegen.GenObjectType, buff *b
 	gqlObjectTypeNameSingular := inflection.Singular(gqlObjectType.Name)
 	var primaryKeyColumn string
 	for index, propVal := range gqlObjectType.Properties {
-		if stringInSlice("p", propVal.KeyType) || stringInSlice("PRIMARY KEY", propVal.KeyType) {
+		if g.StringInSlice("p", propVal.KeyType) || g.StringInSlice("PRIMARY KEY", propVal.KeyType) {
 			primaryKeyColumn = index
 			break
 		}
