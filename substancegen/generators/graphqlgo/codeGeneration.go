@@ -22,6 +22,7 @@ func (g Gql) OutputCodeFunc(dbType string, connectionString string, gqlObjectTyp
 		g.GenGraphqlGoTypeFunc(value, &buff)
 	}
 	buff.WriteString(GraphqlGoExecuteQueryFunc)
+	g.GenGraphqlGoRootQueryFunc(dbType, connectionString, gqlObjectTypes, &buff)
 	g.GenGraphqlGoMainFunc(dbType, connectionString, gqlObjectTypes, &buff)
 	return buff
 }
@@ -131,14 +132,16 @@ func (g Gql) GenGraphqlGoMainFunc(dbType string, connectionString string, gqlObj
 	sampleQuery := g.GenGraphqlGoSampleQuery(gqlObjectTypes)
 	buff.WriteString(fmt.Sprintf("\n\tfmt.Println(\"Test with Get\t: curl -g 'http://localhost:8080/graphql?query={%s}'\")", sampleQuery.String()))
 
-	buff.WriteString("\n\tfields := graphql.Fields{")
-	for _, value := range gqlObjectTypes {
-		g.GenGraphqlGoQueryFieldsFunc(value, buff)
-	}
-	buff.WriteString("\n\t\t}")
 	buff.WriteString(GraphqlGoMainConfig)
 
 	buff.WriteString("\n}\n")
+}
+
+func (g Gql) GenGraphqlGoRootQueryFunc(dbType string, connectionString string, gqlObjectTypes map[string]substancegen.GenObjectType, buff *bytes.Buffer) {
+	buff.WriteString("\n\tvar Fields := graphql.Fields{")
+	for _, value := range gqlObjectTypes {
+		g.GenGraphqlGoQueryFieldsFunc(value, buff)
+	}
 }
 
 func (g Gql) GenGraphqlGoQueryFieldsFunc(gqlObjectType substancegen.GenObjectType, buff *bytes.Buffer) {
