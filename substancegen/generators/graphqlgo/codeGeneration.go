@@ -22,6 +22,7 @@ func (g Gql) OutputCodeFunc(dbType string, connectionString string, gqlObjectTyp
 		g.GenGraphqlGoTypeFunc(value, &buff)
 	}
 	buff.WriteString(GraphqlGoExecuteQueryFunc)
+	g.GenGraphqlGoRootQueryFunc(gqlObjectTypes, &buff)
 	g.GenGraphqlGoMainFunc(dbType, connectionString, gqlObjectTypes, &buff)
 	return buff
 }
@@ -126,17 +127,21 @@ func (g Gql) ResolveGraphqlGoFieldType(gqlObjectProperty substancegen.GenObjectP
 }
 
 func (g Gql) GenGraphqlGoMainFunc(dbType string, connectionString string, gqlObjectTypes map[string]substancegen.GenObjectType, buff *bytes.Buffer) {
-	buff.WriteString(fmt.Sprintf("\nfunc main() {\n\n\tdb, err := gorm.Open(\"%s\",\"%s\")\n\tdefer db.Close()\n\n\t", dbType, connectionString))
+	buff.WriteString(fmt.Sprintf("\nvar DB *gorm.DB\n\n"))
+	buff.WriteString(fmt.Sprintf("\nfunc main() {\n\n\tDB, _ = gorm.Open(\"%s\",\"%s\")\n\tdefer DB.Close()\n\n\t", dbType, connectionString))
 	sampleQuery := g.GenGraphqlGoSampleQuery(gqlObjectTypes)
 	buff.WriteString(fmt.Sprintf("\n\tfmt.Println(\"Test with Get\t: curl -g 'http://localhost:8080/graphql?query={%s}'\")", sampleQuery.String()))
 
-	buff.WriteString("\n\tfields := graphql.Fields{")
+	buff.WriteString(GraphqlGoMainConfig)
+
+	buff.WriteString("\n}\n")
+}
+
+func (g Gql) GenGraphqlGoRootQueryFunc(gqlObjectTypes map[string]substancegen.GenObjectType, buff *bytes.Buffer) {
+	buff.WriteString("\n\tvar Fields = graphql.Fields{")
 	for _, value := range gqlObjectTypes {
 		g.GenGraphqlGoQueryFieldsFunc(value, buff)
 	}
-	buff.WriteString("\n\t\t}")
-	buff.WriteString(GraphqlGoMainConfig)
-
 	buff.WriteString("\n}\n")
 }
 
@@ -148,7 +153,7 @@ func (g Gql) GenGraphqlGoQueryFieldsFunc(gqlObjectType substancegen.GenObjectTyp
 	buff.WriteString(fmt.Sprintf("\n\t\t\"%s\": &graphql.Field{\n\t\t\tType: %sType,", gqlObjectTypeNameSingular, gqlObjectTypeNameLowCamel))
 	buff.WriteString(fmt.Sprintf("\n\t\t\tResolve: func(p graphql.ResolveParams) (interface{}, error) {"))
 	buff.WriteString(fmt.Sprintf("\n\t\t\t\t%s := %s{}", gqlObjectTypeNameLowCamel, gqlObjectTypeNameSingular))
-	buff.WriteString(fmt.Sprintf("\n\t\t\t\tdb.First(&%s)", gqlObjectTypeNameLowCamel))
+	buff.WriteString(fmt.Sprintf("\n\t\t\t\tDB.First(&%s)", gqlObjectTypeNameLowCamel))
 
 	for _, propVal := range gqlObjectType.Properties {
 		if propVal.IsObjectType {
@@ -161,13 +166,13 @@ func (g Gql) GenGraphqlGoQueryFieldsFunc(gqlObjectType substancegen.GenObjectTyp
 			if propVal.IsList {
 				buff.WriteString(fmt.Sprintf("\n\t\t\t\t%s := []%s{}", propValNameLowCamel, propVal.ScalarType))
 
-				buff.WriteString(fmt.Sprintf("\n\t\t\t\tdb.Model(&%s).Association(\"%s\").Find(&%s)", gqlObjectTypeNameLowCamel, propVal.ScalarName, propValNameLowCamel))
+				buff.WriteString(fmt.Sprintf("\n\t\t\t\tDB.Model(&%s).Association(\"%s\").Find(&%s)", gqlObjectTypeNameLowCamel, propVal.ScalarName, propValNameLowCamel))
 
 				buff.WriteString(fmt.Sprintf("\n\t\t\t\t%s.%s = append(%s.%s, %s...)", gqlObjectTypeNameLowCamel, propValNameUpperCamel, gqlObjectTypeNameLowCamel, propValNameUpperCamel, propValNameLowCamel))
 			} else {
 				buff.WriteString(fmt.Sprintf("\n\t\t\t\t%s := %s{}", propValNameLowCamel, propVal.ScalarType))
 
-				buff.WriteString(fmt.Sprintf("\n\t\t\t\tdb.Model(&%s).Association(\"%s\").Find(&%s)", gqlObjectTypeNameLowCamel, propVal.ScalarName, propValNameLowCamel))
+				buff.WriteString(fmt.Sprintf("\n\t\t\t\tDB.Model(&%s).Association(\"%s\").Find(&%s)", gqlObjectTypeNameLowCamel, propVal.ScalarName, propValNameLowCamel))
 
 				buff.WriteString(fmt.Sprintf("\n\t\t\t\t%s.%s = %s", gqlObjectTypeNameLowCamel, propValNameUpperCamel, propValNameLowCamel))
 			}
@@ -216,4 +221,59 @@ func (g Gql) OutputGraphqlSchema(gqlObjectTypes map[string]substancegen.GenObjec
 		buff.WriteString(fmt.Sprintf("}\n"))
 	}
 	return buff
+}
+
+func (g Gql) GenObjectGormCrud(gqlObjectType substancegen.GenObjectType, buff *bytes.Buffer) {
+	gqlObjectTypeNameSingular := inflection.Singular(gqlObjectType.Name)
+	var primaryKeyColumn string
+	for index, propVal := range gqlObjectType.Properties {
+		if stringInSlice("p", propVal.KeyType) || stringInSlice("PRIMARY KEY", propVal.KeyType) {
+			primaryKeyColumn = index
+			break
+		}
+	}
+
+	buff.WriteString(fmt.Sprintf("\n\nfunc Create%s (db *gorm.DB, new%s %s) {\n\tdb.Create(&new%s)\n}",
+		gqlObjectTypeNameSingular,
+		gqlObjectTypeNameSingular,
+		gqlObjectTypeNameSingular,
+		gqlObjectTypeNameSingular))
+
+	buff.WriteString(fmt.Sprintf("\n\nfunc Get%s (db *gorm.DB, query%s %s, result%s *%s) {\n\tdb.Where(&query%s).First(result%s)\n}",
+		gqlObjectTypeNameSingular,
+		gqlObjectTypeNameSingular,
+		gqlObjectTypeNameSingular,
+		gqlObjectTypeNameSingular,
+		gqlObjectTypeNameSingular,
+		gqlObjectTypeNameSingular,
+		gqlObjectTypeNameSingular))
+
+	buff.WriteString(fmt.Sprintf("\n\nfunc Update%s (db *gorm.DB, old%s %s, new%s %s, result%s *%s) {\n\tvar oldResult%s %s\n\tdb.Where(&old%s).First(&oldResult%s)\n\tif oldResult%s.%s == new%s.%s {\n\t\toldResult%s = new%s\n\t\tdb.Save(oldResult%s)\n\t}\n\tGet%s(db, new%s, result%s)\n}",
+		gqlObjectTypeNameSingular,
+		gqlObjectTypeNameSingular,
+		gqlObjectTypeNameSingular,
+		gqlObjectTypeNameSingular,
+		gqlObjectTypeNameSingular,
+		gqlObjectTypeNameSingular,
+		gqlObjectTypeNameSingular,
+		gqlObjectTypeNameSingular,
+		gqlObjectTypeNameSingular,
+		gqlObjectTypeNameSingular,
+		gqlObjectTypeNameSingular,
+		gqlObjectTypeNameSingular,
+		primaryKeyColumn,
+		gqlObjectTypeNameSingular,
+		primaryKeyColumn,
+		gqlObjectTypeNameSingular,
+		gqlObjectTypeNameSingular,
+		gqlObjectTypeNameSingular,
+		gqlObjectTypeNameSingular,
+		gqlObjectTypeNameSingular,
+		gqlObjectTypeNameSingular))
+
+	buff.WriteString(fmt.Sprintf("\n\nfunc Delete%s (db *gorm.DB, old%s %s) {\n\tdb.Delete(&old%s)\n}",
+		gqlObjectTypeNameSingular,
+		gqlObjectTypeNameSingular,
+		gqlObjectTypeNameSingular,
+		gqlObjectTypeNameSingular))
 }
