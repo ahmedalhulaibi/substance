@@ -126,6 +126,7 @@ func (g Gql) ResolveGraphqlGoFieldType(gqlObjectProperty substancegen.GenObjectP
 }
 
 func (g Gql) GenGraphqlGoMainFunc(dbType string, connectionString string, gqlObjectTypes map[string]substancegen.GenObjectType, buff *bytes.Buffer) {
+	buff.WriteString(fmt.Sprintf("\nvar db *gorm.DB\n\n"))
 	buff.WriteString(fmt.Sprintf("\nfunc main() {\n\n\tdb, err := gorm.Open(\"%s\",\"%s\")\n\tdefer db.Close()\n\n\t", dbType, connectionString))
 	sampleQuery := g.GenGraphqlGoSampleQuery(gqlObjectTypes)
 	buff.WriteString(fmt.Sprintf("\n\tfmt.Println(\"Test with Get\t: curl -g 'http://localhost:8080/graphql?query={%s}'\")", sampleQuery.String()))
@@ -216,4 +217,59 @@ func (g Gql) OutputGraphqlSchema(gqlObjectTypes map[string]substancegen.GenObjec
 		buff.WriteString(fmt.Sprintf("}\n"))
 	}
 	return buff
+}
+
+func (g Gql) GenObjectGormCrud(gqlObjectType substancegen.GenObjectType, buff *bytes.Buffer) {
+	gqlObjectTypeNameSingular := inflection.Singular(gqlObjectType.Name)
+	var primaryKeyColumn string
+	for index, propVal := range gqlObjectType.Properties {
+		if stringInSlice("p", propVal.KeyType) || stringInSlice("PRIMARY KEY", propVal.KeyType) {
+			primaryKeyColumn = index
+			break
+		}
+	}
+
+	buff.WriteString(fmt.Sprintf("\nfunc Create%s (db *gorm.DB, new%s %s) {\n\tdb.Create(&new%s)\n}",
+		gqlObjectTypeNameSingular,
+		gqlObjectTypeNameSingular,
+		gqlObjectTypeNameSingular,
+		gqlObjectTypeNameSingular))
+
+	buff.WriteString(fmt.Sprintf("\nfunc Get%s (db *gorm.DB, query%s %s, result%s *%s) {\n\tdb.Where(&query%s).First(result%s)\n}",
+		gqlObjectTypeNameSingular,
+		gqlObjectTypeNameSingular,
+		gqlObjectTypeNameSingular,
+		gqlObjectTypeNameSingular,
+		gqlObjectTypeNameSingular,
+		gqlObjectTypeNameSingular,
+		gqlObjectTypeNameSingular))
+
+	buff.WriteString(fmt.Sprintf("\nfunc Update%s (db *gorm.DB, old%s %s, new%s %s, result%s *%s) {\n\tvar oldResult%s %s\n\tdb.Where(&old%s).First(&oldResult%s)\n\tif oldResult%s.%s == new%s.%s {\n\t\toldResult%s = new%s\n\t\tdb.Save(oldResult%s)\n\t}\n\tGet%s(db, new%s, result%s)\n}",
+		gqlObjectTypeNameSingular,
+		gqlObjectTypeNameSingular,
+		gqlObjectTypeNameSingular,
+		gqlObjectTypeNameSingular,
+		gqlObjectTypeNameSingular,
+		gqlObjectTypeNameSingular,
+		gqlObjectTypeNameSingular,
+		gqlObjectTypeNameSingular,
+		gqlObjectTypeNameSingular,
+		gqlObjectTypeNameSingular,
+		gqlObjectTypeNameSingular,
+		gqlObjectTypeNameSingular,
+		primaryKeyColumn,
+		gqlObjectTypeNameSingular,
+		primaryKeyColumn,
+		gqlObjectTypeNameSingular,
+		gqlObjectTypeNameSingular,
+		gqlObjectTypeNameSingular,
+		gqlObjectTypeNameSingular,
+		gqlObjectTypeNameSingular,
+		gqlObjectTypeNameSingular))
+
+	buff.WriteString(fmt.Sprintf("\nfunc Delete%s (db *gorm.DB, old%s %s) {\n\tdb.Delete(&old%s)\n}",
+		gqlObjectTypeNameSingular,
+		gqlObjectTypeNameSingular,
+		gqlObjectTypeNameSingular,
+		gqlObjectTypeNameSingular))
 }
