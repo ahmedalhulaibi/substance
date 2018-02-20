@@ -30,24 +30,9 @@ func (p pgsql) GetCurrentDatabaseNameFunc(dbType string, connectionString string
 		return "", err
 	}
 
-	rows, err := db.Query(GetCurrentDatabaseNameQuery)
+	rows, columns, values, scanArgs, err := p.ExecuteQuery(dbType, connectionString, "", GetCurrentDatabaseNameQuery)
 	if err != nil {
 		return "", err
-	}
-
-	// Get column names
-	columns, err := rows.Columns()
-	if err != nil {
-		return "", err
-	}
-	// Make a slice for the values
-	values := make([]interface{}, len(columns))
-
-	// rows.Scan wants '[]interface{}' as an argument, so we must copy the
-	// references into such a slice
-	scanArgs := make([]interface{}, len(values))
-	for i := range values {
-		scanArgs[i] = &values[i]
 	}
 
 	for rows.Next() {
@@ -81,26 +66,10 @@ func (p pgsql) DescribeDatabaseFunc(dbType string, connectionString string) ([]s
 		return nil, err
 	}
 
-	//setup query
-	rows, err := db.Query(DescribeDatabaseQuery)
+	rows, columns, values, scanArgs, err := p.ExecuteQuery(dbType, connectionString, "", DescribeDatabaseQuery)
+
 	if err != nil {
 		return nil, err
-	}
-
-	// Get column names
-	columns, err := rows.Columns()
-	if err != nil {
-		return nil, err
-	}
-
-	// Make a slice for the values
-	values := make([]interface{}, len(columns))
-
-	// rows.Scan wants '[]interface{}' as an argument, so we must copy the
-	// references into such a slice
-	scanArgs := make([]interface{}, len(values))
-	for i := range values {
-		scanArgs[i] = &values[i]
 	}
 
 	//setup array of column descriptions
@@ -145,24 +114,10 @@ func (p pgsql) DescribeTableFunc(dbType string, connectionString string, tableNa
 		return nil, err
 	}
 
-	rows, err := db.Query(DescribeTableQuery, tableName)
+	rows, columns, values, scanArgs, err := p.ExecuteQuery(dbType, connectionString, tableName, DescribeTableQuery)
+
 	if err != nil {
 		return nil, err
-	}
-
-	// Get column names
-	columns, err := rows.Columns()
-	if err != nil {
-		return nil, err
-	}
-	// Make a slice for the values
-	values := make([]interface{}, len(columns))
-
-	// rows.Scan wants '[]interface{}' as an argument, so we must copy the
-	// references into such a slice
-	scanArgs := make([]interface{}, len(values))
-	for i := range values {
-		scanArgs[i] = &values[i]
 	}
 
 	columnDesc := []substance.ColumnDescription{}
@@ -216,26 +171,9 @@ func (p pgsql) DescribeTableRelationshipFunc(dbType string, connectionString str
 		return nil, err
 	}
 
+	rows, columns, values, scanArgs, err := p.ExecuteQuery(dbType, connectionString, tableName, DescribeTableRelationshipQuery)
 	if err != nil {
 		return nil, err
-	}
-	rows, err := db.Query(DescribeTableRelationshipQuery, tableName)
-	if err != nil {
-		return nil, err
-	}
-	// Get column names
-	columns, err := rows.Columns()
-	if err != nil {
-		return nil, err
-	}
-	// Make a slice for the values
-	values := make([]interface{}, len(columns))
-
-	// rows.Scan wants '[]interface{}' as an argument, so we must copy the
-	// references into such a slice
-	scanArgs := make([]interface{}, len(values))
-	for i := range values {
-		scanArgs[i] = &values[i]
 	}
 
 	columnTableDesc, err := substance.DescribeTable(dbType, connectionString, tableName)
@@ -301,29 +239,10 @@ func (p pgsql) DescribeTableConstraintsFunc(dbType string, connectionString stri
 		return nil, err
 	}
 
+	rows, columns, values, scanArgs, err := p.ExecuteQuery(dbType, connectionString, tableName, DescribeTableConstraintsQuery)
 	if err != nil {
 		return nil, err
 	}
-	rows, err := db.Query(DescribeTableConstraintsQuery, tableName)
-	if err != nil {
-		return nil, err
-	}
-
-	// Get column names
-	columns, err := rows.Columns()
-	if err != nil {
-		return nil, err
-	}
-	// Make a slice for the values
-	values := make([]interface{}, len(columns))
-
-	// rows.Scan wants '[]interface{}' as an argument, so we must copy the
-	// references into such a slice
-	scanArgs := make([]interface{}, len(values))
-	for i := range values {
-		scanArgs[i] = &values[i]
-	}
-
 	columnDesc := []substance.ColumnConstraint{}
 	newColDesc := substance.ColumnConstraint{}
 
@@ -354,6 +273,40 @@ func (p pgsql) DescribeTableConstraintsFunc(dbType string, connectionString stri
 		columnDesc = append(columnDesc, newColDesc)
 	}
 	return columnDesc, nil
+}
+
+func (p pgsql) ExecuteQuery(dbType string, connectionString string, tableName string, query string) (rows *sql.Rows, columns []string, values []interface{}, scanArgs []interface{}, err error) {
+	db, err := sql.Open(dbType, connectionString)
+	defer db.Close()
+	if err != nil {
+		return rows, columns, values, scanArgs, err
+	}
+
+	if tableName == "" {
+		rows, err = db.Query(query)
+	} else {
+		rows, err = db.Query(query, tableName)
+	}
+	if err != nil {
+		return rows, columns, values, scanArgs, err
+	}
+
+	// Get column names
+	columns, err = rows.Columns()
+	if err != nil {
+		return rows, columns, values, scanArgs, err
+	}
+	// Make a slice for the values
+	values = make([]interface{}, len(columns))
+
+	// rows.Scan wants '[]interface{}' as an argument, so we must copy the
+	// references into such a slice
+	scanArgs = make([]interface{}, len(values))
+	for i := range values {
+		scanArgs[i] = &values[i]
+	}
+
+	return rows, columns, values, scanArgs, err
 }
 
 func (p pgsql) GetGoDataType(sqlType string) (string, error) {
