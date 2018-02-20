@@ -229,13 +229,13 @@ func (g Gql) GenObjectGormCrud(gqlObjectType substancegen.GenObjectType, buff *b
 		}
 	}
 
-	buff.WriteString(fmt.Sprintf("\nfunc Create%s (db *gorm.DB, new%s %s) {\n\tdb.Create(&new%s)\n}",
+	buff.WriteString(fmt.Sprintf("\n\nfunc Create%s (db *gorm.DB, new%s %s) {\n\tdb.Create(&new%s)\n}",
 		gqlObjectTypeNameSingular,
 		gqlObjectTypeNameSingular,
 		gqlObjectTypeNameSingular,
 		gqlObjectTypeNameSingular))
 
-	buff.WriteString(fmt.Sprintf("\nfunc Get%s (db *gorm.DB, query%s %s, result%s *%s) {\n\tdb.Where(&query%s).First(result%s)\n}",
+	buff.WriteString(fmt.Sprintf("\n\nfunc Get%s (db *gorm.DB, query%s %s, result%s *%s) {\n\tdb.Where(&query%s).First(result%s)\n}",
 		gqlObjectTypeNameSingular,
 		gqlObjectTypeNameSingular,
 		gqlObjectTypeNameSingular,
@@ -244,7 +244,7 @@ func (g Gql) GenObjectGormCrud(gqlObjectType substancegen.GenObjectType, buff *b
 		gqlObjectTypeNameSingular,
 		gqlObjectTypeNameSingular))
 
-	buff.WriteString(fmt.Sprintf("\nfunc Update%s (db *gorm.DB, old%s %s, new%s %s, result%s *%s) {\n\tvar oldResult%s %s\n\tdb.Where(&old%s).First(&oldResult%s)\n\tif oldResult%s.%s == new%s.%s {\n\t\toldResult%s = new%s\n\t\tdb.Save(oldResult%s)\n\t}\n\tGet%s(db, new%s, result%s)\n}",
+	buff.WriteString(fmt.Sprintf("\n\nfunc Update%s (db *gorm.DB, old%s %s, new%s %s, result%s *%s) {\n\tvar oldResult%s %s\n\tdb.Where(&old%s).First(&oldResult%s)\n\tif oldResult%s.%s == new%s.%s {\n\t\toldResult%s = new%s\n\t\tdb.Save(oldResult%s)\n\t}\n\tGet%s(db, new%s, result%s)\n}",
 		gqlObjectTypeNameSingular,
 		gqlObjectTypeNameSingular,
 		gqlObjectTypeNameSingular,
@@ -267,7 +267,7 @@ func (g Gql) GenObjectGormCrud(gqlObjectType substancegen.GenObjectType, buff *b
 		gqlObjectTypeNameSingular,
 		gqlObjectTypeNameSingular))
 
-	buff.WriteString(fmt.Sprintf("\nfunc Delete%s (db *gorm.DB, old%s %s) {\n\tdb.Delete(&old%s)\n}",
+	buff.WriteString(fmt.Sprintf("\n\nfunc Delete%s (db *gorm.DB, old%s %s) {\n\tdb.Delete(&old%s)\n}",
 		gqlObjectTypeNameSingular,
 		gqlObjectTypeNameSingular,
 		gqlObjectTypeNameSingular,
