@@ -2,8 +2,6 @@ package graphqlgo
 
 import (
 	"testing"
-
-	"github.com/ahmedalhulaibi/substance/substancegen/generators/graphqlgo"
 )
 
 func TestGql_GetObjectTypesFunc(t *testing.T) {
@@ -41,7 +39,7 @@ func Test_stringInSlice(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			g := graphqlgo.Gql{}
+			g := Gql{}
 			if got := g.StringInSlice(tt.args.searchVal, tt.args.list); got != tt.want {
 				t.Errorf("stringInSlice() = %v, want %v", got, tt.want)
 			}
