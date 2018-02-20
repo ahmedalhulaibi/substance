@@ -22,7 +22,7 @@ func (g Gql) OutputCodeFunc(dbType string, connectionString string, gqlObjectTyp
 		g.GenGraphqlGoTypeFunc(value, &buff)
 	}
 	buff.WriteString(GraphqlGoExecuteQueryFunc)
-	g.GenGraphqlGoRootQueryFunc(dbType, connectionString, gqlObjectTypes, &buff)
+	g.GenGraphqlGoRootQueryFunc(gqlObjectTypes, &buff)
 	g.GenGraphqlGoMainFunc(dbType, connectionString, gqlObjectTypes, &buff)
 	return buff
 }
