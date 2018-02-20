@@ -137,7 +137,7 @@ func (g Gql) GenGraphqlGoMainFunc(dbType string, connectionString string, gqlObj
 	buff.WriteString("\n}\n")
 }
 
-func (g Gql) GenGraphqlGoRootQueryFunc(dbType string, connectionString string, gqlObjectTypes map[string]substancegen.GenObjectType, buff *bytes.Buffer) {
+func (g Gql) GenGraphqlGoRootQueryFunc(gqlObjectTypes map[string]substancegen.GenObjectType, buff *bytes.Buffer) {
 	buff.WriteString("\n\tvar Fields := graphql.Fields{")
 	for _, value := range gqlObjectTypes {
 		g.GenGraphqlGoQueryFieldsFunc(value, buff)
