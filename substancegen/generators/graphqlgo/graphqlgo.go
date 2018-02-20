@@ -8,6 +8,19 @@ import (
 
 func init() {
 	gqlPlugin := Gql{}
+	gqlPlugin.Initialize(&gqlPlugin)
+	substancegen.Register("graphql-go", gqlPlugin)
+}
+
+type Gql struct {
+	Name                  string
+	GraphqlDataTypes      map[string]string
+	GraphqlDbTypeGormFlag map[string]bool
+	GraphqlDbTypeImports  map[string]string
+}
+
+/*Initialize Gql data type mapping, Gorm db config*/
+func (g Gql) Initialize(gqlPlugin *Gql) {
 	gqlPlugin.GraphqlDataTypes = make(map[string]string)
 	gqlPlugin.GraphqlDataTypes["int"] = "graphql.Int"
 	gqlPlugin.GraphqlDataTypes["int8"] = "graphql.Int"
@@ -31,14 +44,6 @@ func init() {
 	gqlPlugin.GraphqlDbTypeImports = make(map[string]string)
 	gqlPlugin.GraphqlDbTypeImports["mysql"] = "\n\t\"github.com/jinzhu/gorm\"\n\t_ \"github.com/jinzhu/gorm/dialects/mysql\""
 	gqlPlugin.GraphqlDbTypeImports["postgres"] = "\n\t\"github.com/jinzhu/gorm\"\n\t_ \"github.com/jinzhu/gorm/dialects/postgres\""
-	substancegen.Register("graphql-go", gqlPlugin)
-}
-
-type Gql struct {
-	Name                  string
-	GraphqlDataTypes      map[string]string
-	GraphqlDbTypeGormFlag map[string]bool
-	GraphqlDbTypeImports  map[string]string
 }
 
 /*GetObjectTypesFunc*/
@@ -119,7 +124,7 @@ func (g Gql) ResolveRelationshipsFunc(dbType string, connectionString string, ta
 						KeyType:    []string{constraint.ConstraintType},
 						Tags:       gqlObjectTypes[constraint.TableName].Properties[constraint.ColumnName].Tags,
 					}
-					isPrimary := (stringInSlice("p", newGqlObjProperty.KeyType) || stringInSlice("PRIMARY KEY", newGqlObjProperty.KeyType))
+					isPrimary := (g.StringInSlice("p", newGqlObjProperty.KeyType) || g.StringInSlice("PRIMARY KEY", newGqlObjProperty.KeyType))
 					if isPrimary && g.GraphqlDbTypeGormFlag[dbType] {
 						newGqlObjProperty.Tags["gorm"] = append(newGqlObjProperty.Tags["gorm"], "primary_key"+";")
 					}
@@ -207,9 +212,9 @@ func (g Gql) ResolveRelationshipsFunc(dbType string, connectionString string, ta
 		//The Person object would have an array of Order objects to reflect the one-to-many relationship
 		//Add a new property to table
 		//Persons have many orders
-		isUnique := (stringInSlice("u", gqlObjectTypes[colRel.TableName].Properties[colRel.ColumnName].KeyType) || stringInSlice("UNIQUE", gqlObjectTypes[colRel.TableName].Properties[colRel.ColumnName].KeyType))
-		isPrimary := (stringInSlice("p", gqlObjectTypes[colRel.TableName].Properties[colRel.ColumnName].KeyType) || stringInSlice("PRIMARY KEY", gqlObjectTypes[colRel.TableName].Properties[colRel.ColumnName].KeyType))
-		isForeign := (stringInSlice("f", gqlObjectTypes[colRel.TableName].Properties[colRel.ColumnName].KeyType) || stringInSlice("FOREIGN KEY", gqlObjectTypes[colRel.TableName].Properties[colRel.ColumnName].KeyType))
+		isUnique := (g.StringInSlice("u", gqlObjectTypes[colRel.TableName].Properties[colRel.ColumnName].KeyType) || g.StringInSlice("UNIQUE", gqlObjectTypes[colRel.TableName].Properties[colRel.ColumnName].KeyType))
+		isPrimary := (g.StringInSlice("p", gqlObjectTypes[colRel.TableName].Properties[colRel.ColumnName].KeyType) || g.StringInSlice("PRIMARY KEY", gqlObjectTypes[colRel.TableName].Properties[colRel.ColumnName].KeyType))
+		isForeign := (g.StringInSlice("f", gqlObjectTypes[colRel.TableName].Properties[colRel.ColumnName].KeyType) || g.StringInSlice("FOREIGN KEY", gqlObjectTypes[colRel.TableName].Properties[colRel.ColumnName].KeyType))
 
 		if isForeign && !isPrimary && !isUnique {
 			gormTagForeign := "ForeignKey:" + colRel.ColumnName + ";"
@@ -247,7 +252,8 @@ func (g Gql) ResolveRelationshipsFunc(dbType string, connectionString string, ta
 	return gqlObjectTypes
 }
 
-func stringInSlice(searchVal string, list []string) bool {
+/*StringInSlice searches for an exact match string in a slice of strings*/
+func (g Gql) StringInSlice(searchVal string, list []string) bool {
 	for _, val := range list {
 		if val == searchVal {
 			return true
