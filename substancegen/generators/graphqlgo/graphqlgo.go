@@ -75,7 +75,7 @@ func (g Gql) GetObjectTypesFunc(dbType string, connectionString string, tableNam
 		if g.GraphqlDbTypeGormFlag[dbType] {
 			newGqlObjProperty.Tags["gorm"] = append(newGqlObjProperty.Tags["gorm"], "column:"+newGqlObjProperty.ScalarName+";")
 		}
-		gqlObjectTypes[colDesc.TableName].Properties[colDesc.PropertyName] = newGqlObjProperty
+		gqlObjectTypes[colDesc.TableName].Properties[colDesc.PropertyName] = &newGqlObjProperty
 	}
 	//resolve relationships
 	gqlObjectTypes = g.ResolveRelationshipsFunc(dbType,
@@ -114,77 +114,32 @@ func (g Gql) ResolveRelationshipsFunc(dbType string, connectionString string, ta
 
 func (g Gql) ResolveConstraintsFunc(dbType string, constraintDesc []substance.ColumnConstraint, gqlObjectTypes map[string]substancegen.GenObjectType) {
 	for _, constraint := range constraintDesc {
-		gqlKeyTypes := gqlObjectTypes[constraint.TableName].Properties[constraint.ColumnName].KeyType
+		gqlKeyTypes := &gqlObjectTypes[constraint.TableName].Properties[constraint.ColumnName].KeyType
+		gqlTags := &gqlObjectTypes[constraint.TableName].Properties[constraint.ColumnName].Tags
 		//fmt.Println("GQL Key Type ", constraint.TableName, constraint.ColumnName, gqlKeyTypes)
-		for _, gqlKeyType := range gqlKeyTypes {
+		for _, gqlKeyType := range *gqlKeyTypes {
 			switch {
 			case gqlKeyType == "" || gqlKeyType == " ":
-
-				newGqlObjProperty := substancegen.GenObjectProperty{
-					ScalarName: gqlObjectTypes[constraint.TableName].Properties[constraint.ColumnName].ScalarName,
-					ScalarType: gqlObjectTypes[constraint.TableName].Properties[constraint.ColumnName].ScalarType,
-					Nullable:   gqlObjectTypes[constraint.TableName].Properties[constraint.ColumnName].Nullable,
-					KeyType:    []string{constraint.ConstraintType},
-					Tags:       gqlObjectTypes[constraint.TableName].Properties[constraint.ColumnName].Tags,
-				}
-				isPrimary := (g.StringInSlice("p", newGqlObjProperty.KeyType) || g.StringInSlice("PRIMARY KEY", newGqlObjProperty.KeyType))
+				gqlObjectTypes[constraint.TableName].Properties[constraint.ColumnName].KeyType = []string{constraint.ConstraintType}
+				isPrimary := (g.StringInSlice("p", gqlObjectTypes[constraint.TableName].Properties[constraint.ColumnName].KeyType) ||
+					g.StringInSlice("PRIMARY KEY", gqlObjectTypes[constraint.TableName].Properties[constraint.ColumnName].KeyType))
 				if isPrimary && g.GraphqlDbTypeGormFlag[dbType] {
-					newGqlObjProperty.Tags["gorm"] = append(newGqlObjProperty.Tags["gorm"], "primary_key"+";")
+					(*gqlTags)["gorm"] = append((*gqlTags)["gorm"], "primary_key"+";")
 				}
-
-				gqlObjectTypes[constraint.TableName].Properties[constraint.ColumnName] = newGqlObjProperty
-
 			case gqlKeyType == "p" || gqlKeyType == "PRIMARY KEY":
 				if constraint.ConstraintType == "f" || constraint.ConstraintType == "FOREIGN KEY" {
-					newGqlObjProperty := substancegen.GenObjectProperty{
-						ScalarName: gqlObjectTypes[constraint.TableName].Properties[constraint.ColumnName].ScalarName,
-						ScalarType: gqlObjectTypes[constraint.TableName].Properties[constraint.ColumnName].ScalarType,
-						Nullable:   gqlObjectTypes[constraint.TableName].Properties[constraint.ColumnName].Nullable,
-						KeyType:    append(gqlKeyTypes, "f"),
-						Tags:       gqlObjectTypes[constraint.TableName].Properties[constraint.ColumnName].Tags,
-					}
-
-					gqlObjectTypes[constraint.TableName].Properties[constraint.ColumnName] = newGqlObjProperty
-
+					gqlObjectTypes[constraint.TableName].Properties[constraint.ColumnName].KeyType = append(gqlObjectTypes[constraint.TableName].Properties[constraint.ColumnName].KeyType, "f")
 				}
 			case gqlKeyType == "u" || gqlKeyType == "UNIQUE":
 				if constraint.ConstraintType == "f" || constraint.ConstraintType == "FOREIGN KEY" {
-
-					newGqlObjProperty := substancegen.GenObjectProperty{
-						ScalarName: gqlObjectTypes[constraint.TableName].Properties[constraint.ColumnName].ScalarName,
-						ScalarType: gqlObjectTypes[constraint.TableName].Properties[constraint.ColumnName].ScalarType,
-						Nullable:   gqlObjectTypes[constraint.TableName].Properties[constraint.ColumnName].Nullable,
-						KeyType:    append(gqlKeyTypes, "f"),
-						Tags:       gqlObjectTypes[constraint.TableName].Properties[constraint.ColumnName].Tags,
-					}
-
-					gqlObjectTypes[constraint.TableName].Properties[constraint.ColumnName] = newGqlObjProperty
-
+					gqlObjectTypes[constraint.TableName].Properties[constraint.ColumnName].KeyType = append(gqlObjectTypes[constraint.TableName].Properties[constraint.ColumnName].KeyType, "f")
 				}
 			case gqlKeyType == "f" || gqlKeyType == "FOREIGN KEY":
 				if constraint.ConstraintType == "p" || constraint.ConstraintType == "PRIMARY KEY" {
-
-					newGqlObjProperty := substancegen.GenObjectProperty{
-						ScalarName: gqlObjectTypes[constraint.TableName].Properties[constraint.ColumnName].ScalarName,
-						ScalarType: gqlObjectTypes[constraint.TableName].Properties[constraint.ColumnName].ScalarType,
-						Nullable:   gqlObjectTypes[constraint.TableName].Properties[constraint.ColumnName].Nullable,
-						KeyType:    append(gqlKeyTypes, "p"),
-						Tags:       gqlObjectTypes[constraint.TableName].Properties[constraint.ColumnName].Tags,
-					}
-
-					gqlObjectTypes[constraint.TableName].Properties[constraint.ColumnName] = newGqlObjProperty
+					gqlObjectTypes[constraint.TableName].Properties[constraint.ColumnName].KeyType = append(gqlObjectTypes[constraint.TableName].Properties[constraint.ColumnName].KeyType, "p")
 
 				} else if constraint.ConstraintType == "u" || constraint.ConstraintType == "UNIQUE" {
-
-					newGqlObjProperty := substancegen.GenObjectProperty{
-						ScalarName: gqlObjectTypes[constraint.TableName].Properties[constraint.ColumnName].ScalarName,
-						ScalarType: gqlObjectTypes[constraint.TableName].Properties[constraint.ColumnName].ScalarType,
-						Nullable:   gqlObjectTypes[constraint.TableName].Properties[constraint.ColumnName].Nullable,
-						KeyType:    append(gqlKeyTypes, "u"),
-						Tags:       gqlObjectTypes[constraint.TableName].Properties[constraint.ColumnName].Tags,
-					}
-
-					gqlObjectTypes[constraint.TableName].Properties[constraint.ColumnName] = newGqlObjProperty
+					gqlObjectTypes[constraint.TableName].Properties[constraint.ColumnName].KeyType = append(gqlObjectTypes[constraint.TableName].Properties[constraint.ColumnName].KeyType, "u")
 
 				}
 			}
@@ -234,7 +189,7 @@ func (g Gql) ResolveForeignRefsFunc(dbType string, relationshipDesc []substance.
 			if g.GraphqlDbTypeGormFlag[dbType] {
 				newGqlObjProperty.Tags["gorm"] = append(newGqlObjProperty.Tags["gorm"], gormTagForeign, gormTagAssociationForeign)
 			}
-			gqlObjectTypes[colRel.ReferenceTableName].Properties[colRel.TableName] = newGqlObjProperty
+			gqlObjectTypes[colRel.ReferenceTableName].Properties[colRel.TableName] = &newGqlObjProperty
 		} else if (isUnique || isPrimary) && isForeign {
 			gormTagForeign := "ForeignKey:" + colRel.ColumnName + ";"
 			gormTagAssociationForeign := "AssociationForeignKey:" + colRel.ReferenceColumnName + ";"
@@ -249,7 +204,7 @@ func (g Gql) ResolveForeignRefsFunc(dbType string, relationshipDesc []substance.
 			if g.GraphqlDbTypeGormFlag[dbType] {
 				newGqlObjProperty.Tags["gorm"] = append(newGqlObjProperty.Tags["gorm"], gormTagForeign, gormTagAssociationForeign)
 			}
-			gqlObjectTypes[colRel.ReferenceTableName].Properties[colRel.TableName] = newGqlObjProperty
+			gqlObjectTypes[colRel.ReferenceTableName].Properties[colRel.TableName] = &newGqlObjProperty
 
 		}
 	}

@@ -49,7 +49,7 @@ func (g Gql) GenObjectTypeToStringFunc(gqlObjectType substancegen.GenObjectType,
 	gqlObjectTypeNameSingular := inflection.Singular(gqlObjectType.Name)
 	buff.WriteString(fmt.Sprintf("\ntype %s struct {\n", gqlObjectTypeNameSingular))
 	for _, property := range gqlObjectType.Properties {
-		g.GenObjectPropertyToStringFunc(property, buff)
+		g.GenObjectPropertyToStringFunc(*property, buff)
 	}
 	buff.WriteString("}\n")
 }
@@ -93,7 +93,7 @@ func (g Gql) GenGraphqlGoTypeFunc(gqlObjectType substancegen.GenObjectType, buff
 	buff.WriteString(fmt.Sprintf("\nvar %sType = graphql.NewObject(\n\tgraphql.ObjectConfig{\n\t\tName: \"%s\",\n\t\tFields: graphql.Fields{\n\t\t\t", gqlObjectTypeNameLowCamel, gqlObjectTypeNameSingular))
 
 	for _, property := range gqlObjectType.Properties {
-		g.GenGraphqlGoTypePropertyFunc(property, buff)
+		g.GenGraphqlGoTypePropertyFunc(*property, buff)
 	}
 
 	buff.WriteString(fmt.Sprintf("\n\t\t},\n\t},\n)\n"))

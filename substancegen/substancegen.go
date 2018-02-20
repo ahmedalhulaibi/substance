@@ -44,7 +44,7 @@ type GenObjectProperty struct {
 /*GenObjectProperties a type defining a map of GenObjectProperty
 Key: PropertyName
 Value: GenObjectProperty */
-type GenObjectProperties map[string]GenObjectProperty
+type GenObjectProperties map[string]*GenObjectProperty
 
 /*GenObjectType represents an object (aka a struct) */
 type GenObjectType struct {
