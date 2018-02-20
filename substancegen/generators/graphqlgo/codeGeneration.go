@@ -145,13 +145,6 @@ func (g Gql) GenGraphqlGoRootQueryFunc(gqlObjectTypes map[string]substancegen.Ge
 	buff.WriteString("\n}\n")
 }
 
-func (g Gql) GenGraphqlGoRootQueryFunc(dbType string, connectionString string, gqlObjectTypes map[string]substancegen.GenObjectType, buff *bytes.Buffer) {
-	buff.WriteString("\n\tvar Fields := graphql.Fields{")
-	for _, value := range gqlObjectTypes {
-		g.GenGraphqlGoQueryFieldsFunc(value, buff)
-	}
-}
-
 func (g Gql) GenGraphqlGoQueryFieldsFunc(gqlObjectType substancegen.GenObjectType, buff *bytes.Buffer) {
 	gqlObjectTypeNameSingular := inflection.Singular(gqlObjectType.Name)
 	a := []rune(inflection.Singular(gqlObjectType.Name))
