@@ -449,3 +449,100 @@ func TestGql_OutputGraphqlSchema(t *testing.T) {
 		})
 	}
 }
+
+func TestGql_OutputCodeFunc(t *testing.T) {
+	type fields struct {
+		Name                  string
+		GraphqlDataTypes      map[string]string
+		GraphqlDbTypeGormFlag map[string]bool
+		GraphqlDbTypeImports  map[string]string
+	}
+	type args struct {
+		dbType           string
+		connectionString string
+		gqlObjectTypes   map[string]substancegen.GenObjectType
+	}
+	tests := []struct {
+		name   string
+		fields fields
+		args   args
+		want   bytes.Buffer
+	}{
+	// TODO: Add test cases.
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			g := Gql{
+				Name:                  tt.fields.Name,
+				GraphqlDataTypes:      tt.fields.GraphqlDataTypes,
+				GraphqlDbTypeGormFlag: tt.fields.GraphqlDbTypeGormFlag,
+				GraphqlDbTypeImports:  tt.fields.GraphqlDbTypeImports,
+			}
+			if got := g.OutputCodeFunc(tt.args.dbType, tt.args.connectionString, tt.args.gqlObjectTypes); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("Gql.OutputCodeFunc() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestGql_GenGraphqlGoRootQueryFunc(t *testing.T) {
+	type fields struct {
+		Name                  string
+		GraphqlDataTypes      map[string]string
+		GraphqlDbTypeGormFlag map[string]bool
+		GraphqlDbTypeImports  map[string]string
+	}
+	type args struct {
+		gqlObjectTypes map[string]substancegen.GenObjectType
+		buff           *bytes.Buffer
+	}
+	tests := []struct {
+		name   string
+		fields fields
+		args   args
+	}{
+	// TODO: Add test cases.
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			g := Gql{
+				Name:                  tt.fields.Name,
+				GraphqlDataTypes:      tt.fields.GraphqlDataTypes,
+				GraphqlDbTypeGormFlag: tt.fields.GraphqlDbTypeGormFlag,
+				GraphqlDbTypeImports:  tt.fields.GraphqlDbTypeImports,
+			}
+			g.GenGraphqlGoRootQueryFunc(tt.args.gqlObjectTypes, tt.args.buff)
+		})
+	}
+}
+
+func TestGql_GenObjectGormCrud(t *testing.T) {
+	type fields struct {
+		Name                  string
+		GraphqlDataTypes      map[string]string
+		GraphqlDbTypeGormFlag map[string]bool
+		GraphqlDbTypeImports  map[string]string
+	}
+	type args struct {
+		gqlObjectType substancegen.GenObjectType
+		buff          *bytes.Buffer
+	}
+	tests := []struct {
+		name   string
+		fields fields
+		args   args
+	}{
+	// TODO: Add test cases.
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			g := Gql{
+				Name:                  tt.fields.Name,
+				GraphqlDataTypes:      tt.fields.GraphqlDataTypes,
+				GraphqlDbTypeGormFlag: tt.fields.GraphqlDbTypeGormFlag,
+				GraphqlDbTypeImports:  tt.fields.GraphqlDbTypeImports,
+			}
+			g.GenObjectGormCrud(tt.args.gqlObjectType, tt.args.buff)
+		})
+	}
+}
