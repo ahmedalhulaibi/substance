@@ -26,24 +26,10 @@ func (m mysql) GetCurrentDatabaseNameFunc(dbType string, connectionString string
 	if err != nil {
 		return "nil", err
 	}
-	rows, err := db.Query("SELECT DATABASE()")
-	if err != nil {
-		return "nil", err
-	}
 
-	// Get column names
-	columns, err := rows.Columns()
+	rows, _, values, scanArgs, err := m.ExecuteQuery(dbType, connectionString, "", GetCurrentDatabaseNameQuery)
 	if err != nil {
-		return "nil", err
-	}
-	// Make a slice for the values
-	values := make([]interface{}, len(columns))
-
-	// rows.Scan wants '[]interface{}' as an argument, so we must copy the
-	// references into such a slice
-	scanArgs := make([]interface{}, len(values))
-	for i := range values {
-		scanArgs[i] = &values[i]
+		return "", err
 	}
 
 	var returnValue string
@@ -80,24 +66,10 @@ func (m mysql) DescribeDatabaseFunc(dbType string, connectionString string) ([]s
 	if err != nil {
 		return nil, err
 	}
-	rows, err := db.Query(DescribeDatabaseQuery)
+
+	rows, columns, values, scanArgs, err := m.ExecuteQuery(dbType, connectionString, "", DescribeDatabaseQuery)
 	if err != nil {
 		return nil, err
-	}
-
-	// Get column names
-	columns, err := rows.Columns()
-	if err != nil {
-		return nil, err
-	}
-	// Make a slice for the values
-	values := make([]interface{}, len(columns))
-
-	// rows.Scan wants '[]interface{}' as an argument, so we must copy the
-	// references into such a slice
-	scanArgs := make([]interface{}, len(values))
-	for i := range values {
-		scanArgs[i] = &values[i]
 	}
 
 	columnDesc := []substance.ColumnDescription{}
@@ -148,24 +120,9 @@ func (m mysql) DescribeTableFunc(dbType string, connectionString string, tableNa
 		return nil, err
 	}
 	query := fmt.Sprintf(DescribeTableQuery, tableName)
-	rows, err := db.Query(query)
+	rows, columns, values, scanArgs, err := m.ExecuteQuery(dbType, connectionString, "", query)
 	if err != nil {
 		return nil, err
-	}
-
-	// Get column names
-	columns, err := rows.Columns()
-	if err != nil {
-		return nil, err
-	}
-	// Make a slice for the values
-	values := make([]interface{}, len(columns))
-
-	// rows.Scan wants '[]interface{}' as an argument, so we must copy the
-	// references into such a slice
-	scanArgs := make([]interface{}, len(values))
-	for i := range values {
-		scanArgs[i] = &values[i]
 	}
 
 	columnDesc := []substance.ColumnDescription{}
@@ -233,25 +190,11 @@ func (m mysql) DescribeTableRelationshipFunc(dbType string, connectionString str
 	if err != nil {
 		return nil, err
 	}
-	query := fmt.Sprintf(DescribeTableRelationshipQuery, databaseName, tableName)
-	rows, err := db.Query(query)
+	query := fmt.Sprintf(DescribeTableRelationshipQuery, databaseName)
+
+	rows, columns, values, scanArgs, err := m.ExecuteQuery(dbType, connectionString, tableName, query)
 	if err != nil {
 		return nil, err
-	}
-
-	// Get column names
-	columns, err := rows.Columns()
-	if err != nil {
-		return nil, err
-	}
-	// Make a slice for the values
-	values := make([]interface{}, len(columns))
-
-	// rows.Scan wants '[]interface{}' as an argument, so we must copy the
-	// references into such a slice
-	scanArgs := make([]interface{}, len(values))
-	for i := range values {
-		scanArgs[i] = &values[i]
 	}
 
 	columnRel := []substance.ColumnRelationship{}
@@ -301,29 +244,9 @@ func (m mysql) DescribeTableConstraintsFunc(dbType string, connectionString stri
 		return nil, err
 	}
 
+	rows, columns, values, scanArgs, err := m.ExecuteQuery(dbType, connectionString, tableName, DescribeTableConstraintsQuery)
 	if err != nil {
 		return nil, err
-	}
-	query := fmt.Sprintf(DescribeTableConstraintsQuery, tableName)
-	rows, err := db.Query(query)
-
-	if err != nil {
-		return nil, err
-	}
-
-	// Get column names
-	columns, err := rows.Columns()
-	if err != nil {
-		return nil, err
-	}
-	// Make a slice for the values
-	values := make([]interface{}, len(columns))
-
-	// rows.Scan wants '[]interface{}' as an argument, so we must copy the
-	// references into such a slice
-	scanArgs := make([]interface{}, len(values))
-	for i := range values {
-		scanArgs[i] = &values[i]
 	}
 
 	columnCon := []substance.ColumnConstraint{}
@@ -352,6 +275,40 @@ func (m mysql) DescribeTableConstraintsFunc(dbType string, connectionString stri
 		//fmt.Println("-----------------------------------")
 	}
 	return columnCon, nil
+}
+
+func (m mysql) ExecuteQuery(dbType string, connectionString string, tableName string, query string) (rows *sql.Rows, columns []string, values []interface{}, scanArgs []interface{}, err error) {
+	db, err := sql.Open(dbType, connectionString)
+	defer db.Close()
+	if err != nil {
+		return rows, columns, values, scanArgs, err
+	}
+
+	if tableName == "" {
+		rows, err = db.Query(query)
+	} else {
+		rows, err = db.Query(query, tableName)
+	}
+	if err != nil {
+		return rows, columns, values, scanArgs, err
+	}
+
+	// Get column names
+	columns, err = rows.Columns()
+	if err != nil {
+		return rows, columns, values, scanArgs, err
+	}
+	// Make a slice for the values
+	values = make([]interface{}, len(columns))
+
+	// rows.Scan wants '[]interface{}' as an argument, so we must copy the
+	// references into such a slice
+	scanArgs = make([]interface{}, len(values))
+	for i := range values {
+		scanArgs[i] = &values[i]
+	}
+
+	return rows, columns, values, scanArgs, err
 }
 
 func (m mysql) GetGoDataType(sqlType string) (string, error) {
