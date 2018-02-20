@@ -126,8 +126,8 @@ func (g Gql) ResolveGraphqlGoFieldType(gqlObjectProperty substancegen.GenObjectP
 }
 
 func (g Gql) GenGraphqlGoMainFunc(dbType string, connectionString string, gqlObjectTypes map[string]substancegen.GenObjectType, buff *bytes.Buffer) {
-	buff.WriteString(fmt.Sprintf("\nvar db *gorm.DB\n\n"))
-	buff.WriteString(fmt.Sprintf("\nfunc main() {\n\n\tdb, err := gorm.Open(\"%s\",\"%s\")\n\tdefer db.Close()\n\n\t", dbType, connectionString))
+	buff.WriteString(fmt.Sprintf("\nvar DB *gorm.DB\n\n"))
+	buff.WriteString(fmt.Sprintf("\nfunc main() {\n\n\tDB, err := gorm.Open(\"%s\",\"%s\")\n\tdefer DB.Close()\n\n\t", dbType, connectionString))
 	sampleQuery := g.GenGraphqlGoSampleQuery(gqlObjectTypes)
 	buff.WriteString(fmt.Sprintf("\n\tfmt.Println(\"Test with Get\t: curl -g 'http://localhost:8080/graphql?query={%s}'\")", sampleQuery.String()))
 
@@ -149,7 +149,7 @@ func (g Gql) GenGraphqlGoQueryFieldsFunc(gqlObjectType substancegen.GenObjectTyp
 	buff.WriteString(fmt.Sprintf("\n\t\t\"%s\": &graphql.Field{\n\t\t\tType: %sType,", gqlObjectTypeNameSingular, gqlObjectTypeNameLowCamel))
 	buff.WriteString(fmt.Sprintf("\n\t\t\tResolve: func(p graphql.ResolveParams) (interface{}, error) {"))
 	buff.WriteString(fmt.Sprintf("\n\t\t\t\t%s := %s{}", gqlObjectTypeNameLowCamel, gqlObjectTypeNameSingular))
-	buff.WriteString(fmt.Sprintf("\n\t\t\t\tdb.First(&%s)", gqlObjectTypeNameLowCamel))
+	buff.WriteString(fmt.Sprintf("\n\t\t\t\tDB.First(&%s)", gqlObjectTypeNameLowCamel))
 
 	for _, propVal := range gqlObjectType.Properties {
 		if propVal.IsObjectType {
@@ -162,13 +162,13 @@ func (g Gql) GenGraphqlGoQueryFieldsFunc(gqlObjectType substancegen.GenObjectTyp
 			if propVal.IsList {
 				buff.WriteString(fmt.Sprintf("\n\t\t\t\t%s := []%s{}", propValNameLowCamel, propVal.ScalarType))
 
-				buff.WriteString(fmt.Sprintf("\n\t\t\t\tdb.Model(&%s).Association(\"%s\").Find(&%s)", gqlObjectTypeNameLowCamel, propVal.ScalarName, propValNameLowCamel))
+				buff.WriteString(fmt.Sprintf("\n\t\t\t\tDB.Model(&%s).Association(\"%s\").Find(&%s)", gqlObjectTypeNameLowCamel, propVal.ScalarName, propValNameLowCamel))
 
 				buff.WriteString(fmt.Sprintf("\n\t\t\t\t%s.%s = append(%s.%s, %s...)", gqlObjectTypeNameLowCamel, propValNameUpperCamel, gqlObjectTypeNameLowCamel, propValNameUpperCamel, propValNameLowCamel))
 			} else {
 				buff.WriteString(fmt.Sprintf("\n\t\t\t\t%s := %s{}", propValNameLowCamel, propVal.ScalarType))
 
-				buff.WriteString(fmt.Sprintf("\n\t\t\t\tdb.Model(&%s).Association(\"%s\").Find(&%s)", gqlObjectTypeNameLowCamel, propVal.ScalarName, propValNameLowCamel))
+				buff.WriteString(fmt.Sprintf("\n\t\t\t\tDB.Model(&%s).Association(\"%s\").Find(&%s)", gqlObjectTypeNameLowCamel, propVal.ScalarName, propValNameLowCamel))
 
 				buff.WriteString(fmt.Sprintf("\n\t\t\t\t%s.%s = %s", gqlObjectTypeNameLowCamel, propValNameUpperCamel, propValNameLowCamel))
 			}
