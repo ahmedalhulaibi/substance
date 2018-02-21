@@ -9,9 +9,6 @@ type GeneratorInterface interface {
 	GetObjectTypesFunc(dbType string, connectionString string, tableNames []string) map[string]GenObjectType
 	ResolveRelationshipsFunc(dbType string, connectionString string, tableNames []string, genObjects map[string]GenObjectType) map[string]GenObjectType
 	OutputCodeFunc(dbType string, connectionString string, gqlObjectTypes map[string]GenObjectType) bytes.Buffer
-	GenObjectTypeToStringFunc(GenObjectType, *bytes.Buffer)
-	GenObjectPropertyToStringFunc(GenObjectProperty, *bytes.Buffer)
-	GenObjectTagToStringFunc(GenObjectTag, *bytes.Buffer)
 }
 
 /*SubstanceGenPlugins is a map storing a reference to the current plugins
