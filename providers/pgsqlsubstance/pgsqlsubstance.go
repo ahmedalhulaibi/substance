@@ -51,7 +51,7 @@ func (p pgsql) GetCurrentDatabaseNameFunc(dbType string, connectionString string
 				}
 			}
 		}
-		//fmt.Println("-----------------------------------")
+
 	}
 
 	return returnValue, err
@@ -81,7 +81,6 @@ func (p pgsql) DescribeDatabaseFunc(dbType string, connectionString string) ([]s
 		return nil, err
 	}
 
-	//newColDesc to be added to columnDesc array
 	newColDesc := substance.ColumnDescription{DatabaseName: databaseName, PropertyType: "Table"}
 
 	for queryResult.Rows.Next() {
@@ -153,7 +152,7 @@ func (p pgsql) DescribeTableFunc(dbType string, connectionString string, tableNa
 			}
 		}
 		columnDesc = append(columnDesc, newColDesc)
-		//fmt.Println("-----------------------------------")
+
 	}
 	return columnDesc, nil
 }
@@ -177,7 +176,7 @@ func (p pgsql) DescribeTableRelationshipFunc(dbType string, connectionString str
 	}
 	columnDesc := []substance.ColumnRelationship{}
 	newColDesc := substance.ColumnRelationship{}
-	//newColDesc.TableName = tableName
+
 	for queryResult.Rows.Next() {
 		err = queryResult.Rows.Scan(queryResult.ScanArgs...)
 		if err != nil {
@@ -186,10 +185,10 @@ func (p pgsql) DescribeTableRelationshipFunc(dbType string, connectionString str
 
 		// Print data
 		for i, value := range queryResult.Values {
-			//fmt.Printf("DescribeTableRelationshipFunc Value %T ", value)
+
 			switch value.(type) {
 			case string:
-				//fmt.Println("\t", columns[i], ": ", value)
+
 				switch queryResult.Columns[i] {
 				case "table_name":
 					newColDesc.TableName = string(value.(string))
@@ -197,7 +196,6 @@ func (p pgsql) DescribeTableRelationshipFunc(dbType string, connectionString str
 					newColDesc.ColumnName = string(value.(string))
 				}
 			case []byte:
-				//fmt.Println("\t", columns[i], ": ", string(value.([]byte)))
 
 				switch queryResult.Columns[i] {
 				case "ref_table":
@@ -251,7 +249,6 @@ func (p pgsql) DescribeTableConstraintsFunc(dbType string, connectionString stri
 		for i, value := range queryResult.Values {
 			switch value.(type) {
 			case string:
-				//fmt.Println("\t", columns[i], ": ", string(value.(string)))
 
 				switch queryResult.Columns[i] {
 				case "table_name":
@@ -262,7 +259,7 @@ func (p pgsql) DescribeTableConstraintsFunc(dbType string, connectionString stri
 					newColDesc.ConstraintType = string(value.(string))
 				}
 			default:
-				//fmt.Println("\t", columns[i], ": ", value)
+
 			}
 		}
 		columnDesc = append(columnDesc, newColDesc)
