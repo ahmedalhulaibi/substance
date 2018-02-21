@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"unicode"
 
+	"github.com/ahmedalhulaibi/substance/substancegen/generators/gostruct"
+
 	"github.com/jinzhu/inflection"
 
 	"github.com/ahmedalhulaibi/substance/substancegen"
@@ -17,7 +19,7 @@ func (g Gql) OutputCodeFunc(dbType string, connectionString string, gqlObjectTyp
 	//print schema
 	g.AddJSONTagsToProperties(gqlObjectTypes)
 	for _, value := range gqlObjectTypes {
-		g.GenObjectTypeToStringFunc(value, &buff)
+		gostruct.GenObjectTypeToStructFunc(value, &buff)
 		g.GenGormObjectTableNameOverrideFunc(value, &buff)
 		g.GenGraphqlGoTypeFunc(value, &buff)
 	}
@@ -43,41 +45,6 @@ func (g Gql) GenPackageImports(dbType string, buff *bytes.Buffer) {
 		buff.WriteString(importVal)
 	}
 	buff.WriteString("\n)")
-}
-
-func (g Gql) GenObjectTypeToStringFunc(gqlObjectType substancegen.GenObjectType, buff *bytes.Buffer) {
-	gqlObjectTypeNameSingular := inflection.Singular(gqlObjectType.Name)
-	buff.WriteString(fmt.Sprintf("\ntype %s struct {\n", gqlObjectTypeNameSingular))
-	for _, property := range gqlObjectType.Properties {
-		g.GenObjectPropertyToStringFunc(*property, buff)
-	}
-	buff.WriteString("}\n")
-}
-
-func (g Gql) GenObjectPropertyToStringFunc(gqlObjectProperty substancegen.GenObjectProperty, buff *bytes.Buffer) {
-
-	a := []rune(gqlObjectProperty.ScalarName)
-	a[0] = unicode.ToUpper(a[0])
-	gqlObjectPropertyNameUpper := string(a)
-	if gqlObjectProperty.IsList {
-		buff.WriteString(fmt.Sprintf("\t%s\t[]%s\t", gqlObjectPropertyNameUpper, gqlObjectProperty.ScalarType))
-	} else {
-		buff.WriteString(fmt.Sprintf("\t%s\t%s\t", gqlObjectPropertyNameUpper, gqlObjectProperty.ScalarType))
-	}
-	g.GenObjectTagToStringFunc(gqlObjectProperty.Tags, buff)
-	buff.WriteString("\n")
-}
-
-func (g Gql) GenObjectTagToStringFunc(genObjectTags substancegen.GenObjectTag, buff *bytes.Buffer) {
-	buff.WriteString("`")
-	for key, tags := range genObjectTags {
-		buff.WriteString(fmt.Sprintf("%s:\"", key))
-		for _, tag := range tags {
-			buff.WriteString(fmt.Sprintf("%s", tag))
-		}
-		buff.WriteString("\" ")
-	}
-	buff.WriteString("`")
 }
 
 func (g Gql) GenGormObjectTableNameOverrideFunc(gqlObjectType substancegen.GenObjectType, buff *bytes.Buffer) {
