@@ -3,6 +3,7 @@ package graphqlgo
 import (
 	"github.com/ahmedalhulaibi/substance"
 	"github.com/ahmedalhulaibi/substance/substancegen"
+	"github.com/ahmedalhulaibi/substance/substancegen/generators/genutil"
 	"github.com/jinzhu/inflection"
 )
 
@@ -121,8 +122,8 @@ func (g Gql) ResolveConstraintsFunc(dbType string, constraintDesc []substance.Co
 			switch {
 			case gqlKeyType == "" || gqlKeyType == " ":
 				gqlObjectTypes[constraint.TableName].Properties[constraint.ColumnName].KeyType = []string{constraint.ConstraintType}
-				isPrimary := (g.StringInSlice("p", gqlObjectTypes[constraint.TableName].Properties[constraint.ColumnName].KeyType) ||
-					g.StringInSlice("PRIMARY KEY", gqlObjectTypes[constraint.TableName].Properties[constraint.ColumnName].KeyType))
+				isPrimary := (genutil.StringInSlice("p", gqlObjectTypes[constraint.TableName].Properties[constraint.ColumnName].KeyType) ||
+					genutil.StringInSlice("PRIMARY KEY", gqlObjectTypes[constraint.TableName].Properties[constraint.ColumnName].KeyType))
 				if isPrimary && g.GraphqlDbTypeGormFlag[dbType] {
 					(*gqlTags)["gorm"] = append((*gqlTags)["gorm"], "primary_key"+";")
 				}
@@ -171,9 +172,9 @@ func (g Gql) ResolveForeignRefsFunc(dbType string, relationshipDesc []substance.
 		//The Person object would have an array of Order objects to reflect the one-to-many relationship
 		//Add a new property to table
 		//Persons have many orders
-		isUnique := (g.StringInSlice("u", gqlObjectTypes[colRel.TableName].Properties[colRel.ColumnName].KeyType) || g.StringInSlice("UNIQUE", gqlObjectTypes[colRel.TableName].Properties[colRel.ColumnName].KeyType))
-		isPrimary := (g.StringInSlice("p", gqlObjectTypes[colRel.TableName].Properties[colRel.ColumnName].KeyType) || g.StringInSlice("PRIMARY KEY", gqlObjectTypes[colRel.TableName].Properties[colRel.ColumnName].KeyType))
-		isForeign := (g.StringInSlice("f", gqlObjectTypes[colRel.TableName].Properties[colRel.ColumnName].KeyType) || g.StringInSlice("FOREIGN KEY", gqlObjectTypes[colRel.TableName].Properties[colRel.ColumnName].KeyType))
+		isUnique := (genutil.StringInSlice("u", gqlObjectTypes[colRel.TableName].Properties[colRel.ColumnName].KeyType) || genutil.StringInSlice("UNIQUE", gqlObjectTypes[colRel.TableName].Properties[colRel.ColumnName].KeyType))
+		isPrimary := (genutil.StringInSlice("p", gqlObjectTypes[colRel.TableName].Properties[colRel.ColumnName].KeyType) || genutil.StringInSlice("PRIMARY KEY", gqlObjectTypes[colRel.TableName].Properties[colRel.ColumnName].KeyType))
+		isForeign := (genutil.StringInSlice("f", gqlObjectTypes[colRel.TableName].Properties[colRel.ColumnName].KeyType) || genutil.StringInSlice("FOREIGN KEY", gqlObjectTypes[colRel.TableName].Properties[colRel.ColumnName].KeyType))
 
 		if isForeign && !isPrimary && !isUnique {
 			gormTagForeign := "ForeignKey:" + colRel.ColumnName + ";"
@@ -208,13 +209,4 @@ func (g Gql) ResolveForeignRefsFunc(dbType string, relationshipDesc []substance.
 
 		}
 	}
-}
-
-func (g Gql) StringInSlice(searchVal string, list []string) bool {
-	for _, val := range list {
-		if val == searchVal {
-			return true
-		}
-	}
-	return false
 }
