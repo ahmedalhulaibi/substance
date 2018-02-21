@@ -27,6 +27,11 @@ Key: gorm
 Tabs: {'primary_key','column_name'}*/
 type GenObjectTag map[string][]string
 
+/*TODO: Create new type to store KeyType to map [string]string
+This will require changes in generators/graphqlgo pkg
+This will require changes in generators/gorm.go pkg + gorm_test.go
+This will require changes in generators/gostruct_test.go*/
+
 /*GenObjectProperty represents a property of an object (aka a field of a struct) */
 type GenObjectProperty struct {
 	ScalarName   string       `json:"scalarName"`
