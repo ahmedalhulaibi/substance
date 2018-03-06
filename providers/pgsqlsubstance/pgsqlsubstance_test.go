@@ -83,6 +83,10 @@ func TestGetGoDataType(t *testing.T) {
 		"UNSIGNED DOUBLE PRECISION(5,2)",
 		"REAL",
 		"POINT",
+		"NUMERIC",
+		"NUMERIC(5,4)",
+		"JSONB",
+		"JSON",
 	}
 	for _, sqlDatatype := range sqlDatatypes {
 		goDataType, err := pgsqlProvider.GetGoDataType(strings.ToLower(sqlDatatype))

@@ -81,6 +81,10 @@ func TestGetGoDataType(t *testing.T) {
 		"UNSIGNED DOUBLE(5,2)",
 		"UNSIGNED DOUBLE PRECISION",
 		"UNSIGNED DOUBLE PRECISION(5,2)",
+		"NUMERIC",
+		"NUMERIC(5,4)",
+		"JSONB",
+		"JSON",
 	}
 	for _, sqlDatatype := range sqlDatatypes {
 		goDataType, err := mysqlProvider.GetGoDataType(strings.ToLower(sqlDatatype))
