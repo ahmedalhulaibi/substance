@@ -50,8 +50,9 @@ type GenObjectProperties map[string]*GenObjectProperty
 
 /*GenObjectType represents an object (aka a struct) */
 type GenObjectType struct {
-	Name       string              `json:"objectName"`
-	Properties GenObjectProperties `json:"properties"`
+	Name            string              `json:"objectName"`
+	SourceTableName string              `json:"sourceTableName"`
+	Properties      GenObjectProperties `json:"properties"`
 }
 
 /*Generate is a one stop function to quickly generate code */
