@@ -52,7 +52,7 @@ func (g Gql) GetObjectTypesFunc(dbType string, connectionString string, tableNam
 
 	//for each table name add a new graphql type and init its properties
 	for _, tableName := range tableNames {
-		newGqlObj := substancegen.GenObjectType{Name: tableName}
+		newGqlObj := substancegen.GenObjectType{Name: inflection.Singular(tableName), SourceTableName: tableName}
 		newGqlObj.Properties = make(substancegen.GenObjectProperties)
 		gqlObjectTypes[tableName] = newGqlObj
 		//describe each table
