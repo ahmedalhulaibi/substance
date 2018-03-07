@@ -2,8 +2,8 @@ package gostruct
 
 import (
 	"bytes"
-	"html/template"
 	"log"
+	"text/template"
 
 	"github.com/ahmedalhulaibi/substance/substancegen"
 )
