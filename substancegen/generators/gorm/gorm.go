@@ -3,8 +3,8 @@ package gorm
 import (
 	"bytes"
 	"fmt"
-	"html/template"
 	"log"
+	"text/template"
 
 	"github.com/ahmedalhulaibi/substance/substancegen"
 	"github.com/ahmedalhulaibi/substance/substancegen/generators/genutil"
