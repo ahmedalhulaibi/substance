@@ -10,7 +10,7 @@ import (
 
 func TestGenGormObjectTableNameOverrideFunc(t *testing.T) {
 	var buff bytes.Buffer
-	newGenObjType := substancegen.GenObjectType{Name: "Customers"}
+	newGenObjType := substancegen.GenObjectType{Name: "Customer", SourceTableName: "Customers"}
 	newGenObjType.Properties = make(substancegen.GenObjectProperties)
 	newGenObjType.Properties["FirstName"] = &substancegen.GenObjectProperty{
 		IsList:       false,
@@ -38,7 +38,7 @@ func TestGenGormObjectTableNameOverrideFunc(t *testing.T) {
 
 	var expectedBuff bytes.Buffer
 
-	expectedBuff.WriteString(fmt.Sprintf("\nfunc (%s) TableName() string {\n\treturn \"%s\"\n}\n", "Customer", newGenObjType.Name))
+	expectedBuff.WriteString(fmt.Sprintf("\nfunc (%s) TableName() string {\n\treturn \"%s\"\n}\n", "Customer", newGenObjType.SourceTableName))
 
 	if buff.String() != expectedBuff.String() {
 		t.Errorf("Expected\n\n'%s'\n\nReceived\n\n'%s'\n\n", expectedBuff.String(), buff.String())
@@ -47,7 +47,7 @@ func TestGenGormObjectTableNameOverrideFunc(t *testing.T) {
 
 func TestGenObjectGormCreateFunc(t *testing.T) {
 	var buff bytes.Buffer
-	newGenObjType := substancegen.GenObjectType{Name: "Customer"}
+	newGenObjType := substancegen.GenObjectType{Name: "Customer", SourceTableName: "Customers"}
 	newGenObjType.Properties = make(substancegen.GenObjectProperties)
 	newGenObjType.Properties["FirstName"] = &substancegen.GenObjectProperty{
 		IsList:       false,
@@ -84,7 +84,7 @@ func TestGenObjectGormCreateFunc(t *testing.T) {
 
 func TestGenObjectGormReadFunc(t *testing.T) {
 	var buff bytes.Buffer
-	newGenObjType := substancegen.GenObjectType{Name: "Customer"}
+	newGenObjType := substancegen.GenObjectType{Name: "Customer", SourceTableName: "Customers"}
 	newGenObjType.Properties = make(substancegen.GenObjectProperties)
 	newGenObjType.Properties["FirstName"] = &substancegen.GenObjectProperty{
 		IsList:       false,
@@ -121,7 +121,7 @@ func TestGenObjectGormReadFunc(t *testing.T) {
 
 func TestGenObjectGormUpdateFunc(t *testing.T) {
 	var buff bytes.Buffer
-	newGenObjType := substancegen.GenObjectType{Name: "Customer"}
+	newGenObjType := substancegen.GenObjectType{Name: "Customer", SourceTableName: "Customers"}
 	newGenObjType.Properties = make(substancegen.GenObjectProperties)
 	newGenObjType.Properties["FirstName"] = &substancegen.GenObjectProperty{
 		IsList:       false,
@@ -158,7 +158,7 @@ func TestGenObjectGormUpdateFunc(t *testing.T) {
 
 func TestGenObjectGormDeleteFunc(t *testing.T) {
 	var buff bytes.Buffer
-	newGenObjType := substancegen.GenObjectType{Name: "Customer"}
+	newGenObjType := substancegen.GenObjectType{Name: "Customer", SourceTableName: "Customers"}
 	newGenObjType.Properties = make(substancegen.GenObjectProperties)
 	newGenObjType.Properties["FirstName"] = &substancegen.GenObjectProperty{
 		IsList:       false,
@@ -195,7 +195,7 @@ func TestGenObjectGormDeleteFunc(t *testing.T) {
 
 func TestGenObjectGormCrud(t *testing.T) {
 	var buff bytes.Buffer
-	newGenObjType := substancegen.GenObjectType{Name: "Customer"}
+	newGenObjType := substancegen.GenObjectType{Name: "Customer", SourceTableName: "Customers"}
 	newGenObjType.Properties = make(substancegen.GenObjectProperties)
 	newGenObjType.Properties["FirstName"] = &substancegen.GenObjectProperty{
 		IsList:       false,
