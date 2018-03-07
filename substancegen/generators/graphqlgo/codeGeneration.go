@@ -3,6 +3,8 @@ package graphqlgo
 import (
 	"bytes"
 	"fmt"
+	"log"
+	"text/template"
 	"unicode"
 
 	"github.com/ahmedalhulaibi/substance/substancegen/generators/gorm"
@@ -162,23 +164,24 @@ func (g Gql) GenGraphlGoSampleObjectQuery(gqlObjectTypes map[string]substancegen
 	buff.WriteString("},")
 }
 
-func (g Gql) OutputGraphqlSchema(gqlObjectTypes map[string]substancegen.GenObjectType) bytes.Buffer {
+func OutputGraphqlSchema(gqlObjectTypes map[string]substancegen.GenObjectType) bytes.Buffer {
 	var buff bytes.Buffer
+
+	graphqlSchemaTempalte := "type {{.Name}} {\n {{range .Properties}}\t{{.ScalarName}}: {{if .IsList}}[{{.ScalarType}}]{{else}}{{.ScalarType}}{{end}}{{if .Nullable}}{{else}}!{{end}}\n{{end}}}\n"
+	tmpl := template.New("graphqlSchema")
+	tmpl, err := tmpl.Parse(graphqlSchemaTempalte)
+	if err != nil {
+		log.Fatal("Parse: ", err)
+		return buff
+	}
 	//print schema
 	for _, value := range gqlObjectTypes {
-		buff.WriteString(fmt.Sprintf("type %s {\n", value.Name))
-		for _, propVal := range value.Properties {
-			nullSymbol := "!"
-			if propVal.Nullable {
-				nullSymbol = ""
-			}
-			if propVal.IsList {
-				buff.WriteString(fmt.Sprintf("\t %s: [%s]%s\n", propVal.ScalarName, propVal.ScalarType, nullSymbol))
-			} else {
-				buff.WriteString(fmt.Sprintf("\t %s: %s%s\n", propVal.ScalarName, propVal.ScalarType, nullSymbol))
-			}
+		err1 := tmpl.Execute(&buff, value)
+		if err1 != nil {
+			log.Fatal("Execute: ", err1)
+			return buff
 		}
-		buff.WriteString(fmt.Sprintf("}\n"))
 	}
+
 	return buff
 }
