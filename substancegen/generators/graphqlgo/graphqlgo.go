@@ -2,6 +2,7 @@ package graphqlgo
 
 import (
 	"fmt"
+	"unicode"
 
 	"github.com/ahmedalhulaibi/substance"
 	"github.com/ahmedalhulaibi/substance/substancegen"
@@ -55,7 +56,12 @@ func (g Gql) GetObjectTypesFunc(dbType string, connectionString string, tableNam
 
 	//for each table name add a new graphql type and init its properties
 	for _, tableName := range tableNames {
-		newGqlObj := substancegen.GenObjectType{Name: tableName}
+		a := []rune(inflection.Singular(tableName))
+		a[0] = unicode.ToUpper(a[0])
+		genObjectTypeNameUpper := string(a)
+		a[0] = unicode.ToLower(a[0])
+		genObjectTypeNameLower := string(a)
+		newGqlObj := substancegen.GenObjectType{Name: genObjectTypeNameUpper, LowerName: genObjectTypeNameLower, SourceTableName: tableName}
 		newGqlObj.Properties = make(substancegen.GenObjectProperties)
 		gqlObjectTypes[tableName] = newGqlObj
 		//describe each table
@@ -69,14 +75,18 @@ func (g Gql) GetObjectTypesFunc(dbType string, connectionString string, tableNam
 
 	//map types
 	for _, colDesc := range tableDesc {
+		a := []rune(inflection.Singular(colDesc.PropertyName))
+		a[0] = unicode.ToUpper(a[0])
+		colDescPropNameUpper := string(a)
 		newGqlObjProperty := substancegen.GenObjectProperty{
-			ScalarName: colDesc.PropertyName,
-			ScalarType: colDesc.PropertyType,
-			Nullable:   colDesc.Nullable,
-			KeyType:    []string{""},
+			ScalarName:      colDesc.PropertyName,
+			ScalarNameUpper: colDescPropNameUpper,
+			ScalarType:      colDesc.PropertyType,
+			Nullable:        colDesc.Nullable,
+			KeyType:         []string{""},
 		}
 		newGqlObjProperty.Tags = make(substancegen.GenObjectTag)
-		if g.GraphqlDbTypeGormFlag[dbType] {
+		if _, ok := g.GraphqlDbTypeGormFlag[dbType]; ok {
 			newGqlObjProperty.Tags["gorm"] = append(newGqlObjProperty.Tags["gorm"], "column:"+newGqlObjProperty.ScalarName+";")
 		}
 		gqlObjectTypes[colDesc.TableName].Properties[colDesc.PropertyName] = &newGqlObjProperty
@@ -186,11 +196,12 @@ func (g Gql) ResolveForeignRefsFunc(dbType string, relationshipDesc []substance.
 				gormTagForeign := "ForeignKey:" + colRel.ColumnName + ";"
 				gormTagAssociationForeign := "AssociationForeignKey:" + colRel.ReferenceColumnName + ";"
 				newGqlObjProperty := substancegen.GenObjectProperty{
-					ScalarName:   colRel.TableName,
-					ScalarType:   inflection.Singular(colRel.TableName),
-					Nullable:     true,
-					IsList:       true,
-					IsObjectType: true,
+					ScalarName:      inflection.Plural(gqlObjectTypes[colRel.TableName].Name),
+					ScalarNameUpper: inflection.Plural(gqlObjectTypes[colRel.TableName].Name),
+					ScalarType:      gqlObjectTypes[colRel.TableName].Name,
+					Nullable:        true,
+					IsList:          true,
+					IsObjectType:    true,
 				}
 				newGqlObjProperty.Tags = make(substancegen.GenObjectTag)
 				if g.GraphqlDbTypeGormFlag[dbType] {
@@ -201,11 +212,12 @@ func (g Gql) ResolveForeignRefsFunc(dbType string, relationshipDesc []substance.
 				gormTagForeign := "ForeignKey:" + colRel.ColumnName + ";"
 				gormTagAssociationForeign := "AssociationForeignKey:" + colRel.ReferenceColumnName + ";"
 				newGqlObjProperty := substancegen.GenObjectProperty{
-					ScalarName:   inflection.Singular(colRel.TableName),
-					ScalarType:   inflection.Singular(colRel.TableName),
-					Nullable:     true,
-					IsList:       false,
-					IsObjectType: true,
+					ScalarName:      gqlObjectTypes[colRel.TableName].Name,
+					ScalarNameUpper: gqlObjectTypes[colRel.TableName].Name,
+					ScalarType:      gqlObjectTypes[colRel.TableName].Name,
+					Nullable:        true,
+					IsList:          false,
+					IsObjectType:    true,
 				}
 				newGqlObjProperty.Tags = make(substancegen.GenObjectTag)
 				if g.GraphqlDbTypeGormFlag[dbType] {
