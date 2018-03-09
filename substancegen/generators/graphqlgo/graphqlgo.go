@@ -75,11 +75,15 @@ func (g Gql) GetObjectTypesFunc(dbType string, connectionString string, tableNam
 
 	//map types
 	for _, colDesc := range tableDesc {
+		a := []rune(inflection.Singular(colDesc.PropertyName))
+		a[0] = unicode.ToUpper(a[0])
+		colDescPropNameUpper := string(a)
 		newGqlObjProperty := substancegen.GenObjectProperty{
-			ScalarName: colDesc.PropertyName,
-			ScalarType: colDesc.PropertyType,
-			Nullable:   colDesc.Nullable,
-			KeyType:    []string{""},
+			ScalarName:      colDesc.PropertyName,
+			ScalarNameUpper: colDescPropNameUpper,
+			ScalarType:      colDesc.PropertyType,
+			Nullable:        colDesc.Nullable,
+			KeyType:         []string{""},
 		}
 		newGqlObjProperty.Tags = make(substancegen.GenObjectTag)
 		if _, ok := g.GraphqlDbTypeGormFlag[dbType]; ok {

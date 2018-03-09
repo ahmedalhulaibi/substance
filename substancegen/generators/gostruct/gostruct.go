@@ -10,7 +10,7 @@ import (
 
 /*GenObjectTypeToStructFunc takes a GenObjectType and writes it to a buffer as a go struct*/
 func GenObjectTypeToStructFunc(genObjectType substancegen.GenObjectType, buff *bytes.Buffer) {
-	gostructTemplate := "\ntype {{.Name}} struct { {{range .Properties}}\n\t{{.ScalarName}}\t{{if .IsList}}[]{{end}}{{.ScalarType}}\t`{{range $index, $element := .Tags}}{{$index}}:{{range $element}}\"{{.}}\"{{end}} {{end}}`{{end}}\n}\n"
+	gostructTemplate := "\ntype {{.Name}} struct { {{range .Properties}}\n\t{{.ScalarNameUpper}}\t{{if .IsList}}[]{{end}}{{.ScalarType}}\t`{{range $index, $element := .Tags}}{{$index}}:{{range $element}}\"{{.}}\"{{end}} {{end}}`{{end}}\n}\n"
 
 	tmpl := template.New("gostruct")
 	tmpl, err := tmpl.Parse(gostructTemplate)
