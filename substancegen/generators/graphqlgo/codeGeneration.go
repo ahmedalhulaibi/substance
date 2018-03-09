@@ -31,7 +31,7 @@ func (g Gql) OutputCodeFunc(dbType string, connectionString string, gqlObjectTyp
 	buff.WriteString(GraphqlGoExecuteQueryFunc)
 	graphqlFieldsBuff := GenGraphqlGoFieldsFunc(gqlObjectTypes)
 	buff.Write(graphqlFieldsBuff.Bytes())
-	g.GenGraphqlGoMainFunc(dbType, connectionString, gqlObjectTypes, &buff)
+	GenGraphqlGoMainFunc(dbType, connectionString, gqlObjectTypes, &buff)
 	return buff
 }
 
@@ -84,7 +84,7 @@ func (g Gql) ResolveGraphqlGoFieldType(gqlObjectProperty substancegen.GenObjectP
 	return gqlPropertyTypeName
 }
 
-func (g Gql) GenGraphqlGoMainFunc(dbType string, connectionString string, gqlObjectTypes map[string]substancegen.GenObjectType, buff *bytes.Buffer) {
+func GenGraphqlGoMainFunc(dbType string, connectionString string, gqlObjectTypes map[string]substancegen.GenObjectType, buff *bytes.Buffer) {
 	buff.WriteString(fmt.Sprintf("\nvar DB *gorm.DB\n\n"))
 	buff.WriteString(fmt.Sprintf("\nfunc main() {\n\n\tDB, _ = gorm.Open(\"%s\",\"%s\")\n\tdefer DB.Close()\n\n\t", dbType, connectionString))
 	sampleQuery := GenGraphqlGoSampleQuery(gqlObjectTypes)
