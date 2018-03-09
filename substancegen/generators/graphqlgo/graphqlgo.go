@@ -153,9 +153,10 @@ func (g Gql) ResolveConstraintsFunc(dbType string, constraintDesc []substance.Co
 }
 
 func (g Gql) ResolveForeignRefsFunc(dbType string, relationshipDesc []substance.ColumnRelationship, gqlObjectTypes map[string]substancegen.GenObjectType) {
-
 	for _, colRel := range relationshipDesc {
-		if _, ok := gqlObjectTypes[colRel.TableName]; ok {
+		_, colRelTableOk := gqlObjectTypes[colRel.TableName]
+		_, colRelRefTableOk := gqlObjectTypes[colRel.ReferenceTableName]
+		if colRelTableOk && colRelRefTableOk {
 
 			//replace the type info with the appropriate object
 			//Example:
@@ -213,8 +214,14 @@ func (g Gql) ResolveForeignRefsFunc(dbType string, relationshipDesc []substance.
 				gqlObjectTypes[colRel.ReferenceTableName].Properties[colRel.TableName] = &newGqlObjProperty
 
 			}
-		} else {
+		}
+
+		if !colRelTableOk {
 			log.Errorf(fmt.Sprintf("%s Table definition not found in ResolveForeignRefsFunc gqlObjectTypes", colRel.TableName))
+		}
+
+		if !colRelRefTableOk {
+			log.Errorf(fmt.Sprintf("%s Table definition not found in ResolveForeignRefsFunc gqlObjectTypes", colRel.ReferenceTableName))
 		}
 	}
 }
