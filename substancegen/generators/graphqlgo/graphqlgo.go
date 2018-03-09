@@ -196,8 +196,8 @@ func (g Gql) ResolveForeignRefsFunc(dbType string, relationshipDesc []substance.
 				gormTagForeign := "ForeignKey:" + colRel.ColumnName + ";"
 				gormTagAssociationForeign := "AssociationForeignKey:" + colRel.ReferenceColumnName + ";"
 				newGqlObjProperty := substancegen.GenObjectProperty{
-					ScalarName:   colRel.TableName,
-					ScalarType:   inflection.Singular(colRel.TableName),
+					ScalarName:   gqlObjectTypes[colRel.TableName].Name,
+					ScalarType:   gqlObjectTypes[colRel.TableName].Name,
 					Nullable:     true,
 					IsList:       true,
 					IsObjectType: true,
@@ -211,8 +211,8 @@ func (g Gql) ResolveForeignRefsFunc(dbType string, relationshipDesc []substance.
 				gormTagForeign := "ForeignKey:" + colRel.ColumnName + ";"
 				gormTagAssociationForeign := "AssociationForeignKey:" + colRel.ReferenceColumnName + ";"
 				newGqlObjProperty := substancegen.GenObjectProperty{
-					ScalarName:   inflection.Singular(colRel.TableName),
-					ScalarType:   inflection.Singular(colRel.TableName),
+					ScalarName:   gqlObjectTypes[colRel.TableName].Name,
+					ScalarType:   gqlObjectTypes[colRel.TableName].Name,
 					Nullable:     true,
 					IsList:       false,
 					IsObjectType: true,
