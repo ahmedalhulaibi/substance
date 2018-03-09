@@ -64,9 +64,9 @@ func GenObjectGormReadFunc(gqlObjectType substancegen.GenObjectType, buff *bytes
 func GenObjectGormUpdateFunc(gqlObjectType substancegen.GenObjectType, buff *bytes.Buffer) {
 	gqlObjectTypeNameSingular := inflection.Singular(gqlObjectType.Name)
 	var primaryKeyColumn string
-	for index, propVal := range gqlObjectType.Properties {
+	for _, propVal := range gqlObjectType.Properties {
 		if genutil.StringInSlice("p", propVal.KeyType) || genutil.StringInSlice("PRIMARY KEY", propVal.KeyType) {
-			primaryKeyColumn = index
+			primaryKeyColumn = propVal.ScalarNameUpper
 			break
 		}
 	}
