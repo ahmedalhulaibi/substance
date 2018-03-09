@@ -80,7 +80,7 @@ func (g Gql) GetObjectTypesFunc(dbType string, connectionString string, tableNam
 			KeyType:    []string{""},
 		}
 		newGqlObjProperty.Tags = make(substancegen.GenObjectTag)
-		if g.GraphqlDbTypeGormFlag[dbType] {
+		if _, ok := g.GraphqlDbTypeGormFlag[dbType]; ok {
 			newGqlObjProperty.Tags["gorm"] = append(newGqlObjProperty.Tags["gorm"], "column:"+newGqlObjProperty.ScalarName+";")
 		}
 		gqlObjectTypes[colDesc.TableName].Properties[colDesc.PropertyName] = &newGqlObjProperty
