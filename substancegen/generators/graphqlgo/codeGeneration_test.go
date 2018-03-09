@@ -128,7 +128,7 @@ func TestGenGraphqlGoFieldsFunc(t *testing.T) {
 				DB.First(&CustomerObj)
 				ShoppingListObj := []string{}
 				DB.Model(&CustomerObj).Association("ShoppingList").Find(&ShoppingListObj)
-				CustomerObj.ShoppingList = append(CustomerObj.ShoppingList, ShoppingList...)
+				CustomerObj.ShoppingList = append(CustomerObj.ShoppingList, ShoppingListObj...)
 				return CustomerObj, nil
 			},
 		},
