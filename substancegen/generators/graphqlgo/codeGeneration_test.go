@@ -80,7 +80,7 @@ func TestGenGraphqlGoSampleQueryFunc(t *testing.T) {
 
 	var expectedBuff bytes.Buffer
 
-	expectedBuff.WriteString(fmt.Sprintf("Customer { FirstName, ShoppingList, },"))
+	expectedBuff.WriteString(fmt.Sprintf("Customer{FirstName,ShoppingList,},"))
 
 	if buff.String() != expectedBuff.String() {
 		t.Errorf("Expected\n\n'%s'\n\nReceived\n\n'%s'\n\n", expectedBuff.String(), buff.String())

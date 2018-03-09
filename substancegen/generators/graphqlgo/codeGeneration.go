@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"log"
+	"strings"
 	"text/template"
 	"unicode"
 
@@ -134,6 +135,10 @@ func GenGraphqlGoSampleQuery(gqlObjectTypes map[string]substancegen.GenObjectTyp
 			return buff
 		}
 	}
+	bufferString := buff.String()
+	bufferString = strings.Replace(bufferString, " ", "", -1)
+	buff.Reset()
+	buff.WriteString(bufferString)
 	return buff
 }
 
@@ -156,6 +161,5 @@ func OutputGraphqlSchema(gqlObjectTypes map[string]substancegen.GenObjectType) b
 			return buff
 		}
 	}
-
 	return buff
 }
