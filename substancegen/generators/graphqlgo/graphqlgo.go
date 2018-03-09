@@ -198,7 +198,7 @@ func (g Gql) ResolveForeignRefsFunc(dbType string, relationshipDesc []substance.
 				newGqlObjProperty := substancegen.GenObjectProperty{
 					ScalarName:      inflection.Plural(gqlObjectTypes[colRel.TableName].Name),
 					ScalarNameUpper: inflection.Plural(gqlObjectTypes[colRel.TableName].Name),
-					ScalarType:      inflection.Plural(gqlObjectTypes[colRel.TableName].Name),
+					ScalarType:      gqlObjectTypes[colRel.TableName].Name,
 					Nullable:        true,
 					IsList:          true,
 					IsObjectType:    true,
