@@ -119,7 +119,7 @@ func GenGraphqlGoFieldsFunc(gqlObjectTypes map[string]substancegen.GenObjectType
 
 func GenGraphqlGoSampleQuery(gqlObjectTypes map[string]substancegen.GenObjectType) bytes.Buffer {
 	var buff bytes.Buffer
-	graphqlQueryTemplate := `{{.Name}} { {{range .Properties}}{{if .IsObjectType}}{{else}}{{.ScalarName}},{{end}} {{end}}},`
+	graphqlQueryTemplate := `{{.Name}} { {{range .Properties}}{{if not .IsObjectType}}{{.ScalarName}},{{end}} {{end}}},`
 	tmpl := template.New("graphqlQuery")
 	tmpl, err := tmpl.Parse(graphqlQueryTemplate)
 	if err != nil {
