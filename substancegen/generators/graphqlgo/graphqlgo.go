@@ -58,8 +58,10 @@ func (g Gql) GetObjectTypesFunc(dbType string, connectionString string, tableNam
 	for _, tableName := range tableNames {
 		a := []rune(inflection.Singular(tableName))
 		a[0] = unicode.ToUpper(a[0])
-		genObjectTypeName := string(a)
-		newGqlObj := substancegen.GenObjectType{Name: genObjectTypeName, SourceTableName: tableName}
+		genObjectTypeNameUpper := string(a)
+		a[0] = unicode.ToLower(a[0])
+		genObjectTypeNameLower := string(a)
+		newGqlObj := substancegen.GenObjectType{Name: genObjectTypeNameUpper, LowerName: genObjectTypeNameLower, SourceTableName: tableName}
 		newGqlObj.Properties = make(substancegen.GenObjectProperties)
 		gqlObjectTypes[tableName] = newGqlObj
 		//describe each table
