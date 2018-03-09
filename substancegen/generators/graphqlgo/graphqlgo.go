@@ -2,6 +2,7 @@ package graphqlgo
 
 import (
 	"fmt"
+	"unicode"
 
 	"github.com/ahmedalhulaibi/substance"
 	"github.com/ahmedalhulaibi/substance/substancegen"
@@ -55,7 +56,10 @@ func (g Gql) GetObjectTypesFunc(dbType string, connectionString string, tableNam
 
 	//for each table name add a new graphql type and init its properties
 	for _, tableName := range tableNames {
-		newGqlObj := substancegen.GenObjectType{Name: inflection.Singular(tableName), SourceTableName: tableName}
+		a := []rune(inflection.Singular(tableName))
+		a[0] = unicode.ToUpper(a[0])
+		genObjectTypeName := string(a)
+		newGqlObj := substancegen.GenObjectType{Name: genObjectTypeName, SourceTableName: tableName}
 		newGqlObj.Properties = make(substancegen.GenObjectProperties)
 		gqlObjectTypes[tableName] = newGqlObj
 		//describe each table
