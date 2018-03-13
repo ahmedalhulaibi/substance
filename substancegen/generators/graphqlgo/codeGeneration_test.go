@@ -1,4 +1,4 @@
-package gorm
+package graphqlgo
 
 import (
 	"bytes"
@@ -8,7 +8,7 @@ import (
 	"github.com/ahmedalhulaibi/substance/substancegen"
 )
 
-func TestGenGormObjectTableNameOverrideFunc(t *testing.T) {
+func TestOutputGraphqlSchemaFunc(t *testing.T) {
 	var buff bytes.Buffer
 	newGenObjType := substancegen.GenObjectType{Name: "Customer", LowerName: "customer", SourceTableName: "Customers"}
 	newGenObjType.Properties = make(substancegen.GenObjectProperties)
@@ -35,19 +35,19 @@ func TestGenGormObjectTableNameOverrideFunc(t *testing.T) {
 	}
 	newGenObjType.Properties["ShoppingList"].Tags = make(substancegen.GenObjectTag)
 	newGenObjType.Properties["ShoppingList"].Tags["json"] = append(newGenObjType.Properties["ShoppingList"].Tags["json"], "shoppingList")
-
-	GenGormObjectTableNameOverrideFunc(newGenObjType, &buff)
+	genObjMap := make(map[string]substancegen.GenObjectType)
+	genObjMap["Customers"] = newGenObjType
+	buff = OutputGraphqlSchema(genObjMap)
 
 	var expectedBuff bytes.Buffer
 
-	expectedBuff.WriteString(fmt.Sprintf("\nfunc (%s) TableName() string {\n\treturn \"%s\"\n}\n", "Customer", newGenObjType.SourceTableName))
+	expectedBuff.WriteString(fmt.Sprintf("type Customer {\n \tFirstName: string!\n\tShoppingList: [string]!\n}\n"))
 
 	if buff.String() != expectedBuff.String() {
 		t.Errorf("Expected\n\n'%s'\n\nReceived\n\n'%s'\n\n", expectedBuff.String(), buff.String())
 	}
 }
-
-func TestGenObjectGormCreateFunc(t *testing.T) {
+func TestGenGraphqlGoSampleQueryFunc(t *testing.T) {
 	var buff bytes.Buffer
 	newGenObjType := substancegen.GenObjectType{Name: "Customer", LowerName: "customer", SourceTableName: "Customers"}
 	newGenObjType.Properties = make(substancegen.GenObjectProperties)
@@ -74,19 +74,19 @@ func TestGenObjectGormCreateFunc(t *testing.T) {
 	}
 	newGenObjType.Properties["ShoppingList"].Tags = make(substancegen.GenObjectTag)
 	newGenObjType.Properties["ShoppingList"].Tags["json"] = append(newGenObjType.Properties["ShoppingList"].Tags["json"], "shoppingList")
-
-	GenObjectGormCreateFunc(newGenObjType, &buff)
+	genObjMap := make(map[string]substancegen.GenObjectType)
+	genObjMap["Customers"] = newGenObjType
+	buff = GenGraphqlGoSampleQuery(genObjMap)
 
 	var expectedBuff bytes.Buffer
 
-	expectedBuff.WriteString(fmt.Sprintf("\n\nfunc CreateCustomer (db *gorm.DB, newCustomer Customer) {\n\tdb.Create(&newCustomer)\n}"))
+	expectedBuff.WriteString(fmt.Sprintf("Customer{FirstName,ShoppingList,},"))
 
 	if buff.String() != expectedBuff.String() {
 		t.Errorf("Expected\n\n'%s'\n\nReceived\n\n'%s'\n\n", expectedBuff.String(), buff.String())
 	}
 }
-
-func TestGenObjectGormReadFunc(t *testing.T) {
+func TestGenGraphqlGoFieldsFunc(t *testing.T) {
 	var buff bytes.Buffer
 	newGenObjType := substancegen.GenObjectType{Name: "Customer", LowerName: "customer", SourceTableName: "Customers"}
 	newGenObjType.Properties = make(substancegen.GenObjectProperties)
@@ -104,7 +104,7 @@ func TestGenObjectGormReadFunc(t *testing.T) {
 
 	newGenObjType.Properties["ShoppingList"] = &substancegen.GenObjectProperty{
 		IsList:          true,
-		IsObjectType:    false,
+		IsObjectType:    true,
 		KeyType:         []string{""},
 		ScalarName:      "ShoppingList",
 		ScalarNameUpper: "ShoppingList",
@@ -113,19 +113,33 @@ func TestGenObjectGormReadFunc(t *testing.T) {
 	}
 	newGenObjType.Properties["ShoppingList"].Tags = make(substancegen.GenObjectTag)
 	newGenObjType.Properties["ShoppingList"].Tags["json"] = append(newGenObjType.Properties["ShoppingList"].Tags["json"], "shoppingList")
-
-	GenObjectGormReadFunc(newGenObjType, &buff)
+	genObjMap := make(map[string]substancegen.GenObjectType)
+	genObjMap["Customers"] = newGenObjType
+	buff = GenGraphqlGoFieldsFunc(genObjMap)
 
 	var expectedBuff bytes.Buffer
 
-	expectedBuff.WriteString(fmt.Sprintf("\n\nfunc GetCustomer (db *gorm.DB, queryCustomer Customer, resultCustomer *Customer) {\n\tdb.Where(&queryCustomer).First(resultCustomer)\n}"))
+	expectedBuff.WriteString(`
+	var Fields = graphql.Fields{
+		"Customer": &graphql.Field{
+			Type: customerType,
+			Resolve: func(p graphql.ResolveParams) (interface{}, error) {
+				CustomerObj := Customer{}
+				DB.First(&CustomerObj)
+				ShoppingListObj := []string{}
+				DB.Model(&CustomerObj).Association("ShoppingList").Find(&ShoppingListObj)
+				CustomerObj.ShoppingList = append(CustomerObj.ShoppingList, ShoppingListObj...)
+				return CustomerObj, nil
+			},
+		},
+}
+`)
 
 	if buff.String() != expectedBuff.String() {
 		t.Errorf("Expected\n\n'%s'\n\nReceived\n\n'%s'\n\n", expectedBuff.String(), buff.String())
 	}
 }
-
-func TestGenObjectGormUpdateFunc(t *testing.T) {
+func TestGenGraphqlGoMainFunc(t *testing.T) {
 	var buff bytes.Buffer
 	newGenObjType := substancegen.GenObjectType{Name: "Customer", LowerName: "customer", SourceTableName: "Customers"}
 	newGenObjType.Properties = make(substancegen.GenObjectProperties)
@@ -143,7 +157,7 @@ func TestGenObjectGormUpdateFunc(t *testing.T) {
 
 	newGenObjType.Properties["ShoppingList"] = &substancegen.GenObjectProperty{
 		IsList:          true,
-		IsObjectType:    false,
+		IsObjectType:    true,
 		KeyType:         []string{""},
 		ScalarName:      "ShoppingList",
 		ScalarNameUpper: "ShoppingList",
@@ -152,98 +166,51 @@ func TestGenObjectGormUpdateFunc(t *testing.T) {
 	}
 	newGenObjType.Properties["ShoppingList"].Tags = make(substancegen.GenObjectTag)
 	newGenObjType.Properties["ShoppingList"].Tags["json"] = append(newGenObjType.Properties["ShoppingList"].Tags["json"], "shoppingList")
-
-	GenObjectGormUpdateFunc(newGenObjType, &buff)
+	genObjMap := make(map[string]substancegen.GenObjectType)
+	genObjMap["Customers"] = newGenObjType
+	GenGraphqlGoMainFunc("test", "testConnString", genObjMap, &buff)
 
 	var expectedBuff bytes.Buffer
 
-	expectedBuff.WriteString(fmt.Sprintf("\n\nfunc UpdateCustomer (db *gorm.DB, oldCustomer Customer, newCustomer Customer, resultCustomer *Customer) {\n\tvar oldResultCustomer Customer\n\tdb.Where(&oldCustomer).First(&oldResultCustomer)\n\tif oldResultCustomer.FirstName == newCustomer.FirstName {\n\t\toldResultCustomer = newCustomer\n\t\tdb.Save(oldResultCustomer)\n\t}\n\tGetCustomer(db, newCustomer, resultCustomer)\n}"))
+	expectedBuff.WriteString(`
+var DB *gorm.DB
 
-	if buff.String() != expectedBuff.String() {
-		t.Errorf("Expected\n\n'%s'\n\nReceived\n\n'%s'\n\n", expectedBuff.String(), buff.String())
+
+func main() {
+
+	DB, _ = gorm.Open("test","testConnString")
+	defer DB.Close()
+
+	
+	fmt.Println("Test with Get	: curl -g 'http://localhost:8080/graphql?query={Customer{FirstName,},}'")
+	rootQuery := graphql.ObjectConfig{Name: "RootQuery", Fields: Fields}
+	schemaConfig := graphql.SchemaConfig{Query: graphql.NewObject(rootQuery)}
+	schema, err := graphql.NewSchema(schemaConfig)
+	if err != nil {
+		log.Fatalf("failed to create new schema, error: %v", err)
 	}
+
+	gHandler := handler.New(&handler.Config{
+		Schema:   &schema,
+		Pretty:   true,
+		GraphiQL: true,
+	})
+	http.Handle("/graphql", gHandler)
+
+	fmt.Println("Now server is running on port 8080")
+	http.ListenAndServe(":8080", nil)
+
 }
-
-func TestGenObjectGormDeleteFunc(t *testing.T) {
-	var buff bytes.Buffer
-	newGenObjType := substancegen.GenObjectType{Name: "Customer", LowerName: "customer", SourceTableName: "Customers"}
-	newGenObjType.Properties = make(substancegen.GenObjectProperties)
-	newGenObjType.Properties["FirstName"] = &substancegen.GenObjectProperty{
-		IsList:          false,
-		IsObjectType:    false,
-		KeyType:         []string{"PRIMARY KEY"},
-		ScalarName:      "FirstName",
-		ScalarNameUpper: "FirstName",
-		ScalarType:      "string",
-		Nullable:        false,
-	}
-	newGenObjType.Properties["FirstName"].Tags = make(substancegen.GenObjectTag)
-	newGenObjType.Properties["FirstName"].Tags["json"] = append(newGenObjType.Properties["FirstName"].Tags["json"], "firstName")
-
-	newGenObjType.Properties["ShoppingList"] = &substancegen.GenObjectProperty{
-		IsList:          true,
-		IsObjectType:    false,
-		KeyType:         []string{""},
-		ScalarName:      "ShoppingList",
-		ScalarNameUpper: "ShoppingList",
-		ScalarType:      "string",
-		Nullable:        false,
-	}
-	newGenObjType.Properties["ShoppingList"].Tags = make(substancegen.GenObjectTag)
-	newGenObjType.Properties["ShoppingList"].Tags["json"] = append(newGenObjType.Properties["ShoppingList"].Tags["json"], "shoppingList")
-
-	GenObjectGormDeleteFunc(newGenObjType, &buff)
-
-	var expectedBuff bytes.Buffer
-
-	expectedBuff.WriteString(fmt.Sprintf("\n\nfunc DeleteCustomer (db *gorm.DB, oldCustomer Customer) {\n\tdb.Delete(&oldCustomer)\n}"))
+`)
 
 	if buff.String() != expectedBuff.String() {
-		t.Errorf("Expected\n\n'%s'\n\nReceived\n\n'%s'\n\n", expectedBuff.String(), buff.String())
-	}
-}
-
-func TestGenObjectGormCrud(t *testing.T) {
-	var buff bytes.Buffer
-	newGenObjType := substancegen.GenObjectType{Name: "Customer", LowerName: "customer", SourceTableName: "Customers"}
-	newGenObjType.Properties = make(substancegen.GenObjectProperties)
-	newGenObjType.Properties["FirstName"] = &substancegen.GenObjectProperty{
-		IsList:          false,
-		IsObjectType:    false,
-		KeyType:         []string{"PRIMARY KEY"},
-		ScalarName:      "FirstName",
-		ScalarNameUpper: "FirstName",
-		ScalarType:      "string",
-		Nullable:        false,
-	}
-	newGenObjType.Properties["FirstName"].Tags = make(substancegen.GenObjectTag)
-	newGenObjType.Properties["FirstName"].Tags["json"] = append(newGenObjType.Properties["FirstName"].Tags["json"], "firstName")
-
-	newGenObjType.Properties["ShoppingList"] = &substancegen.GenObjectProperty{
-		IsList:          true,
-		IsObjectType:    false,
-		KeyType:         []string{""},
-		ScalarName:      "ShoppingList",
-		ScalarNameUpper: "ShoppingList",
-		ScalarType:      "string",
-		Nullable:        false,
-	}
-	newGenObjType.Properties["ShoppingList"].Tags = make(substancegen.GenObjectTag)
-	newGenObjType.Properties["ShoppingList"].Tags["json"] = append(newGenObjType.Properties["ShoppingList"].Tags["json"], "shoppingList")
-
-	GenObjectGormCrud(newGenObjType, &buff)
-
-	var expectedBuff bytes.Buffer
-
-	expectedBuff.WriteString(fmt.Sprintf("\n\nfunc CreateCustomer (db *gorm.DB, newCustomer Customer) {\n\tdb.Create(&newCustomer)\n}"))
-
-	expectedBuff.WriteString(fmt.Sprintf("\n\nfunc GetCustomer (db *gorm.DB, queryCustomer Customer, resultCustomer *Customer) {\n\tdb.Where(&queryCustomer).First(resultCustomer)\n}"))
-
-	expectedBuff.WriteString(fmt.Sprintf("\n\nfunc UpdateCustomer (db *gorm.DB, oldCustomer Customer, newCustomer Customer, resultCustomer *Customer) {\n\tvar oldResultCustomer Customer\n\tdb.Where(&oldCustomer).First(&oldResultCustomer)\n\tif oldResultCustomer.FirstName == newCustomer.FirstName {\n\t\toldResultCustomer = newCustomer\n\t\tdb.Save(oldResultCustomer)\n\t}\n\tGetCustomer(db, newCustomer, resultCustomer)\n}"))
-
-	expectedBuff.WriteString(fmt.Sprintf("\n\nfunc DeleteCustomer (db *gorm.DB, oldCustomer Customer) {\n\tdb.Delete(&oldCustomer)\n}"))
-
-	if buff.String() != expectedBuff.String() {
-		t.Errorf("Expected\n\n'%s'\n\nReceived\n\n'%s'\n\n", expectedBuff.String(), buff.String())
+		t.Errorf("Expected\n\n'%v'\n\nReceived\n\n'%v'\n\n", expectedBuff, buff)
+		expectedBuffBytes := expectedBuff.Bytes()
+		buffBytes := buff.Bytes()
+		for i, _ := range expectedBuffBytes {
+			if expectedBuffBytes[i] != buffBytes[i] {
+				fmt.Println(i)
+			}
+		}
 	}
 }
