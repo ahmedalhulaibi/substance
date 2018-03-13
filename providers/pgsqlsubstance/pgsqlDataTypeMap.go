@@ -14,5 +14,8 @@ func init() {
 	regexDataTypePatterns["bigint.*"] = "int64"
 	regexDataTypePatterns["unsigned\\sbigint.*"] = "uint64"
 	regexDataTypePatterns["(unsigned\\s){0,1}(double.*|float.*|dec.*|real|numeric.*)"] = "float64"
-	regexDataTypePatterns["varchar.*|date.*|time.*|year.*|char.*|.*text.*|enum.*|set.*|.*blob.*|.*binary.*|point|jsonb|json"] = "string"
+	regexDataTypePatterns["varchar.*|date.*|year.*|char.*|.*text.*|enum.*|set.*|.*blob.*|.*binary.*|point"] = "string"
+	regexDataTypePatterns["time.*"] = "time.Time"
+	regexDataTypePatterns["jsonb"] = "postgres.Jsonb"
+	regexDataTypePatterns["hstore"] = "postgres.Hstore"
 }
