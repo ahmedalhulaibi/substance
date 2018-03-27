@@ -6,7 +6,6 @@ import (
 	"text/template"
 
 	"github.com/ahmedalhulaibi/substance/substancegen"
-	"github.com/ahmedalhulaibi/substance/substancegen/generators/genutil"
 )
 
 /*GenGormObjectTableNameOverrideFunc generates a function to override the GORM default table name
@@ -62,11 +61,11 @@ func GenObjectGormReadFunc(gqlObjectType substancegen.GenObjectType, buff *bytes
 func GenObjectGormUpdateFunc(gqlObjectType substancegen.GenObjectType, buff *bytes.Buffer) {
 	primaryKeyColumn := ""
 	for _, propVal := range gqlObjectType.Properties {
-		if genutil.StringInSlice("p", propVal.KeyType) || genutil.StringInSlice("PRIMARY KEY", propVal.KeyType) {
+		if substancegen.StringInSlice("p", propVal.KeyType) || substancegen.StringInSlice("PRIMARY KEY", propVal.KeyType) {
 			primaryKeyColumn = propVal.ScalarNameUpper
 			break
 		}
-		if genutil.StringInSlice("u", propVal.KeyType) || genutil.StringInSlice("UNIQUE", propVal.KeyType) {
+		if substancegen.StringInSlice("u", propVal.KeyType) || substancegen.StringInSlice("UNIQUE", propVal.KeyType) {
 			primaryKeyColumn = propVal.ScalarNameUpper
 			break
 		}
