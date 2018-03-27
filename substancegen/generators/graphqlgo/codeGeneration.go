@@ -42,21 +42,7 @@ func (g Gql) GenerateGraphqlGoTypesFunc(gqlObjectTypes map[string]substancegen.G
 			}
 		}
 	}
-	graphqlTypesTemplate := `
-
-{{range $key, $value := . }}var {{.LowerName}}Type = graphql.NewObject(
-	graphql.ObjectConfig{
-		Name: "{{.Name}}",
-		Fields: graphql.Fields{
-			{{range .Properties}}"{{.ScalarNameUpper}}":&graphql.Field{
-				Type: {{.AltScalarType}}
-			},
-			{{end}}
-		},
-	},
-){{end}}
-
-`
+	graphqlTypesTemplate := "{{range $key, $value := . }}var {{.LowerName}}Type = graphql.NewObject(\n\tgraphql.ObjectConfig{\n\t\tName: \"{{.Name}}\",\n\t\tFields: graphql.Fields{\n\t\t\t{{range .Properties}}\"{{.ScalarNameUpper}}\":&graphql.Field{\n\t\t\t\tType: {{.AltScalarType}}\n\t\t\t},\n\t\t\t{{end}}\n\t\t},\n\t},\n)\n{{end}}"
 
 	tmpl := template.New("graphqlTypes")
 	tmpl, err := tmpl.Parse(graphqlTypesTemplate)
