@@ -49,8 +49,8 @@ func (g Gql) OutputCodeFunc(dbType string, connectionString string, gqlObjectTyp
 	for _, value := range gqlObjectTypes {
 		gostruct.GenObjectTypeToStructFunc(value, &buff)
 		gorm.GenGormObjectTableNameOverrideFunc(value, &buff)
-		g.GenGraphqlGoTypeFunc(value, &buff)
 	}
+	g.GenerateGraphqlGoTypesFunc(gqlObjectTypes, &buff)
 	buff.WriteString(GraphqlGoExecuteQueryFunc)
 	graphqlFieldsBuff := GenGraphqlGoFieldsFunc(gqlObjectTypes)
 	buff.Write(graphqlFieldsBuff.Bytes())
