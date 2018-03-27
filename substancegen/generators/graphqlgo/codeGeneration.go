@@ -47,7 +47,7 @@ func (g Gql) GenerateGraphqlGoTypesFunc(gqlObjectTypes map[string]substancegen.G
 	graphql.ObjectConfig{
 		Name: "{{.Name}}",
 		Fields: graphql.Fields{
-			{{range .Properties}}"{{.ScalarNameUpper}":&graphql.Field{
+			{{range .Properties}}"{{.ScalarNameUpper}}":&graphql.Field{
 				Type: {{.AltScalarType}}
 			},
 			{{end}}
