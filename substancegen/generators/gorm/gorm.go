@@ -3,6 +3,7 @@ package gorm
 import (
 	"bytes"
 	"log"
+	"sort"
 	"text/template"
 
 	"github.com/ahmedalhulaibi/substance/substancegen"
@@ -121,4 +122,15 @@ func GenObjectGormCrud(gqlObjectType substancegen.GenObjectType, buff *bytes.Buf
 	GenObjectGormUpdateFunc(gqlObjectType, buff)
 
 	GenObjectGormDeleteFunc(gqlObjectType, buff)
+}
+
+func GenObjectsGormCrud(gqlObjectTypes map[string]substancegen.GenObjectType, buff *bytes.Buffer) {
+	keys := make([]string, 0)
+	for key := range gqlObjectTypes {
+		keys = append(keys, key)
+	}
+	sort.Strings(keys)
+	for _, key := range keys {
+		GenObjectGormCrud(gqlObjectTypes[key], buff)
+	}
 }
