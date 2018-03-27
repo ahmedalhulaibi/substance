@@ -22,6 +22,54 @@ func (g Gql) GenPackageImports(dbType string, buff *bytes.Buffer) {
 	buff.WriteString("\n)")
 }
 
+func (g Gql) GenerateGraphqlGoTypesFunc(gqlObjectTypes map[string]substancegen.GenObjectType, buff *bytes.Buffer) {
+	for _, value := range gqlObjectTypes {
+		for _, propVal := range value.Properties {
+			if propVal.IsObjectType {
+				a := []rune(inflection.Singular(propVal.ScalarName))
+				a[0] = unicode.ToLower(a[0])
+				propVal.AltScalarType = fmt.Sprintf("%sType", string(a))
+			} else {
+				propVal.AltScalarType = g.GraphqlDataTypes[propVal.ScalarType]
+			}
+
+			if propVal.IsList {
+				propVal.AltScalarType = fmt.Sprintf("graphql.NewList(%s)", propVal.AltScalarType)
+			}
+
+			if !propVal.Nullable {
+				propVal.AltScalarType = fmt.Sprintf("graphql.NewNonNull(%s)", propVal.AltScalarType)
+			}
+		}
+	}
+	graphqlTypesTemplate := `
+{{range $key, $value := . }}var {{.LowerName}}Type = graphql.NewObject(
+	graphql.ObjectConfig{
+		Name: "{{.Name}}",
+		Fields: graphql.Fields{
+			{{range .Properties}}"{{.ScalarNameUpper}":&graphql.Field{
+				Type: {{.AltScalarType}}
+			},
+			{{end}}
+		},
+	},
+){{end}}
+
+`
+
+	tmpl := template.New("graphqlTypes")
+	tmpl, err := tmpl.Parse(graphqlTypesTemplate)
+	if err != nil {
+		log.Fatal("Parse: ", err)
+		return
+	}
+	err1 := tmpl.Execute(buff, gqlObjectTypes)
+	if err1 != nil {
+		log.Fatal("Execute: ", err1)
+		return
+	}
+}
+
 func (g Gql) GenGraphqlGoTypeFunc(gqlObjectType substancegen.GenObjectType, buff *bytes.Buffer) {
 	a := []rune(gqlObjectType.Name)
 	a[0] = unicode.ToLower(a[0])
@@ -58,7 +106,6 @@ func (g Gql) ResolveGraphqlGoFieldType(gqlObjectProperty substancegen.GenObjectP
 	if !gqlObjectProperty.Nullable {
 		gqlPropertyTypeName = fmt.Sprintf("graphql.NewNonNull(%s)", gqlPropertyTypeName)
 	}
-
 	return gqlPropertyTypeName
 }
 
