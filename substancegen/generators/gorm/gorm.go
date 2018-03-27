@@ -61,12 +61,12 @@ func GenObjectGormReadFunc(gqlObjectType substancegen.GenObjectType, buff *bytes
 /*GenObjectGormUpdateFunc generates functions for basic CRUD Update using gorm and writes it to a buffer*/
 func GenObjectGormUpdateFunc(gqlObjectType substancegen.GenObjectType, buff *bytes.Buffer) {
 	primaryKeyColumn := ""
+	//TODO: Lopp through all properties in alphabetic order (key sorted)
 	for _, propVal := range gqlObjectType.Properties {
 		if substancegen.StringInSlice("p", propVal.KeyType) || substancegen.StringInSlice("PRIMARY KEY", propVal.KeyType) {
 			primaryKeyColumn = propVal.ScalarNameUpper
 			break
-		}
-		if substancegen.StringInSlice("u", propVal.KeyType) || substancegen.StringInSlice("UNIQUE", propVal.KeyType) {
+		} else if substancegen.StringInSlice("u", propVal.KeyType) || substancegen.StringInSlice("UNIQUE", propVal.KeyType) {
 			primaryKeyColumn = propVal.ScalarNameUpper
 			break
 		}
