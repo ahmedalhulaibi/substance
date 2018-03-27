@@ -70,6 +70,10 @@ func GenObjectGormUpdateFunc(gqlObjectType substancegen.GenObjectType, buff *byt
 			break
 		}
 	}
+	if primaryKeyColumn == "" {
+		log.Printf("No primary or unique key column found for object %s. Skipping Gorm update func.\n", gqlObjectType.Name)
+		return
+	}
 	var templateData = struct {
 		Name string
 		Key  string
