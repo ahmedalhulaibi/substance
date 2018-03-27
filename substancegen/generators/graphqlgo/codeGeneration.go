@@ -57,45 +57,6 @@ func (g Gql) GenerateGraphqlGoTypesFunc(gqlObjectTypes map[string]substancegen.G
 	}
 }
 
-func (g Gql) GenGraphqlGoTypeFunc(gqlObjectType substancegen.GenObjectType, buff *bytes.Buffer) {
-	a := []rune(gqlObjectType.Name)
-	a[0] = unicode.ToLower(a[0])
-	gqlObjectTypeNameLowCamel := string(a)
-	buff.WriteString(fmt.Sprintf("\nvar %sType = graphql.NewObject(\n\tgraphql.ObjectConfig{\n\t\tName: \"%s\",\n\t\tFields: graphql.Fields{\n\t\t\t", gqlObjectTypeNameLowCamel, gqlObjectType.Name))
-
-	for _, property := range gqlObjectType.Properties {
-		g.GenGraphqlGoTypePropertyFunc(*property, buff)
-	}
-
-	buff.WriteString(fmt.Sprintf("\n\t\t},\n\t},\n)\n"))
-}
-
-func (g Gql) GenGraphqlGoTypePropertyFunc(gqlObjectProperty substancegen.GenObjectProperty, buff *bytes.Buffer) {
-	gqlPropertyTypeName := g.ResolveGraphqlGoFieldType(gqlObjectProperty)
-	buff.WriteString(fmt.Sprintf("\n\t\t\t\"%s\": &graphql.Field{\n\t\t\t\tType: %s,\n\t\t\t},", gqlObjectProperty.ScalarName, gqlPropertyTypeName))
-}
-
-func (g Gql) ResolveGraphqlGoFieldType(gqlObjectProperty substancegen.GenObjectProperty) string {
-	var gqlPropertyTypeName string
-
-	if gqlObjectProperty.IsObjectType {
-		a := []rune(inflection.Singular(gqlObjectProperty.ScalarName))
-		a[0] = unicode.ToLower(a[0])
-		gqlPropertyTypeName = fmt.Sprintf("%sType", string(a))
-	} else {
-		gqlPropertyTypeName = g.GraphqlDataTypes[gqlObjectProperty.ScalarType]
-	}
-
-	if gqlObjectProperty.IsList {
-		gqlPropertyTypeName = fmt.Sprintf("graphql.NewList(%s)", gqlPropertyTypeName)
-	}
-
-	if !gqlObjectProperty.Nullable {
-		gqlPropertyTypeName = fmt.Sprintf("graphql.NewNonNull(%s)", gqlPropertyTypeName)
-	}
-	return gqlPropertyTypeName
-}
-
 func GenGraphqlGoMainFunc(dbType string, connectionString string, gqlObjectTypes map[string]substancegen.GenObjectType, buff *bytes.Buffer) {
 	buff.WriteString(fmt.Sprintf("\nvar DB *gorm.DB\n\n"))
 	buff.WriteString(fmt.Sprintf("\nfunc main() {\n\n\tDB, _ = gorm.Open(\"%s\",\"%s\")\n\tdefer DB.Close()\n\n\t", dbType, connectionString))
