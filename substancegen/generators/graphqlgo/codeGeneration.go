@@ -43,6 +43,7 @@ func (g Gql) GenerateGraphqlGoTypesFunc(gqlObjectTypes map[string]substancegen.G
 		}
 	}
 	graphqlTypesTemplate := `
+
 {{range $key, $value := . }}var {{.LowerName}}Type = graphql.NewObject(
 	graphql.ObjectConfig{
 		Name: "{{.Name}}",
