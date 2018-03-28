@@ -143,6 +143,8 @@ func GenObjectGormCrud(gqlObjectType substancegen.GenObjectType, buff *bytes.Buf
 	GenObjectGormDeleteFunc(gqlObjectType, buff)
 }
 
+/*GenObjectsGormCrud processes gqlObjectTypes map in sorted key order and calls GenObjectGormCrud
+This is done to produce predictable output*/
 func GenObjectsGormCrud(gqlObjectTypes map[string]substancegen.GenObjectType, buff *bytes.Buffer) {
 	keys := make([]string, 0)
 	for key := range gqlObjectTypes {
