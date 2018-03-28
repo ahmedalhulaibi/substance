@@ -46,8 +46,8 @@ func (g Gql) OutputCodeFunc(dbType string, connectionString string, gqlObjectTyp
 	g.GenPackageImports(dbType, &buff)
 	//print schema
 	substancegen.AddJSONTagsToProperties(gqlObjectTypes)
+	gostruct.GenObjectTypeToStructFunc(gqlObjectTypes, &buff)
 	for _, value := range gqlObjectTypes {
-		gostruct.GenObjectTypeToStructFunc(value, &buff)
 		gorm.GenGormObjectTableNameOverrideFunc(value, &buff)
 	}
 	g.GenerateGraphqlGoTypesFunc(gqlObjectTypes, &buff)
