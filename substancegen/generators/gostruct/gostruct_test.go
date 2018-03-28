@@ -34,8 +34,9 @@ func TestGenObjectTypeToStructFunc(t *testing.T) {
 	}
 	newGenObjType.Properties["ShoppingList"].Tags = make(substancegen.GenObjectTag)
 	newGenObjType.Properties["ShoppingList"].Tags["json"] = append(newGenObjType.Properties["ShoppingList"].Tags["json"], "shoppingList")
-
-	GenObjectTypeToStructFunc(newGenObjType, &buff)
+	gqlObjects := make(map[string]substancegen.GenObjectType)
+	gqlObjects["Customer"] = newGenObjType
+	GenObjectTypeToStructFunc(gqlObjects, &buff)
 
 	var expectedBuff bytes.Buffer
 
