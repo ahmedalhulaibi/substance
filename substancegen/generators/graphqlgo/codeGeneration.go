@@ -71,8 +71,7 @@ func GenGraphqlGoMainFunc(dbType string, connectionString string, gqlObjectTypes
 func GenGraphqlGoFieldsFunc(gqlObjectTypes map[string]substancegen.GenObjectType) bytes.Buffer {
 	var buff bytes.Buffer
 
-	buff.WriteString("\n\tvar Fields = graphql.Fields{")
-	graphqlQGoFieldsTemplate := "{{$name := .Name}}\n\t\t\"{{.Name}}\": &graphql.Field{\n\t\t\tType: {{.LowerName}}Type,\n\t\t\tResolve: func(p graphql.ResolveParams) (interface{}, error) {\n\t\t\t\t{{.Name}}Obj := {{.Name}}{}\n\t\t\t\tDB.First(&{{.Name}}Obj){{range .Properties}}{{if .IsObjectType}}\n\t\t\t\t{{.ScalarName}}Obj := {{if .IsList}}[]{{end}}{{.ScalarType}}{}\n\t\t\t\tDB.Model(&{{$name}}Obj).Association(\"{{.ScalarName}}\").Find(&{{.ScalarName}}Obj)\n\t\t\t\t{{$name}}Obj.{{.ScalarName}} = {{if .IsList}}append({{$name}}Obj.{{.ScalarName}}, {{.ScalarName}}Obj...){{else}}{{.ScalarName}}Obj{{end}}{{end}}{{end}}\n\t\t\t\treturn {{$name}}Obj, nil\n\t\t\t},\n\t\t},"
+	graphqlQGoFieldsTemplate := "\n\tvar Fields = graphql.Fields{ {{range $key, $value := . }}{{$name := .Name}}\n\t\t\"{{.Name}}\": &graphql.Field{\n\t\t\tType: {{.LowerName}}Type,\n\t\t\tResolve: func(p graphql.ResolveParams) (interface{}, error) {\n\t\t\t\t{{.Name}}Obj := {{.Name}}{}\n\t\t\t\tDB.First(&{{.Name}}Obj){{range .Properties}}{{if .IsObjectType}}\n\t\t\t\t{{.ScalarName}}Obj := {{if .IsList}}[]{{end}}{{.ScalarType}}{}\n\t\t\t\tDB.Model(&{{$name}}Obj).Association(\"{{.ScalarName}}\").Find(&{{.ScalarName}}Obj)\n\t\t\t\t{{$name}}Obj.{{.ScalarName}} = {{if .IsList}}append({{$name}}Obj.{{.ScalarName}}, {{.ScalarName}}Obj...){{else}}{{.ScalarName}}Obj{{end}}{{end}}{{end}}\n\t\t\t\treturn {{$name}}Obj, nil\n\t\t\t},\n\t\t},{{end}}\n}\n"
 	tmpl := template.New("graphqlFields")
 	tmpl, err := tmpl.Parse(graphqlQGoFieldsTemplate)
 	if err != nil {
@@ -80,14 +79,11 @@ func GenGraphqlGoFieldsFunc(gqlObjectTypes map[string]substancegen.GenObjectType
 		return buff
 	}
 	//print schema
-	for _, value := range gqlObjectTypes {
-		err1 := tmpl.Execute(&buff, value)
-		if err1 != nil {
-			log.Fatal("Execute: ", err1)
-			return buff
-		}
+	err1 := tmpl.Execute(&buff, gqlObjectTypes)
+	if err1 != nil {
+		log.Fatal("Execute: ", err1)
+		return buff
 	}
-	buff.WriteString("\n}\n")
 	return buff
 }
 
