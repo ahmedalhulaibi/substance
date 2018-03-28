@@ -93,7 +93,7 @@ func GenGraphqlGoFieldsFunc(gqlObjectTypes map[string]substancegen.GenObjectType
 
 func GenGraphqlGoSampleQuery(gqlObjectTypes map[string]substancegen.GenObjectType) bytes.Buffer {
 	var buff bytes.Buffer
-	graphqlQueryTemplate := `{{.Name}} { {{range .Properties}}{{if not .IsObjectType}}{{.ScalarName}},{{end}} {{end}}},`
+	graphqlQueryTemplate := `{{range $key, $value := . }}{{.Name}} { {{range .Properties}}{{if not .IsObjectType}}{{.ScalarName}},{{end}} {{end}}},{{end}}`
 	tmpl := template.New("graphqlQuery")
 	tmpl, err := tmpl.Parse(graphqlQueryTemplate)
 	if err != nil {
@@ -101,13 +101,12 @@ func GenGraphqlGoSampleQuery(gqlObjectTypes map[string]substancegen.GenObjectTyp
 		return buff
 	}
 	//print schema
-	for _, value := range gqlObjectTypes {
-		err1 := tmpl.Execute(&buff, value)
-		if err1 != nil {
-			log.Fatal("Execute: ", err1)
-			return buff
-		}
+	err1 := tmpl.Execute(&buff, gqlObjectTypes)
+	if err1 != nil {
+		log.Fatal("Execute: ", err1)
+		return buff
 	}
+
 	bufferString := buff.String()
 	bufferString = strings.Replace(bufferString, " ", "", -1)
 	buff.Reset()
