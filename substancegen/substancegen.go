@@ -41,7 +41,7 @@ type GenObjectProperty struct {
 	ScalarName      string `json:"scalarName"`
 	ScalarNameUpper string
 	ScalarType      string `json:"scalarType"`
-	AltScalarType   string
+	AltScalarType   map[string]string
 	IsList          bool         `json:"isList"`
 	Nullable        bool         `json:"nullable"`
 	KeyType         []string     `json:"keyType"`
@@ -103,6 +103,7 @@ func GetObjectTypesFunc(dbType string, connectionString string, tableNames []str
 			ScalarName:      colDesc.PropertyName,
 			ScalarNameUpper: colDescPropNameUpper,
 			ScalarType:      colDesc.PropertyType,
+			AltScalarType:   make(map[string]string),
 			Nullable:        colDesc.Nullable,
 			KeyType:         []string{""},
 		}

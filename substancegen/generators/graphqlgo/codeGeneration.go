@@ -28,22 +28,22 @@ func (g Gql) GenerateGraphqlGoTypesFunc(gqlObjectTypes map[string]substancegen.G
 			if propVal.IsObjectType {
 				a := []rune(inflection.Singular(propVal.ScalarName))
 				a[0] = unicode.ToLower(a[0])
-				propVal.AltScalarType = fmt.Sprintf("%sType", string(a))
+				propVal.AltScalarType["graphql-go"] = fmt.Sprintf("%sType", string(a))
 			} else {
-				propVal.AltScalarType = g.GraphqlDataTypes[propVal.ScalarType]
+				propVal.AltScalarType["graphql-go"] = g.GraphqlDataTypes[propVal.ScalarType]
+				fmt.Println(g.GraphqlDataTypes[propVal.ScalarType])
 			}
 
 			if propVal.IsList {
-				propVal.AltScalarType = fmt.Sprintf("graphql.NewList(%s)", propVal.AltScalarType)
+				propVal.AltScalarType["graphql-go"] = fmt.Sprintf("graphql.NewList(%s)", propVal.AltScalarType["graphql-go"])
 			}
 
 			if !propVal.Nullable {
-				propVal.AltScalarType = fmt.Sprintf("graphql.NewNonNull(%s)", propVal.AltScalarType)
+				fmt.Println("HALLLEOAEOHAOETH")
+				propVal.AltScalarType["graphql-go"] = fmt.Sprintf("graphql.NewNonNull(%s)", propVal.AltScalarType["graphql-go"])
 			}
 		}
 	}
-	graphqlTypesTemplate := "{{range $key, $value := . }}\nvar {{.LowerName}}Type = graphql.NewObject(\n\tgraphql.ObjectConfig{\n\t\tName: \"{{.Name}}\",\n\t\tFields: graphql.Fields{\n\t\t\t{{range .Properties}}\"{{.ScalarNameUpper}}\":&graphql.Field{\n\t\t\t\tType: {{.AltScalarType}},\n\t\t\t},\n\t\t\t{{end}}\n\t\t},\n\t},\n)\n{{end}}"
-
 	tmpl := template.New("graphqlTypes")
 	tmpl, err := tmpl.Parse(graphqlTypesTemplate)
 	if err != nil {
@@ -71,9 +71,8 @@ func GenGraphqlGoMainFunc(dbType string, connectionString string, gqlObjectTypes
 func GenGraphqlGoFieldsFunc(gqlObjectTypes map[string]substancegen.GenObjectType) bytes.Buffer {
 	var buff bytes.Buffer
 
-	graphqlQGoFieldsTemplate := "\n\tvar Fields = graphql.Fields{ {{range $key, $value := . }}{{$name := .Name}}\n\t\t\"{{.Name}}\": &graphql.Field{\n\t\t\tType: {{.LowerName}}Type,\n\t\t\tResolve: func(p graphql.ResolveParams) (interface{}, error) {\n\t\t\t\t{{.Name}}Obj := {{.Name}}{}\n\t\t\t\tDB.First(&{{.Name}}Obj){{range .Properties}}{{if .IsObjectType}}\n\t\t\t\t{{.ScalarName}}Obj := {{if .IsList}}[]{{end}}{{.ScalarType}}{}\n\t\t\t\tDB.Model(&{{$name}}Obj).Association(\"{{.ScalarName}}\").Find(&{{.ScalarName}}Obj)\n\t\t\t\t{{$name}}Obj.{{.ScalarName}} = {{if .IsList}}append({{$name}}Obj.{{.ScalarName}}, {{.ScalarName}}Obj...){{else}}{{.ScalarName}}Obj{{end}}{{end}}{{end}}\n\t\t\t\treturn {{$name}}Obj, nil\n\t\t\t},\n\t\t},{{end}}\n}\n"
 	tmpl := template.New("graphqlFields")
-	tmpl, err := tmpl.Parse(graphqlQGoFieldsTemplate)
+	tmpl, err := tmpl.Parse(graphqlGoFieldsTemplate)
 	if err != nil {
 		log.Fatal("Parse: ", err)
 		return buff
@@ -89,7 +88,7 @@ func GenGraphqlGoFieldsFunc(gqlObjectTypes map[string]substancegen.GenObjectType
 
 func GenGraphqlGoSampleQuery(gqlObjectTypes map[string]substancegen.GenObjectType) bytes.Buffer {
 	var buff bytes.Buffer
-	graphqlQueryTemplate := `{{range $key, $value := . }}{{.Name}} { {{range .Properties}}{{if not .IsObjectType}}{{.ScalarName}},{{end}} {{end}}},{{end}}`
+
 	tmpl := template.New("graphqlQuery")
 	tmpl, err := tmpl.Parse(graphqlQueryTemplate)
 	if err != nil {

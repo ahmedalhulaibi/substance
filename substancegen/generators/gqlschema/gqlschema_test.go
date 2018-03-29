@@ -19,6 +19,7 @@ func TestOutputGraphqlSchemaFunc(t *testing.T) {
 		ScalarName:      "FirstName",
 		ScalarNameUpper: "FirstName",
 		ScalarType:      "string",
+		AltScalarType:   make(map[string]string),
 		Nullable:        false,
 	}
 	newGenObjType.Properties["FirstName"].Tags = make(substancegen.GenObjectTag)
@@ -31,6 +32,7 @@ func TestOutputGraphqlSchemaFunc(t *testing.T) {
 		ScalarName:      "ShoppingList",
 		ScalarNameUpper: "ShoppingList",
 		ScalarType:      "string",
+		AltScalarType:   make(map[string]string),
 		Nullable:        false,
 	}
 	newGenObjType.Properties["ShoppingList"].Tags = make(substancegen.GenObjectTag)

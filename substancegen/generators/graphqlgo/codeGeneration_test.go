@@ -100,6 +100,63 @@ func TestGenGraphqlGoFieldsFunc(t *testing.T) {
 		t.Errorf("Expected\n\n'%s'\n\nReceived\n\n'%s'\n\n", expectedBuff.String(), buff.String())
 	}
 }
+func TestGenGraphqlGoTypesFunc(t *testing.T) {
+	var buff bytes.Buffer
+	newGenObjType := substancegen.GenObjectType{Name: "Customer", LowerName: "customer", SourceTableName: "Customers"}
+	newGenObjType.Properties = make(substancegen.GenObjectProperties)
+	newGenObjType.Properties["FirstName"] = &substancegen.GenObjectProperty{
+		IsList:          false,
+		IsObjectType:    false,
+		KeyType:         []string{"PRIMARY KEY"},
+		ScalarName:      "FirstName",
+		ScalarNameUpper: "FirstName",
+		ScalarType:      "string",
+		AltScalarType:   make(map[string]string),
+		Nullable:        false,
+	}
+	newGenObjType.Properties["FirstName"].Tags = make(substancegen.GenObjectTag)
+	newGenObjType.Properties["FirstName"].Tags["json"] = append(newGenObjType.Properties["FirstName"].Tags["json"], "firstName")
+
+	newGenObjType.Properties["ShoppingList"] = &substancegen.GenObjectProperty{
+		IsList:          true,
+		IsObjectType:    true,
+		KeyType:         []string{""},
+		ScalarName:      "ShoppingList",
+		ScalarNameUpper: "ShoppingList",
+		ScalarType:      "string",
+		AltScalarType:   make(map[string]string),
+		Nullable:        false,
+	}
+	newGenObjType.Properties["ShoppingList"].Tags = make(substancegen.GenObjectTag)
+	newGenObjType.Properties["ShoppingList"].Tags["json"] = append(newGenObjType.Properties["ShoppingList"].Tags["json"], "shoppingList")
+	genObjMap := make(map[string]substancegen.GenObjectType)
+	genObjMap["Customers"] = newGenObjType
+	gqlPlugin := Gql{}
+	InitGraphqlDataTypes(&gqlPlugin)
+	gqlPlugin.GenerateGraphqlGoTypesFunc(genObjMap, &buff)
+
+	var expectedBuff bytes.Buffer
+
+	expectedBuff.WriteString(`
+var customerType = graphql.NewObject(
+	graphql.ObjectConfig{
+		Name: "Customer",
+		Fields: graphql.Fields{ 
+			"FirstName":&graphql.Field{
+				Type: graphql.NewNonNull(graphql.String),
+			},
+			"ShoppingList":&graphql.Field{
+				Type: graphql.NewNonNull(graphql.NewList(shoppingListType)),
+			},
+		},
+	},
+)
+`)
+
+	if buff.String() != expectedBuff.String() {
+		t.Errorf("Expected\n\n'%s'\n\nReceived\n\n'%s'\n\n", expectedBuff.String(), buff.String())
+	}
+}
 func TestGenGraphqlGoMainFunc(t *testing.T) {
 	var buff bytes.Buffer
 	newGenObjType := substancegen.GenObjectType{Name: "Customer", LowerName: "customer", SourceTableName: "Customers"}

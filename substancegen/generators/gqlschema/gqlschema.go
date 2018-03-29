@@ -8,9 +8,40 @@ import (
 	"github.com/ahmedalhulaibi/substance/substancegen"
 )
 
+var graphqlDataTypes map[string]string
+
+func init() {
+	graphqlDataTypes = make(map[string]string)
+	graphqlDataTypes["int"] = "Int"
+	graphqlDataTypes["int8"] = "Int"
+	graphqlDataTypes["int16"] = "Int"
+	graphqlDataTypes["int32"] = "Int"
+	graphqlDataTypes["int64"] = "Int"
+	graphqlDataTypes["uint"] = "Int"
+	graphqlDataTypes["uint8"] = "Int"
+	graphqlDataTypes["uint16"] = "Int"
+	graphqlDataTypes["uint32"] = "Int"
+	graphqlDataTypes["uint64"] = "Int"
+	graphqlDataTypes["byte"] = "Int"
+	graphqlDataTypes["rune"] = "Int"
+	graphqlDataTypes["bool"] = "Boolean"
+	graphqlDataTypes["string"] = "String"
+	graphqlDataTypes["float32"] = "Float"
+	graphqlDataTypes["float64"] = "Float"
+}
+
 /*OutputGraphqlSchema Returns a buffer containing a GraphQL schema in the standard GraphQL schema syntax*/
 func OutputGraphqlSchema(gqlObjectTypes map[string]substancegen.GenObjectType) bytes.Buffer {
 	var buff bytes.Buffer
+
+	for _, object := range gqlObjectTypes {
+		for _, propVal := range object.Properties {
+			if propVal.IsObjectType {
+				propVal.AltScalarType["gqlschema"] = propVal.ScalarNameUpper
+			}
+			propVal.AltScalarType["gqlschema"] = graphqlDataTypes[propVal.ScalarType]
+		}
+	}
 
 	graphqlSchemaTemplate := "{{range $key, $value := . }}type {{.Name}} {\n {{range .Properties}}\t{{.ScalarName}}: {{if .IsList}}[{{.ScalarType}}]{{else}}{{.ScalarType}}{{end}}{{if .Nullable}}{{else}}!{{end}}\n{{end}}}\n{{end}}"
 	tmpl := template.New("graphqlSchema")
