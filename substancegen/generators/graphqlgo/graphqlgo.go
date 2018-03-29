@@ -11,22 +11,7 @@ import (
 func init() {
 	gqlPlugin := Gql{}
 	gqlPlugin.GraphqlDataTypes = make(map[string]string)
-	gqlPlugin.GraphqlDataTypes["int"] = "graphql.Int"
-	gqlPlugin.GraphqlDataTypes["int8"] = "graphql.Int"
-	gqlPlugin.GraphqlDataTypes["int16"] = "graphql.Int"
-	gqlPlugin.GraphqlDataTypes["int32"] = "graphql.Int"
-	gqlPlugin.GraphqlDataTypes["int64"] = "graphql.Int"
-	gqlPlugin.GraphqlDataTypes["uint"] = "graphql.Int"
-	gqlPlugin.GraphqlDataTypes["uint8"] = "graphql.Int"
-	gqlPlugin.GraphqlDataTypes["uint16"] = "graphql.Int"
-	gqlPlugin.GraphqlDataTypes["uint32"] = "graphql.Int"
-	gqlPlugin.GraphqlDataTypes["uint64"] = "graphql.Int"
-	gqlPlugin.GraphqlDataTypes["byte"] = "graphql.Int"
-	gqlPlugin.GraphqlDataTypes["rune"] = "graphql.Int"
-	gqlPlugin.GraphqlDataTypes["bool"] = "graphql.Boolean"
-	gqlPlugin.GraphqlDataTypes["string"] = "graphql.String"
-	gqlPlugin.GraphqlDataTypes["float32"] = "graphql.Float"
-	gqlPlugin.GraphqlDataTypes["float64"] = "graphql.Float"
+	InitGraphqlDataTypes(&gqlPlugin)
 	gqlPlugin.GraphqlDbTypeImports = make(map[string]string)
 	gqlPlugin.GraphqlDbTypeImports["mysql"] = "\n\t\"github.com/jinzhu/gorm\"\n\t_ \"github.com/jinzhu/gorm/dialects/mysql\""
 	gqlPlugin.GraphqlDbTypeImports["postgres"] = "\n\t\"github.com/jinzhu/gorm\"\n\t_ \"github.com/jinzhu/gorm/dialects/postgres\""

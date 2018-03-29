@@ -43,7 +43,6 @@ func OutputGraphqlSchema(gqlObjectTypes map[string]substancegen.GenObjectType) b
 		}
 	}
 
-	graphqlSchemaTemplate := "{{range $key, $value := . }}type {{.Name}} {\n {{range .Properties}}\t{{.ScalarName}}: {{if .IsList}}[{{.ScalarType}}]{{else}}{{.ScalarType}}{{end}}{{if .Nullable}}{{else}}!{{end}}\n{{end}}}\n{{end}}"
 	tmpl := template.New("graphqlSchema")
 	tmpl, err := tmpl.Parse(graphqlSchemaTemplate)
 	if err != nil {

@@ -2,7 +2,6 @@ package gqlschema
 
 import (
 	"bytes"
-	"fmt"
 	"testing"
 
 	"github.com/ahmedalhulaibi/substance/substancegen"
@@ -43,9 +42,13 @@ func TestOutputGraphqlSchemaFunc(t *testing.T) {
 
 	var expectedBuff bytes.Buffer
 
-	expectedBuff.WriteString(fmt.Sprintf("type Customer {\n \tFirstName: string!\n\tShoppingList: [string]!\n}\n"))
+	expectedBuff.WriteString(`type Customer { 
+	FirstName: String!
+	ShoppingList: [String]!
+}
+`)
 
 	if buff.String() != expectedBuff.String() {
-		t.Errorf("Expected\n\n'%s'\n\nReceived\n\n'%s'\n\n", expectedBuff.String(), buff.String())
+		t.Errorf("Expected\n\n'%v'\n\nReceived\n\n'%v'\n\n", expectedBuff, buff)
 	}
 }
