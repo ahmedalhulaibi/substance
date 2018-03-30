@@ -223,6 +223,7 @@ func ResolveForeignRefsFunc(dbType string, relationshipDesc []substance.ColumnRe
 					Nullable:        true,
 					IsList:          true,
 					IsObjectType:    true,
+					AltScalarType:   make(map[string]string),
 				}
 				newGqlObjProperty.Tags = make(GenObjectTag)
 				newGqlObjProperty.Tags["gorm"] = append(newGqlObjProperty.Tags["gorm"], gormTagForeign, gormTagAssociationForeign)
@@ -238,6 +239,7 @@ func ResolveForeignRefsFunc(dbType string, relationshipDesc []substance.ColumnRe
 					Nullable:        true,
 					IsList:          false,
 					IsObjectType:    true,
+					AltScalarType:   make(map[string]string),
 				}
 				newGqlObjProperty.Tags = make(GenObjectTag)
 				newGqlObjProperty.Tags["gorm"] = append(newGqlObjProperty.Tags["gorm"], gormTagForeign, gormTagAssociationForeign)
