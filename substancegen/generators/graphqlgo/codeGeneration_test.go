@@ -9,7 +9,6 @@ import (
 )
 
 func TestGenGraphqlGoSampleQueryFunc(t *testing.T) {
-	var buff bytes.Buffer
 	newGenObjType := substancegen.GenObjectType{Name: "Customer", LowerName: "customer", SourceTableName: "Customers"}
 	newGenObjType.Properties = make(substancegen.GenObjectProperties)
 	newGenObjType.Properties["FirstName"] = &substancegen.GenObjectProperty{
@@ -37,7 +36,8 @@ func TestGenGraphqlGoSampleQueryFunc(t *testing.T) {
 	newGenObjType.Properties["ShoppingList"].Tags["json"] = append(newGenObjType.Properties["ShoppingList"].Tags["json"], "shoppingList")
 	genObjMap := make(map[string]substancegen.GenObjectType)
 	genObjMap["Customers"] = newGenObjType
-	buff = GenGraphqlGoSampleQuery(genObjMap)
+	var buff bytes.Buffer
+	GenGraphqlGoSampleQuery(genObjMap, &buff)
 
 	var expectedBuff bytes.Buffer
 
@@ -48,7 +48,6 @@ func TestGenGraphqlGoSampleQueryFunc(t *testing.T) {
 	}
 }
 func TestGenGraphqlGoFieldsFunc(t *testing.T) {
-	var buff bytes.Buffer
 	newGenObjType := substancegen.GenObjectType{Name: "Customer", LowerName: "customer", SourceTableName: "Customers"}
 	newGenObjType.Properties = make(substancegen.GenObjectProperties)
 	newGenObjType.Properties["FirstName"] = &substancegen.GenObjectProperty{
@@ -76,7 +75,8 @@ func TestGenGraphqlGoFieldsFunc(t *testing.T) {
 	newGenObjType.Properties["ShoppingList"].Tags["json"] = append(newGenObjType.Properties["ShoppingList"].Tags["json"], "shoppingList")
 	genObjMap := make(map[string]substancegen.GenObjectType)
 	genObjMap["Customers"] = newGenObjType
-	buff = GenGraphqlGoFieldsFunc(genObjMap)
+	var buff bytes.Buffer
+	GenGraphqlGoFieldsFunc(genObjMap, &buff)
 
 	var expectedBuff bytes.Buffer
 
@@ -199,8 +199,9 @@ func main() {
 	DB, _ = gorm.Open("test","testConnString")
 	defer DB.Close()
 
-	
-	fmt.Println("Test with Get	: curl -g 'http://localhost:8080/graphql?query={Customer{FirstName,},}'")
+
+	fmt.Println("Test with Get	:	curl -g 'http://localhost:8080/graphql?query={ Customer{FirstName,}, }'")
+
 	rootQuery := graphql.ObjectConfig{Name: "RootQuery", Fields: Fields}
 	schemaConfig := graphql.SchemaConfig{Query: graphql.NewObject(rootQuery)}
 	schema, err := graphql.NewSchema(schemaConfig)
@@ -225,9 +226,9 @@ func main() {
 		t.Errorf("Expected\n\n'%v'\n\nReceived\n\n'%v'\n\n", expectedBuff, buff)
 		expectedBuffBytes := expectedBuff.Bytes()
 		buffBytes := buff.Bytes()
-		for i, _ := range expectedBuffBytes {
+		for i := range expectedBuffBytes {
 			if expectedBuffBytes[i] != buffBytes[i] {
-				fmt.Println(i)
+				fmt.Printf("%d Expected Char: %c\tReceived Char: %c\n", i, expectedBuffBytes[i], buffBytes[i])
 			}
 		}
 	}

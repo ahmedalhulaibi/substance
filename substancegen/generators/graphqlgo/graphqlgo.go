@@ -57,7 +57,8 @@ func (g Gql) OutputCodeFunc(dbType string, connectionString string, gqlObjectTyp
 	}
 	g.GenerateGraphqlGoTypesFunc(gqlObjectTypes, &buff)
 	buff.WriteString(GraphqlGoExecuteQueryFunc)
-	graphqlFieldsBuff := GenGraphqlGoFieldsFunc(gqlObjectTypes)
+	var graphqlFieldsBuff bytes.Buffer
+	GenGraphqlGoFieldsFunc(gqlObjectTypes, &graphqlFieldsBuff)
 	buff.Write(graphqlFieldsBuff.Bytes())
 	GenGraphqlGoMainFunc(dbType, connectionString, gqlObjectTypes, &buff)
 	return buff

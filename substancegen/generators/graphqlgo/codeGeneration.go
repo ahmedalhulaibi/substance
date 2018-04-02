@@ -56,53 +56,70 @@ func (g Gql) GenerateGraphqlGoTypesFunc(gqlObjectTypes map[string]substancegen.G
 }
 
 func GenGraphqlGoMainFunc(dbType string, connectionString string, gqlObjectTypes map[string]substancegen.GenObjectType, buff *bytes.Buffer) {
-	buff.WriteString(fmt.Sprintf("\nvar DB *gorm.DB\n\n"))
-	buff.WriteString(fmt.Sprintf("\nfunc main() {\n\n\tDB, _ = gorm.Open(\"%s\",\"%s\")\n\tdefer DB.Close()\n\n\t", dbType, connectionString))
-	sampleQuery := GenGraphqlGoSampleQuery(gqlObjectTypes)
-	buff.WriteString(fmt.Sprintf("\n\tfmt.Println(\"Test with Get\t: curl -g 'http://localhost:8080/graphql?query={%s}'\")", sampleQuery.String()))
+	var sampleQuery bytes.Buffer
+	GenGraphqlGoSampleQuery(gqlObjectTypes, &sampleQuery)
 
-	buff.WriteString(GraphqlGoMainConfig)
+	// buff.WriteString(fmt.Sprintf("\nvar DB *gorm.DB\n\n"))
+	// buff.WriteString(fmt.Sprintf("\nfunc main() {\n\n\tDB, _ = gorm.Open(\"%s\",\"%s\")\n\tdefer DB.Close()\n\n\t", dbType, connectionString))
 
-	buff.WriteString("\n}\n")
+	// buff.WriteString(fmt.Sprintf("\n\tfmt.Println(\"Test with Get\t: curl -g 'http://localhost:8080/graphql?query={%s}'\")", sampleQuery.String()))
+
+	// buff.WriteString(graphqlGoMainFunc)
+
+	// buff.WriteString("\n}\n")
+
+	mainData := struct {
+		DbType           string
+		ConnectionString string
+		SampleQuery      string
+	}{
+		dbType,
+		connectionString,
+		sampleQuery.String(),
+	}
+	tmpl := template.New("graphqlGoMainFunc")
+	tmpl, err := tmpl.Parse(graphqlGoMainFunc)
+	if err != nil {
+		log.Fatal("Parse: ", err)
+		return
+	}
+	//print schema
+	err1 := tmpl.Execute(buff, mainData)
+	if err1 != nil {
+		log.Fatal("Execute: ", err1)
+	}
 }
 
-func GenGraphqlGoFieldsFunc(gqlObjectTypes map[string]substancegen.GenObjectType) bytes.Buffer {
-	var buff bytes.Buffer
-
+func GenGraphqlGoFieldsFunc(gqlObjectTypes map[string]substancegen.GenObjectType, buff *bytes.Buffer) {
 	tmpl := template.New("graphqlFields")
 	tmpl, err := tmpl.Parse(graphqlGoFieldsTemplate)
 	if err != nil {
 		log.Fatal("Parse: ", err)
-		return buff
+		return
 	}
 	//print schema
-	err1 := tmpl.Execute(&buff, gqlObjectTypes)
+	err1 := tmpl.Execute(buff, gqlObjectTypes)
 	if err1 != nil {
 		log.Fatal("Execute: ", err1)
-		return buff
 	}
-	return buff
 }
 
-func GenGraphqlGoSampleQuery(gqlObjectTypes map[string]substancegen.GenObjectType) bytes.Buffer {
-	var buff bytes.Buffer
-
+func GenGraphqlGoSampleQuery(gqlObjectTypes map[string]substancegen.GenObjectType, buff *bytes.Buffer) {
 	tmpl := template.New("graphqlQuery")
 	tmpl, err := tmpl.Parse(graphqlQueryTemplate)
 	if err != nil {
 		log.Fatal("Parse: ", err)
-		return buff
+		return
 	}
 	//print schema
-	err1 := tmpl.Execute(&buff, gqlObjectTypes)
+	err1 := tmpl.Execute(buff, gqlObjectTypes)
 	if err1 != nil {
 		log.Fatal("Execute: ", err1)
-		return buff
+		return
 	}
 
 	bufferString := buff.String()
 	bufferString = strings.Replace(bufferString, " ", "", -1)
 	buff.Reset()
 	buff.WriteString(bufferString)
-	return buff
 }

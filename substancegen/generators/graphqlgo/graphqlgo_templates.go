@@ -14,8 +14,18 @@ func executeQuery(query string, schema graphql.Schema) *graphql.Result {
 }
 `
 
-/*GraphqlGoMainConfig boilerplate string to setup graphl-go and http handler*/
-var GraphqlGoMainConfig = `
+var graphqlGoMainFunc = `
+var DB *gorm.DB
+
+
+func main() {
+
+	DB, _ = gorm.Open("{{.DbType}}","{{.ConnectionString}}")
+	defer DB.Close()
+
+
+	fmt.Println("Test with Get	:	curl -g 'http://localhost:8080/graphql?query={ {{.SampleQuery}} }'")
+
 	rootQuery := graphql.ObjectConfig{Name: "RootQuery", Fields: Fields}
 	schemaConfig := graphql.SchemaConfig{Query: graphql.NewObject(rootQuery)}
 	schema, err := graphql.NewSchema(schemaConfig)
@@ -32,6 +42,8 @@ var GraphqlGoMainConfig = `
 
 	fmt.Println("Now server is running on port 8080")
 	http.ListenAndServe(":8080", nil)
+
+}
 `
 
 var graphqlTypesTemplate = `{{range $key, $value := . }}
