@@ -31,7 +31,6 @@ func (g Gql) GenerateGraphqlGoTypesFunc(gqlObjectTypes map[string]substancegen.G
 				propVal.AltScalarType["graphql-go"] = fmt.Sprintf("%sType", string(a))
 			} else {
 				propVal.AltScalarType["graphql-go"] = g.GraphqlDataTypes[propVal.ScalarType]
-				fmt.Println(g.GraphqlDataTypes[propVal.ScalarType])
 			}
 
 			if propVal.IsList {
@@ -39,7 +38,6 @@ func (g Gql) GenerateGraphqlGoTypesFunc(gqlObjectTypes map[string]substancegen.G
 			}
 
 			if !propVal.Nullable {
-				fmt.Println("HALLLEOAEOHAOETH")
 				propVal.AltScalarType["graphql-go"] = fmt.Sprintf("graphql.NewNonNull(%s)", propVal.AltScalarType["graphql-go"])
 			}
 		}
