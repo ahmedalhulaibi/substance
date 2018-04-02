@@ -33,13 +33,13 @@ func init() {
 /*OutputGraphqlSchema Returns a buffer containing a GraphQL schema in the standard GraphQL schema syntax*/
 func OutputGraphqlSchema(gqlObjectTypes map[string]substancegen.GenObjectType) bytes.Buffer {
 	var buff bytes.Buffer
-	GenerateGraphqlScehmaTypes(gqlObjectTypes, &buff)
+	GenerateGraphqlSchemaTypes(gqlObjectTypes, &buff)
 
 	return buff
 }
 
-/*GenerateGraphqlScehmaTypes generates graphql types*/
-func GenerateGraphqlScehmaTypes(gqlObjectTypes map[string]substancegen.GenObjectType, buff *bytes.Buffer) {
+/*GenerateGraphqlSchemaTypes generates graphql types*/
+func GenerateGraphqlSchemaTypes(gqlObjectTypes map[string]substancegen.GenObjectType, buff *bytes.Buffer) {
 	for _, object := range gqlObjectTypes {
 		for _, propVal := range object.Properties {
 			if propVal.IsObjectType {
