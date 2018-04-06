@@ -60,7 +60,7 @@ var {{.LowerName}}Type = graphql.NewObject(
 {{end}}`
 
 var graphqlGoFieldsTemplate = `
-	var Fields = graphql.Fields{ {{range $key, $value := . }}{{$name := .Name}}
+	var QueryFields = graphql.Fields{ {{range $key, $value := . }}{{$name := .Name}}
 		"{{.Name}}": &graphql.Field{
 			Type: {{.LowerName}}Type,
 			Resolve: func(p graphql.ResolveParams) (interface{}, error) {

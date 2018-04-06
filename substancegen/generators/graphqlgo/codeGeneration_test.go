@@ -81,7 +81,7 @@ func TestGenGraphqlGoFieldsFunc(t *testing.T) {
 	var expectedBuff bytes.Buffer
 
 	expectedBuff.WriteString(`
-	var Fields = graphql.Fields{ 
+	var QueryFields = graphql.Fields{ 
 		"Customer": &graphql.Field{
 			Type: customerType,
 			Resolve: func(p graphql.ResolveParams) (interface{}, error) {
