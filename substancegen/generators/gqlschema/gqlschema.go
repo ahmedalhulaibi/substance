@@ -38,7 +38,7 @@ func OutputGraphqlSchema(gqlObjectTypes map[string]substancegen.GenObjectType) b
 	return buff
 }
 
-/*GenerateGraphqlSchemaTypes generates graphql types*/
+/*GenerateGraphqlSchemaTypes generates graphql types in graphql sstandard syntax*/
 func GenerateGraphqlSchemaTypes(gqlObjectTypes map[string]substancegen.GenObjectType, buff *bytes.Buffer) {
 	for _, object := range gqlObjectTypes {
 		for _, propVal := range object.Properties {
@@ -64,6 +64,7 @@ func GenerateGraphqlSchemaTypes(gqlObjectTypes map[string]substancegen.GenObject
 	}
 }
 
+/*GenerateGraphqlQueries generates graphql queries and mutations in graphql standard syntax*/
 func GenerateGraphqlQueries(gqlObjectTypes map[string]substancegen.GenObjectType, buff *bytes.Buffer) {
 	for _, object := range gqlObjectTypes {
 		for _, propVal := range object.Properties {
@@ -74,8 +75,33 @@ func GenerateGraphqlQueries(gqlObjectTypes map[string]substancegen.GenObjectType
 		}
 	}
 
-	tmpl := template.New("graphqlSchema")
+	tmpl := template.New("graphql")
 	tmpl, err := tmpl.Parse(graphqlSchemaTypesTemplate)
+	if err != nil {
+		log.Fatal("Parse: ", err)
+		return
+	}
+	//print schema
+	err1 := tmpl.Execute(buff, gqlObjectTypes)
+	if err1 != nil {
+		log.Fatal("Execute: ", err1)
+		return
+	}
+}
+
+/*GenerateGraphqlQueries generates graphql GET queries in graphql standard syntax*/
+func GenerateGraphqlGetQueries(gqlObjectTypes map[string]substancegen.GenObjectType, buff *bytes.Buffer) {
+	for _, object := range gqlObjectTypes {
+		for _, propVal := range object.Properties {
+			if propVal.IsObjectType {
+				propVal.AltScalarType["gqlschema"] = propVal.ScalarNameUpper
+			}
+			propVal.AltScalarType["gqlschema"] = graphqlDataTypes[propVal.ScalarType]
+		}
+	}
+
+	tmpl := template.New("graphqlSchemaGet")
+	tmpl, err := tmpl.Parse(graphqlSchemaGetQueriesTemplate)
 	if err != nil {
 		log.Fatal("Parse: ", err)
 		return

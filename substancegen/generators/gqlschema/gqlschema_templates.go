@@ -6,3 +6,10 @@ var graphqlSchemaTypesTemplate = `{{range $key, $value := . }}type {{.Name}} { {
 {{end}}`
 
 var graphqlSchemaQueriesTemplate = `{{range .}}{{end}}`
+
+var graphqlSchemaGetQueriesTemplate = `{{range $key, $value := . }}
+	# {{.Name}} returns first {{.Name}} in database table
+	{{.Name}}: {{.Name}}
+	# Get{{.Name}} takes the properties of {{.Name}} as search parameters. It will return the first {{.Name}} found that matches the search criteria. Null input paramters are valid.
+	Get{{.Name}}({{range .Properties}}{{.ScalarName}}: {{if .IsList}}[{{index .AltScalarType "gqlschema"}}]{{else}}{{index .AltScalarType "gqlschema"}}{{end}}, {{end}}): {{.Name}}{{end}}
+`
