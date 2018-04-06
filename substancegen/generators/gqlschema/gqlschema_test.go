@@ -92,8 +92,8 @@ func TestGenerateGraphqlGetQueriesFunc(t *testing.T) {
 	expectedBuff.WriteString(`
 	# Customer returns first Customer in database table
 	Customer: Customer
-	# GetCustomer takes the properties of Customer as search parameters. It will return the first Customer found that matches the search criteria. Null input paramters are valid.
-	GetCustomer(FirstName: String, ShoppingList: [String], ): Customer
+	# GetCustomer takes the properties of Customer as search parameters. It will return all Customer rows found that matches the search criteria. Null input paramters are valid.
+	GetCustomer(FirstName: String, ShoppingList: [String], ): [Customer]
 `)
 
 	if buff.String() != expectedBuff.String() {
