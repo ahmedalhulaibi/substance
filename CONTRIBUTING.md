@@ -18,7 +18,7 @@ Currently I am the only reviewer. I will do my best to review within 1-2 weeks.
 
 Install [docker](https://docs.docker.com/install/) and [docker-compose](https://docs.docker.com/compose/install/)
 
-Run the local hooks setup script if you want your code tested locally after each commit. The commits will be aborted if the `go test ./...` fails. This script will also start the containers if required and export the required environment variable:
+Run the local hooks setup script if you want your code tested locally after each commit. The commits will be aborted if the `go test ./...` fails. The pre-commit script will also start the containers if required and export the required environment variable:
 ```bash
 . setupScripts/setup-local-hooks.sh
 ```
