@@ -2,6 +2,7 @@ package mysqlsubstance
 
 import (
 	"fmt"
+	"os"
 	"reflect"
 	"sort"
 	"strings"
@@ -13,7 +14,8 @@ import (
 func TestGetCurrDbName(t *testing.T) {
 	mysqlProvider := mysql{}
 	nameExpected := "delivery"
-	nameResult, err := mysqlProvider.GetCurrentDatabaseNameFunc("mysql", "travis@tcp(127.0.0.1:3306)/delivery")
+	nameResult, err := mysqlProvider.GetCurrentDatabaseNameFunc("mysql", os.Getenv("SUBSTANCE_MYSQL"))
+	t.Log(os.Getenv("SUBSTANCE_MYSQL"))
 	if nameResult != nameExpected {
 		t.Errorf("Expected '%s' as database name but got '%s'.", nameExpected, nameResult)
 	}
@@ -114,7 +116,7 @@ func TestDescribeDb(t *testing.T) {
 		PropertyName: "Persons",
 		TableName:    "Persons",
 	})
-	columnDescResult, err := mysqlProvider.DescribeDatabaseFunc("mysql", "travis@tcp(127.0.0.1:3306)/delivery")
+	columnDescResult, err := mysqlProvider.DescribeDatabaseFunc("mysql", os.Getenv("SUBSTANCE_MYSQL"))
 	if err != nil {
 		t.Error(err)
 	}
@@ -170,7 +172,7 @@ func TestDescribeTable(t *testing.T) {
 		TableName:    "Persons",
 		Nullable:     true,
 	})
-	columnDescResult, err := mysqlProvider.DescribeTableFunc("mysql", "travis@tcp(127.0.0.1:3306)/delivery", "Persons")
+	columnDescResult, err := mysqlProvider.DescribeTableFunc("mysql", os.Getenv("SUBSTANCE_MYSQL"), "Persons")
 	if err != nil {
 		t.Error(err)
 	}
@@ -206,7 +208,7 @@ func TestDescribeTableRelationship(t *testing.T) {
 		ReferenceTableName:  "Persons",
 		ReferenceColumnName: "ID",
 	})
-	columnRelResult, err := mysqlProvider.DescribeTableRelationshipFunc("mysql", "travis@tcp(127.0.0.1:3306)/delivery", "Persons")
+	columnRelResult, err := mysqlProvider.DescribeTableRelationshipFunc("mysql", os.Getenv("SUBSTANCE_MYSQL"), "Persons")
 	if err != nil {
 		t.Error(err)
 	}
@@ -248,7 +250,7 @@ func TestDescribeTableContraints(t *testing.T) {
 		ColumnName:     "PersonID",
 		ConstraintType: "UNIQUE",
 	})
-	columnConstraintResult, err := mysqlProvider.DescribeTableConstraintsFunc("mysql", "travis@tcp(127.0.0.1:3306)/delivery", "AntiOrders")
+	columnConstraintResult, err := mysqlProvider.DescribeTableConstraintsFunc("mysql", os.Getenv("SUBSTANCE_MYSQL"), "AntiOrders")
 	if err != nil {
 		t.Error(err)
 	}

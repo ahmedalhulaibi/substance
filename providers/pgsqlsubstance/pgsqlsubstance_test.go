@@ -2,6 +2,7 @@ package pgsqlsubstance
 
 import (
 	"fmt"
+	"os"
 	"reflect"
 	"sort"
 	"strings"
@@ -13,7 +14,8 @@ import (
 func TestGetCurrDbName(t *testing.T) {
 	pgsqlProvider := pgsql{}
 	nameExpected := "postgres"
-	nameResult, err := pgsqlProvider.GetCurrentDatabaseNameFunc("postgres", "postgres://travis_test:password@127.0.0.1:5432/postgres")
+	nameResult, err := pgsqlProvider.GetCurrentDatabaseNameFunc("postgres", os.Getenv("SUBSTANCE_PGSQL"))
+	fmt.Println(os.Getenv("SUBSTANCE_PGSQL"))
 	if nameResult != nameExpected {
 		t.Errorf("Expected '%s' as database name but got '%s'.", nameExpected, nameResult)
 	}
@@ -116,7 +118,7 @@ func TestDescribeDb(t *testing.T) {
 		PropertyName: "antiorders",
 		TableName:    "antiorders",
 	})
-	columnDescResult, err := pgsqlProvider.DescribeDatabaseFunc("postgres", "postgres://travis_test:password@localhost:5432/postgres")
+	columnDescResult, err := pgsqlProvider.DescribeDatabaseFunc("postgres", os.Getenv("SUBSTANCE_PGSQL"))
 	if err != nil {
 		t.Error(err)
 	}
@@ -172,7 +174,7 @@ func TestDescribeTable(t *testing.T) {
 		TableName:    "persons",
 		Nullable:     true,
 	})
-	columnDescResult, err := pgsqlProvider.DescribeTableFunc("postgres", "postgres://travis_test:password@localhost:5432/postgres", "persons")
+	columnDescResult, err := pgsqlProvider.DescribeTableFunc("postgres", os.Getenv("SUBSTANCE_PGSQL"), "persons")
 	if err != nil {
 		t.Error(err)
 	}
@@ -203,7 +205,7 @@ func TestDescribeTableRelationship(t *testing.T) {
 		ReferenceTableName:  "persons",
 		ReferenceColumnName: "id",
 	})
-	columnRelResult, err := pgsqlProvider.DescribeTableRelationshipFunc("postgres", "postgres://travis_test:password@localhost:5432/postgres", "orders")
+	columnRelResult, err := pgsqlProvider.DescribeTableRelationshipFunc("postgres", os.Getenv("SUBSTANCE_PGSQL"), "orders")
 	if err != nil {
 		t.Error(err)
 	}
@@ -241,7 +243,7 @@ func TestDescribeTableContraints(t *testing.T) {
 		ColumnName:     "personid",
 		ConstraintType: "f",
 	})
-	columnConstraintResult, err := pgsqlProvider.DescribeTableConstraintsFunc("postgres", "postgres://travis_test:password@localhost:5432/postgres", "antiorders")
+	columnConstraintResult, err := pgsqlProvider.DescribeTableConstraintsFunc("postgres", os.Getenv("SUBSTANCE_PGSQL"), "antiorders")
 	if err != nil {
 		t.Error(err)
 	}
