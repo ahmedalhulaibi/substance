@@ -13,6 +13,7 @@ import (
 	"github.com/ahmedalhulaibi/substance/substancegen"
 )
 
+/*GenPackageImports writes a predefined package and import statement to a buffer*/
 func (g Gql) GenPackageImports(dbType string, buff *bytes.Buffer) {
 	buff.WriteString("package main\nimport (\n\t\"encoding/json\"\n\t\"fmt\"\n\t\"log\"\n\t\"net/http\"\n\t\"github.com/graphql-go/graphql\"\n\t\"github.com/graphql-go/handler\"")
 
@@ -22,6 +23,7 @@ func (g Gql) GenPackageImports(dbType string, buff *bytes.Buffer) {
 	buff.WriteString("\n)")
 }
 
+/*GenerateGraphqlGoTypesFunc takes a map of gen objects and outputs graphql-go types to a buffer*/
 func (g Gql) GenerateGraphqlGoTypesFunc(gqlObjectTypes map[string]substancegen.GenObjectType, buff *bytes.Buffer) {
 	for _, value := range gqlObjectTypes {
 		for _, propVal := range value.Properties {
@@ -55,6 +57,7 @@ func (g Gql) GenerateGraphqlGoTypesFunc(gqlObjectTypes map[string]substancegen.G
 	}
 }
 
+/*GenGraphqlGoMainFunc generates the main function (entrypoint) for the graphql-go server*/
 func GenGraphqlGoMainFunc(dbType string, connectionString string, gqlObjectTypes map[string]substancegen.GenObjectType, buff *bytes.Buffer) {
 	var sampleQuery bytes.Buffer
 	GenGraphqlGoSampleQuery(gqlObjectTypes, &sampleQuery)
@@ -90,6 +93,8 @@ func GenGraphqlGoMainFunc(dbType string, connectionString string, gqlObjectTypes
 	}
 }
 
+/*GenGraphqlGoFieldsFunc generates a basic graphql-go queries
+to retrieve the first element of each object type (and its associations) from a database*/
 func GenGraphqlGoFieldsFunc(gqlObjectTypes map[string]substancegen.GenObjectType, buff *bytes.Buffer) {
 	tmpl := template.New("graphqlFields")
 	tmpl, err := tmpl.Parse(graphqlGoFieldsTemplate)
@@ -104,6 +109,7 @@ func GenGraphqlGoFieldsFunc(gqlObjectTypes map[string]substancegen.GenObjectType
 	}
 }
 
+/*GenGraphqlGoSampleQuery generates a sample graphql query based on the given objects*/
 func GenGraphqlGoSampleQuery(gqlObjectTypes map[string]substancegen.GenObjectType, buff *bytes.Buffer) {
 	tmpl := template.New("graphqlQuery")
 	tmpl, err := tmpl.Parse(graphqlQueryTemplate)

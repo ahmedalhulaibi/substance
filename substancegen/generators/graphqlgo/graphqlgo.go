@@ -18,6 +18,7 @@ func init() {
 	substancegen.Register("graphql-go", gqlPlugin)
 }
 
+/*InitGraphqlDataTypes initializes gqlPlugin data like go to graphql-go type mapping*/
 func InitGraphqlDataTypes(gqlPlugin *Gql) {
 	gqlPlugin.GraphqlDataTypes = make(map[string]string)
 	gqlPlugin.GraphqlDataTypes["int"] = "graphql.Int"
@@ -38,6 +39,7 @@ func InitGraphqlDataTypes(gqlPlugin *Gql) {
 	gqlPlugin.GraphqlDataTypes["float64"] = "graphql.Float"
 }
 
+/*Gql plugin struct implementation of substancegen Generator interface*/
 type Gql struct {
 	Name                  string
 	GraphqlDataTypes      map[string]string
@@ -45,6 +47,7 @@ type Gql struct {
 	GraphqlDbTypeImports  map[string]string
 }
 
+/*OutputCodeFunc returns a buffer with a graphql-go implementation in a single file*/
 func (g Gql) OutputCodeFunc(dbType string, connectionString string, gqlObjectTypes map[string]substancegen.GenObjectType) bytes.Buffer {
 	var buff bytes.Buffer
 

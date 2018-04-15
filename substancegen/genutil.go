@@ -14,6 +14,7 @@ func StringInSlice(searchVal string, list []string) bool {
 	return false
 }
 
+/*AddJSONTagsToProperties adds json go tags to each property for each object*/
 func AddJSONTagsToProperties(gqlObjectTypes map[string]GenObjectType) {
 
 	for _, value := range gqlObjectTypes {
