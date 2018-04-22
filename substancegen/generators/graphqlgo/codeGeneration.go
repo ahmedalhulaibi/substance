@@ -129,3 +129,59 @@ func GenGraphqlGoSampleQuery(gqlObjectTypes map[string]substancegen.GenObjectTyp
 	buff.Reset()
 	buff.WriteString(bufferString)
 }
+
+var GoNumericAliasTypeMap map[string]string
+
+/*InitGoNumericAliasTypeMap initializes gqlPlugin data for go alias numeric type mapping
+This is currently used in the graphql-go generation this is required as graphql-go implements graphql.Int as an int and not int32, int64, uint32, etc*/
+func InitGoNumericAliasTypeMap() {
+	GoNumericAliasTypeMap = make(map[string]string, 16)
+	GoNumericAliasTypeMap["int"] = "int"
+	GoNumericAliasTypeMap["int8"] = "int"
+	GoNumericAliasTypeMap["int16"] = "int"
+	GoNumericAliasTypeMap["int32"] = "int"
+	GoNumericAliasTypeMap["int64"] = "int"
+	GoNumericAliasTypeMap["uint"] = "int"
+	GoNumericAliasTypeMap["uint8"] = "int"
+	GoNumericAliasTypeMap["uint16"] = "int"
+	GoNumericAliasTypeMap["uint32"] = "int"
+	GoNumericAliasTypeMap["uint64"] = "int"
+	GoNumericAliasTypeMap["float32"] = "float32"
+	GoNumericAliasTypeMap["float64"] = "float32"
+}
+
+/*GetGoNumericAliasType returns the alias numeric type for another specific numeric type
+For example given:
+ int32 return int
+ int64 return int
+ int   return int
+This is currently used in the graphql-go generation this is required as graphql-go implements graphql.Int as an int and not int32, int64, uint32, etc */
+func GetGoNumericAliasType(goType string) string {
+	if GoNumericAliasTypeMap == nil {
+		InitGoNumericAliasTypeMap()
+	}
+	if val, ok := GoNumericAliasTypeMap[goType]; ok {
+		return val
+	}
+	return goType
+}
+
+/*GenGraphqlGoFieldsFunc generates a basic graphql-go queries
+to retrieve the first element of each object type (and its associations) from a database*/
+func GenGraphqlGoFieldsGetFunc(gqlObjectTypes map[string]substancegen.GenObjectType, buff *bytes.Buffer) {
+	funcMap := template.FuncMap{
+		"goType": GetGoNumericAliasType,
+	}
+	tmpl := template.New("graphqlFieldsGet").Funcs(funcMap)
+
+	tmpl, err := tmpl.Parse(graphqlGoQueryFieldsGetTemplate)
+	if err != nil {
+		log.Fatal("Parse: ", err)
+		return
+	}
+	//print schema
+	err1 := tmpl.Execute(buff, gqlObjectTypes)
+	if err1 != nil {
+		log.Fatal("Execute: ", err1)
+	}
+}

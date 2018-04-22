@@ -76,3 +76,28 @@ var graphqlGoFieldsTemplate = `
 `
 
 var graphqlQueryTemplate = `{{range $key, $value := . }}{{.Name}} { {{range .Properties}}{{if not .IsObjectType}}{{.ScalarName}},{{end}} {{end}}},{{end}}`
+
+var graphqlGoQueryFieldsGetTemplate = `{{range $key, $value := . }}
+	QueryFields["Get{{.Name}}"] = &graphql.Field{
+		Type: {{.LowerName}}Type,
+		Args: graphql.FieldConfigArgument{
+			{{range .Properties}} {{if not .IsObjectType}}"{{.ScalarName}}": &graphql.ArgumentConfig{
+					Type: {{index .AltScalarType "graphql-go"}},
+				},{{end}}{{end}}
+		},
+		Resolve: func(p graphql.ResolveParams) (interface{}, error) {
+			Query{{.Name}}Obj := {{.Name}}{}
+		{{range .Properties}}	{{if not .IsObjectType}}if val, ok := p.Args["{{.ScalarName}}"]; ok {
+				Query{{$value.Name}}Obj.{{.ScalarName}} = {{$type := goType .ScalarType}}{{if eq .ScalarType  $type}}val.({{.ScalarType}}){{else}} {{.ScalarType}}(val.({{$type}})){{end}}
+			}
+		{{end}}{{end}}{{$name := .Name}}
+			var Result{{$name}}Obj {{.Name}}
+			Get{{.Name}}(DB,Query{{.Name}}Obj,Result{{$name}}Obj){{range .Properties}}{{if .IsObjectType}}
+			{{.ScalarName}}Obj := {{if .IsList}}[]{{end}}{{.ScalarType}}{}
+			DB.Model(&Result{{$name}}Obj).Association("{{.ScalarName}}").Find(&{{.ScalarName}}Obj)
+			Result{{$name}}Obj.{{.ScalarName}} = {{if .IsList}}append(Result{{$name}}Obj.{{.ScalarName}}, {{.ScalarName}}Obj...){{else}}{{.ScalarName}}Obj{{end}}{{end}}{{end}}
+			return Result{{$name}}Obj, nil
+		},
+		{{end}}
+	}
+`
