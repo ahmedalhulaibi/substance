@@ -112,7 +112,6 @@ func init() {
 			ResultCustomerObj.ShoppingList = append(ResultCustomerObj.ShoppingList, ShoppingListObj...)
 			return ResultCustomerObj, nil
 		},
-		
 	}
 
 }
@@ -120,7 +119,15 @@ func init() {
 `)
 
 	if buff.String() != expectedBuff.String() {
+		expectedBuffBytes := expectedBuff.Bytes()
+		buffBytes := buff.Bytes()
+		for i := range expectedBuffBytes {
+			if expectedBuffBytes[i] != buffBytes[i] {
+				fmt.Printf("%d Expected Char: %c\tReceived Char: %c\n", i, expectedBuffBytes[i], buffBytes[i])
+			}
+		}
 		t.Errorf("Expected\n\n'%s'\n\nReceived\n\n'%s'\n\n", expectedBuff.String(), buff.String())
+		//t.Errorf("Expected\n\n'%v'\n\nReceived\n\n'%v'\n\n", expectedBuff, buff)
 	}
 }
 func TestGenGraphqlGoTypesFunc(t *testing.T) {
@@ -337,7 +344,6 @@ func TestGenGraphqlGoFieldsGetFunc(t *testing.T) {
 			ResultCustomerObj.ShoppingList = append(ResultCustomerObj.ShoppingList, ShoppingListObj...)
 			return ResultCustomerObj, nil
 		},
-		
 	}
 `)
 

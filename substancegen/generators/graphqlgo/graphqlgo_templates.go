@@ -92,7 +92,6 @@ var graphqlGoQueryFieldsGetTemplate = `{{define "graphqlFieldsGet"}}{{range $key
 			Result{{$name}}Obj.{{.ScalarName}} = {{if .IsList}}append(Result{{$name}}Obj.{{.ScalarName}}, {{.ScalarName}}Obj...){{else}}{{.ScalarName}}Obj{{end}}{{end}}{{end}}
 			return Result{{$name}}Obj, nil
 		},
-		{{end}}
 	}
-{{end}}
+{{end}}{{end}}
 `
