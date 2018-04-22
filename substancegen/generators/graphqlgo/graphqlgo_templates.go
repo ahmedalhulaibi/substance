@@ -60,30 +60,24 @@ var {{.LowerName}}Type = graphql.NewObject(
 {{end}}`
 
 var graphqlGoFieldsTemplate = `
-	var QueryFields = graphql.Fields{ {{range $key, $value := . }}{{$name := .Name}}
-		"{{.Name}}": &graphql.Field{
-			Type: {{.LowerName}}Type,
-			Resolve: func(p graphql.ResolveParams) (interface{}, error) {
-				{{.Name}}Obj := {{.Name}}{}
-				DB.First(&{{.Name}}Obj){{range .Properties}}{{if .IsObjectType}}
-				{{.ScalarName}}Obj := {{if .IsList}}[]{{end}}{{.ScalarType}}{}
-				DB.Model(&{{$name}}Obj).Association("{{.ScalarName}}").Find(&{{.ScalarName}}Obj)
-				{{$name}}Obj.{{.ScalarName}} = {{if .IsList}}append({{$name}}Obj.{{.ScalarName}}, {{.ScalarName}}Obj...){{else}}{{.ScalarName}}Obj{{end}}{{end}}{{end}}
-				return {{$name}}Obj, nil
-			},
-		},{{end}}
+var QueryFields graphql.Fields
+
+func init() {
+	QueryFields = make(graphql.Fields,1)
+	{{template "graphqlFieldsGet" .}}
 }
 `
 
 var graphqlQueryTemplate = `{{range $key, $value := . }}{{.Name}} { {{range .Properties}}{{if not .IsObjectType}}{{.ScalarName}},{{end}} {{end}}},{{end}}`
 
-var graphqlGoQueryFieldsGetTemplate = `{{range $key, $value := . }}
+var graphqlGoQueryFieldsGetTemplate = `{{define "graphqlFieldsGet"}}{{range $key, $value := . }}
 	QueryFields["Get{{.Name}}"] = &graphql.Field{
 		Type: {{.LowerName}}Type,
 		Args: graphql.FieldConfigArgument{
-			{{range .Properties}} {{if not .IsObjectType}}"{{.ScalarName}}": &graphql.ArgumentConfig{
+			{{range .Properties}}{{if not .IsObjectType}}"{{.ScalarName}}": &graphql.ArgumentConfig{
 					Type: {{index .AltScalarType "graphql-go"}},
-				},{{end}}{{end}}
+			},
+			{{end}}{{end}}
 		},
 		Resolve: func(p graphql.ResolveParams) (interface{}, error) {
 			Query{{.Name}}Obj := {{.Name}}{}
@@ -100,4 +94,5 @@ var graphqlGoQueryFieldsGetTemplate = `{{range $key, $value := . }}
 		},
 		{{end}}
 	}
+{{end}}
 `

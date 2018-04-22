@@ -57,6 +57,7 @@ func TestGenGraphqlGoFieldsFunc(t *testing.T) {
 		ScalarName:      "FirstName",
 		ScalarNameUpper: "FirstName",
 		ScalarType:      "string",
+		AltScalarType:   make(map[string]string),
 		Nullable:        false,
 	}
 	newGenObjType.Properties["FirstName"].Tags = make(substancegen.GenObjectTag)
@@ -69,6 +70,7 @@ func TestGenGraphqlGoFieldsFunc(t *testing.T) {
 		ScalarName:      "ShoppingList",
 		ScalarNameUpper: "ShoppingList",
 		ScalarType:      "string",
+		AltScalarType:   make(map[string]string),
 		Nullable:        false,
 	}
 	newGenObjType.Properties["ShoppingList"].Tags = make(substancegen.GenObjectTag)
@@ -76,24 +78,45 @@ func TestGenGraphqlGoFieldsFunc(t *testing.T) {
 	genObjMap := make(map[string]substancegen.GenObjectType)
 	genObjMap["Customers"] = newGenObjType
 	var buff bytes.Buffer
+	gqlPlugin := Gql{}
+	InitGraphqlDataTypes(&gqlPlugin)
+	gqlPlugin.PopulateAltScalarType(genObjMap, false, true)
 	GenGraphqlGoFieldsFunc(genObjMap, &buff)
 
 	var expectedBuff bytes.Buffer
 
 	expectedBuff.WriteString(`
-	var QueryFields = graphql.Fields{ 
-		"Customer": &graphql.Field{
-			Type: customerType,
-			Resolve: func(p graphql.ResolveParams) (interface{}, error) {
-				CustomerObj := Customer{}
-				DB.First(&CustomerObj)
-				ShoppingListObj := []string{}
-				DB.Model(&CustomerObj).Association("ShoppingList").Find(&ShoppingListObj)
-				CustomerObj.ShoppingList = append(CustomerObj.ShoppingList, ShoppingListObj...)
-				return CustomerObj, nil
+var QueryFields graphql.Fields
+
+func init() {
+	QueryFields = make(graphql.Fields,1)
+	
+	QueryFields["GetCustomer"] = &graphql.Field{
+		Type: customerType,
+		Args: graphql.FieldConfigArgument{
+			"FirstName": &graphql.ArgumentConfig{
+					Type: graphql.String,
 			},
+			
 		},
+		Resolve: func(p graphql.ResolveParams) (interface{}, error) {
+			QueryCustomerObj := Customer{}
+			if val, ok := p.Args["FirstName"]; ok {
+				QueryCustomerObj.FirstName = val.(string)
+			}
+			
+			var ResultCustomerObj Customer
+			GetCustomer(DB,QueryCustomerObj,ResultCustomerObj)
+			ShoppingListObj := []string{}
+			DB.Model(&ResultCustomerObj).Association("ShoppingList").Find(&ShoppingListObj)
+			ResultCustomerObj.ShoppingList = append(ResultCustomerObj.ShoppingList, ShoppingListObj...)
+			return ResultCustomerObj, nil
+		},
+		
+	}
+
 }
+
 `)
 
 	if buff.String() != expectedBuff.String() {
@@ -244,6 +267,7 @@ func TestGenGraphqlGoFieldsGetFunc(t *testing.T) {
 		ScalarName:      "FirstName",
 		ScalarNameUpper: "FirstName",
 		ScalarType:      "string",
+		AltScalarType:   make(map[string]string),
 		Nullable:        false,
 	}
 	newGenObjType.Properties["FirstName"].Tags = make(substancegen.GenObjectTag)
@@ -256,6 +280,7 @@ func TestGenGraphqlGoFieldsGetFunc(t *testing.T) {
 		ScalarName:      "PhoneNumber",
 		ScalarNameUpper: "PhoneNumber",
 		ScalarType:      "string",
+		AltScalarType:   make(map[string]string),
 		Nullable:        false,
 	}
 	newGenObjType.Properties["PhoneNumber"].Tags = make(substancegen.GenObjectTag)
@@ -277,6 +302,9 @@ func TestGenGraphqlGoFieldsGetFunc(t *testing.T) {
 	genObjMap := make(map[string]substancegen.GenObjectType)
 	genObjMap["Customers"] = newGenObjType
 	var buff bytes.Buffer
+	gqlPlugin := Gql{}
+	InitGraphqlDataTypes(&gqlPlugin)
+	gqlPlugin.PopulateAltScalarType(genObjMap, false, true)
 	GenGraphqlGoFieldsGetFunc(genObjMap, &buff)
 
 	var expectedBuff bytes.Buffer
@@ -285,11 +313,13 @@ func TestGenGraphqlGoFieldsGetFunc(t *testing.T) {
 	QueryFields["GetCustomer"] = &graphql.Field{
 		Type: customerType,
 		Args: graphql.FieldConfigArgument{
-			 "FirstName": &graphql.ArgumentConfig{
-					Type: ,
-				}, "PhoneNumber": &graphql.ArgumentConfig{
-					Type: ,
-				}, 
+			"FirstName": &graphql.ArgumentConfig{
+					Type: graphql.String,
+			},
+			"PhoneNumber": &graphql.ArgumentConfig{
+					Type: graphql.String,
+			},
+			
 		},
 		Resolve: func(p graphql.ResolveParams) (interface{}, error) {
 			QueryCustomerObj := Customer{}

@@ -25,25 +25,7 @@ func (g Gql) GenPackageImports(dbType string, buff *bytes.Buffer) {
 
 /*GenerateGraphqlGoTypesFunc takes a map of gen objects and outputs graphql-go types to a buffer*/
 func (g Gql) GenerateGraphqlGoTypesFunc(gqlObjectTypes map[string]substancegen.GenObjectType, buff *bytes.Buffer) {
-	for _, value := range gqlObjectTypes {
-		for _, propVal := range value.Properties {
-			if propVal.IsObjectType {
-				a := []rune(inflection.Singular(propVal.ScalarName))
-				a[0] = unicode.ToLower(a[0])
-				propVal.AltScalarType["graphql-go"] = fmt.Sprintf("%sType", string(a))
-			} else {
-				propVal.AltScalarType["graphql-go"] = g.GraphqlDataTypes[propVal.ScalarType]
-			}
-
-			if propVal.IsList {
-				propVal.AltScalarType["graphql-go"] = fmt.Sprintf("graphql.NewList(%s)", propVal.AltScalarType["graphql-go"])
-			}
-
-			if !propVal.Nullable {
-				propVal.AltScalarType["graphql-go"] = fmt.Sprintf("graphql.NewNonNull(%s)", propVal.AltScalarType["graphql-go"])
-			}
-		}
-	}
+	g.PopulateAltScalarType(gqlObjectTypes, false, false)
 	tmpl := template.New("graphqlTypes")
 	tmpl, err := tmpl.Parse(graphqlTypesTemplate)
 	if err != nil {
@@ -54,6 +36,29 @@ func (g Gql) GenerateGraphqlGoTypesFunc(gqlObjectTypes map[string]substancegen.G
 	if err1 != nil {
 		log.Fatal("Execute: ", err1)
 		return
+	}
+}
+
+/*PopulateAltScalarType takes a map of gen objects and outputs graphql-go types to a buffer*/
+func (g Gql) PopulateAltScalarType(gqlObjectTypes map[string]substancegen.GenObjectType, ignoreList bool, ignoreNull bool) {
+	for _, value := range gqlObjectTypes {
+		for _, propVal := range value.Properties {
+			if propVal.IsObjectType {
+				a := []rune(inflection.Singular(propVal.ScalarName))
+				a[0] = unicode.ToLower(a[0])
+				propVal.AltScalarType["graphql-go"] = fmt.Sprintf("%sType", string(a))
+			} else {
+				propVal.AltScalarType["graphql-go"] = g.GraphqlDataTypes[propVal.ScalarType]
+			}
+
+			if propVal.IsList && !ignoreList {
+				propVal.AltScalarType["graphql-go"] = fmt.Sprintf("graphql.NewList(%s)", propVal.AltScalarType["graphql-go"])
+			}
+
+			if !propVal.Nullable && !ignoreNull {
+				propVal.AltScalarType["graphql-go"] = fmt.Sprintf("graphql.NewNonNull(%s)", propVal.AltScalarType["graphql-go"])
+			}
+		}
 	}
 }
 
@@ -96,8 +101,11 @@ func GenGraphqlGoMainFunc(dbType string, connectionString string, gqlObjectTypes
 /*GenGraphqlGoFieldsFunc generates a basic graphql-go queries
 to retrieve the first element of each object type (and its associations) from a database*/
 func GenGraphqlGoFieldsFunc(gqlObjectTypes map[string]substancegen.GenObjectType, buff *bytes.Buffer) {
-	tmpl := template.New("graphqlFields")
-	tmpl, err := tmpl.Parse(graphqlGoFieldsTemplate)
+	funcMap := template.FuncMap{
+		"goType": GetGoNumericAliasType,
+	}
+	tmpl := template.New("graphqlFields").Funcs(funcMap)
+	tmpl, err := tmpl.Parse(strings.Join([]string{graphqlGoFieldsTemplate, graphqlGoQueryFieldsGetTemplate}, ""))
 	if err != nil {
 		log.Fatal("Parse: ", err)
 		return
