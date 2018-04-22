@@ -106,7 +106,7 @@ func init() {
 			}
 			
 			var ResultCustomerObj Customer
-			GetCustomer(DB,QueryCustomerObj,ResultCustomerObj)
+			GetCustomer(DB,QueryCustomerObj,&ResultCustomerObj)
 			ShoppingListObj := []string{}
 			DB.Model(&ResultCustomerObj).Association("ShoppingList").Find(&ShoppingListObj)
 			ResultCustomerObj.ShoppingList = append(ResultCustomerObj.ShoppingList, ShoppingListObj...)
@@ -338,7 +338,7 @@ func TestGenGraphqlGoFieldsGetFunc(t *testing.T) {
 			}
 			
 			var ResultCustomerObj Customer
-			GetCustomer(DB,QueryCustomerObj,ResultCustomerObj)
+			GetCustomer(DB,QueryCustomerObj,&ResultCustomerObj)
 			ShoppingListObj := []ShoppingList{}
 			DB.Model(&ResultCustomerObj).Association("ShoppingList").Find(&ShoppingListObj)
 			ResultCustomerObj.ShoppingList = append(ResultCustomerObj.ShoppingList, ShoppingListObj...)

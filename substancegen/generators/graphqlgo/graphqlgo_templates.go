@@ -86,7 +86,7 @@ var graphqlGoQueryFieldsGetTemplate = `{{define "graphqlFieldsGet"}}{{range $key
 			}
 		{{end}}{{end}}{{$name := .Name}}
 			var Result{{$name}}Obj {{.Name}}
-			Get{{.Name}}(DB,Query{{.Name}}Obj,Result{{$name}}Obj){{range .Properties}}{{if .IsObjectType}}
+			Get{{.Name}}(DB,Query{{.Name}}Obj,&Result{{$name}}Obj){{range .Properties}}{{if .IsObjectType}}
 			{{.ScalarName}}Obj := {{if .IsList}}[]{{end}}{{.ScalarType}}{}
 			DB.Model(&Result{{$name}}Obj).Association("{{.ScalarName}}").Find(&{{.ScalarName}}Obj)
 			Result{{$name}}Obj.{{.ScalarName}} = {{if .IsList}}append(Result{{$name}}Obj.{{.ScalarName}}, {{.ScalarName}}Obj...){{else}}{{.ScalarName}}Obj{{end}}{{end}}{{end}}
