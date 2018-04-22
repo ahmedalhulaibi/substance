@@ -202,7 +202,7 @@ func main() {
 
 	fmt.Println("Test with Get	:	curl -g 'http://localhost:8080/graphql?query={ Customer{FirstName,}, }'")
 
-	rootQuery := graphql.ObjectConfig{Name: "RootQuery", Fields: Fields}
+	rootQuery := graphql.ObjectConfig{Name: "RootQuery", Fields: QueryFields}
 	schemaConfig := graphql.SchemaConfig{Query: graphql.NewObject(rootQuery)}
 	schema, err := graphql.NewSchema(schemaConfig)
 	if err != nil {
