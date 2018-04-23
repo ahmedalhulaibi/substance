@@ -87,11 +87,11 @@ var graphqlGoQueryFieldsGetTemplate = `{{define "graphqlFieldsGet"}}{{range $key
 			}
 		{{end}}{{end}}{{$name := .Name}}
 			var Result{{$name}}Obj {{.Name}}
-			Get{{.Name}}(DB,Query{{.Name}}Obj,&Result{{$name}}Obj){{range .Properties}}{{if .IsObjectType}}
+			err := Get{{.Name}}(DB,Query{{.Name}}Obj,&Result{{$name}}Obj){{range .Properties}}{{if .IsObjectType}}
 			{{.ScalarName}}Obj := {{if .IsList}}[]{{end}}{{.ScalarType}}{}
-			DB.Model(&Result{{$name}}Obj).Association("{{.ScalarName}}").Find(&{{.ScalarName}}Obj)
+			err = append(err,DB.Model(&Result{{$name}}Obj).Association("{{.ScalarName}}").Find(&{{.ScalarName}}Obj).Error)
 			Result{{$name}}Obj.{{.ScalarName}} = {{if .IsList}}append(Result{{$name}}Obj.{{.ScalarName}}, {{.ScalarName}}Obj...){{else}}{{.ScalarName}}Obj{{end}}{{end}}{{end}}
-			return Result{{$name}}Obj, nil
+			return Result{{$name}}Obj, err[len(err)-1]
 		},
 	}
 {{end}}{{end}}
@@ -121,11 +121,11 @@ var graphqlGoMutationCreateTemplate = `{{define "graphqlFieldsCreate"}}{{range $
 				Query{{$value.Name}}Obj.{{.ScalarName}} = {{$type := goType .ScalarType}}{{if eq .ScalarType  $type}}val.({{.ScalarType}}){{else}} {{.ScalarType}}(val.({{$type}})){{end}}
 			}
 		{{end}}{{end}}
-			Create{{.Name}}(DB,Query{{.Name}}Obj)
+			err := Create{{.Name}}(DB,Query{{.Name}}Obj)
 			var Result{{.Name}}Obj {{.Name}}
-			Get{{.Name}}(DB,Query{{.Name}}Obj,&Result{{.Name}}Obj)
+			err = append(err,Get{{.Name}}(DB,Query{{.Name}}Obj,&Result{{.Name}}Obj)...)
 
-			return Result{{.Name}}Obj, nil
+			return Result{{.Name}}Obj, err[len(err)-1]
 		},
 	}
 {{end}}{{end}}
