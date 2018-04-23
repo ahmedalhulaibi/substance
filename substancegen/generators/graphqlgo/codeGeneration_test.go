@@ -110,7 +110,10 @@ func init() {
 			ShoppingListObj := []string{}
 			err = append(err,DB.Model(&ResultCustomerObj).Association("ShoppingList").Find(&ShoppingListObj).Error)
 			ResultCustomerObj.ShoppingList = append(ResultCustomerObj.ShoppingList, ShoppingListObj...)
-			return ResultCustomerObj, err[len(err)-1]
+			if len(err) > 0 {
+				return ResultCustomerObj, err[len(err)-1]
+			}
+			return ResultCustomerObj, nil
 		},
 	}
 
@@ -343,7 +346,10 @@ func TestGenGraphqlGoFieldsGetFunc(t *testing.T) {
 			ShoppingListObj := []ShoppingList{}
 			err = append(err,DB.Model(&ResultCustomerObj).Association("ShoppingList").Find(&ShoppingListObj).Error)
 			ResultCustomerObj.ShoppingList = append(ResultCustomerObj.ShoppingList, ShoppingListObj...)
-			return ResultCustomerObj, err[len(err)-1]
+			if len(err) > 0 {
+				return ResultCustomerObj, err[len(err)-1]
+			}
+			return ResultCustomerObj, nil
 		},
 	}
 `)
@@ -429,8 +435,10 @@ func TestGenGraphqlGoFieldsCreateFunc(t *testing.T) {
 			err := CreateCustomer(DB,QueryCustomerObj)
 			var ResultCustomerObj Customer
 			err = append(err,GetCustomer(DB,QueryCustomerObj,&ResultCustomerObj)...)
-
-			return ResultCustomerObj, err[len(err)-1]
+			if len(err) > 0 {
+				return ResultCustomerObj, err[len(err)-1]
+			}
+			return ResultCustomerObj, nil
 		},
 	}
 `)

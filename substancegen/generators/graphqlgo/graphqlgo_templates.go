@@ -91,7 +91,10 @@ var graphqlGoQueryFieldsGetTemplate = `{{define "graphqlFieldsGet"}}{{range $key
 			{{.ScalarName}}Obj := {{if .IsList}}[]{{end}}{{.ScalarType}}{}
 			err = append(err,DB.Model(&Result{{$name}}Obj).Association("{{.ScalarName}}").Find(&{{.ScalarName}}Obj).Error)
 			Result{{$name}}Obj.{{.ScalarName}} = {{if .IsList}}append(Result{{$name}}Obj.{{.ScalarName}}, {{.ScalarName}}Obj...){{else}}{{.ScalarName}}Obj{{end}}{{end}}{{end}}
-			return Result{{$name}}Obj, err[len(err)-1]
+			if len(err) > 0 {
+				return Result{{$name}}Obj, err[len(err)-1]
+			}
+			return Result{{$name}}Obj, nil
 		},
 	}
 {{end}}{{end}}
@@ -124,8 +127,10 @@ var graphqlGoMutationCreateTemplate = `{{define "graphqlFieldsCreate"}}{{range $
 			err := Create{{.Name}}(DB,Query{{.Name}}Obj)
 			var Result{{.Name}}Obj {{.Name}}
 			err = append(err,Get{{.Name}}(DB,Query{{.Name}}Obj,&Result{{.Name}}Obj)...)
-
-			return Result{{.Name}}Obj, err[len(err)-1]
+			if len(err) > 0 {
+				return Result{{.Name}}Obj, err[len(err)-1]
+			}
+			return Result{{.Name}}Obj, nil
 		},
 	}
 {{end}}{{end}}
