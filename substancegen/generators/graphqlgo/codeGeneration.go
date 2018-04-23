@@ -185,6 +185,25 @@ func GenGraphqlGoFieldsGetFunc(gqlObjectTypes map[string]substancegen.GenObjectT
 	}
 }
 
+/*GenGraphqlGoMutationsFunc generates a basic graphql-go mutations
+to rCreate, Update and Delete*/
+func GenGraphqlGoMutationsFunc(gqlObjectTypes map[string]substancegen.GenObjectType, buff *bytes.Buffer) {
+	funcMap := template.FuncMap{
+		"goType": GetGoNumericAliasType,
+	}
+	tmpl := template.New("graphqlGoFieldsMutation").Funcs(funcMap)
+	tmpl, err := tmpl.Parse(strings.Join([]string{graphqlGoFieldsMutationTemplate, graphqlGoMutationCreateTemplate}, ""))
+	if err != nil {
+		log.Fatal("Parse: ", err)
+		return
+	}
+	//print schema
+	err1 := tmpl.Execute(buff, gqlObjectTypes)
+	if err1 != nil {
+		log.Fatal("Execute: ", err1)
+	}
+}
+
 /*GenGraphqlGoFieldsCreateFunc generates a basic graphql-go mutation
 to create an object and add it to a database*/
 func GenGraphqlGoFieldsCreateFunc(gqlObjectTypes map[string]substancegen.GenObjectType, buff *bytes.Buffer) {
