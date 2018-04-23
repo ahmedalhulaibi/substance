@@ -106,6 +106,7 @@ var MutationFields graphql.Fields
 func init() {
 	MutationFields = make(graphql.Fields,1)
 	{{template "graphqlFieldsCreate" .}}
+	{{template "graphqlFieldsDelete" .}}
 }
 `
 
@@ -125,6 +126,33 @@ var graphqlGoMutationCreateTemplate = `{{define "graphqlFieldsCreate"}}{{range $
 			}
 		{{end}}{{end}}
 			err := Create{{.Name}}(DB,Query{{.Name}}Obj)
+			var Result{{.Name}}Obj {{.Name}}
+			err = append(err,Get{{.Name}}(DB,Query{{.Name}}Obj,&Result{{.Name}}Obj)...)
+			if len(err) > 0 {
+				return Result{{.Name}}Obj, err[len(err)-1]
+			}
+			return Result{{.Name}}Obj, nil
+		},
+	}
+{{end}}{{end}}
+`
+
+var graphqlGoMutationDeleteTemplate = `{{define "graphqlFieldsDelete"}}{{range $key, $value := . }}
+	MutationFields["Delete{{.Name}}"] = &graphql.Field{
+		Type: {{.LowerName}}Type,
+		Args: graphql.FieldConfigArgument{
+			{{range .Properties}}{{if not .IsObjectType}}"{{.ScalarName}}": &graphql.ArgumentConfig{
+					Type: {{index .AltScalarType "graphql-go"}},
+			},
+			{{end}}{{end}}
+		},
+		Resolve: func(p graphql.ResolveParams) (interface{}, error) {
+			Query{{.Name}}Obj := {{.Name}}{}
+		{{range .Properties}}	{{if not .IsObjectType}}if val, ok := p.Args["{{.ScalarName}}"]; ok {
+				Query{{$value.Name}}Obj.{{.ScalarName}} = {{$type := goType .ScalarType}}{{if eq .ScalarType  $type}}val.({{.ScalarType}}){{else}} {{.ScalarType}}(val.({{$type}})){{end}}
+			}
+		{{end}}{{end}}
+			err := Delete{{.Name}}(DB,Query{{.Name}}Obj)
 			var Result{{.Name}}Obj {{.Name}}
 			err = append(err,Get{{.Name}}(DB,Query{{.Name}}Obj,&Result{{.Name}}Obj)...)
 			if len(err) > 0 {
