@@ -79,7 +79,7 @@ func TestGenObjectGormCreateFunc(t *testing.T) {
 
 	var expectedBuff bytes.Buffer
 
-	expectedBuff.WriteString(fmt.Sprintf("\n\nfunc CreateCustomer (db *gorm.DB, newCustomer Customer) {\n\tdb.Create(&newCustomer)\n}"))
+	expectedBuff.WriteString(fmt.Sprintf("\n\nfunc CreateCustomer (db *gorm.DB, newCustomer Customer) []error {\n\treturn db.Create(&newCustomer).GetErrors()\n}"))
 
 	if buff.String() != expectedBuff.String() {
 		t.Errorf("Expected\n\n'%s'\n\nReceived\n\n'%s'\n\n", expectedBuff.String(), buff.String())
@@ -118,7 +118,7 @@ func TestGenObjectGormReadFunc(t *testing.T) {
 
 	var expectedBuff bytes.Buffer
 
-	expectedBuff.WriteString(fmt.Sprintf("\n\nfunc GetCustomer (db *gorm.DB, queryCustomer Customer, resultCustomer *Customer) {\n\tdb.Where(&queryCustomer).First(resultCustomer)\n}"))
+	expectedBuff.WriteString(fmt.Sprintf("\n\nfunc GetCustomer (db *gorm.DB, queryCustomer Customer, resultCustomer *Customer) []error {\n\treturn db.Where(&queryCustomer).First(resultCustomer).GetErrors()\n}"))
 
 	if buff.String() != expectedBuff.String() {
 		t.Errorf("Expected\n\n'%s'\n\nReceived\n\n'%s'\n\n", expectedBuff.String(), buff.String())
@@ -156,7 +156,7 @@ func TestGenObjectGormReadAllFunc(t *testing.T) {
 
 	var expectedBuff bytes.Buffer
 
-	expectedBuff.WriteString(fmt.Sprintf("\n\nfunc GetAllCustomer (db *gorm.DB, queryCustomer Customer, resultCustomer []Customer) {\n\tdb.Where(&queryCustomer).Find(resultCustomer)\n}"))
+	expectedBuff.WriteString(fmt.Sprintf("\n\nfunc GetAllCustomer (db *gorm.DB, queryCustomer Customer, resultCustomer []Customer) []error {\n\treturn db.Where(&queryCustomer).Find(resultCustomer).GetErrors()\n}"))
 
 	if buff.String() != expectedBuff.String() {
 		t.Errorf("Expected\n\n'%s'\n\nReceived\n\n'%s'\n\n", expectedBuff.String(), buff.String())
@@ -195,7 +195,7 @@ func TestGenObjectGormUpdateFunc(t *testing.T) {
 
 	var expectedBuff bytes.Buffer
 
-	expectedBuff.WriteString(fmt.Sprintf("\n\nfunc UpdateCustomer (db *gorm.DB, oldCustomer Customer, newCustomer Customer, resultCustomer *Customer) {\n\tvar oldResultCustomer Customer\n\tdb.Where(&oldCustomer).First(&oldResultCustomer)\n\tif oldResultCustomer.FirstName == newCustomer.FirstName {\n\t\toldResultCustomer = newCustomer\n\t\tdb.Save(oldResultCustomer)\n\t}\n\tGetCustomer(db, newCustomer, resultCustomer)\n}"))
+	expectedBuff.WriteString(fmt.Sprintf("\n\nfunc UpdateCustomer (db *gorm.DB, oldCustomer Customer, newCustomer Customer, resultCustomer *Customer) []error {\n\tvar oldResultCustomer Customer\n\terr := db.Where(&oldCustomer).First(&oldResultCustomer).GetErrors()\n\tif oldResultCustomer.FirstName == newCustomer.FirstName {\n\t\toldResultCustomer = newCustomer\n\t\terr = append(err,db.Save(oldResultCustomer).GetErrors()...)\n\t}\n\terr = append(err,GetCustomer(db, newCustomer, resultCustomer)...)\n\treturn err\n}"))
 
 	if buff.String() != expectedBuff.String() {
 		t.Errorf("Expected\n\n'%s'\n\nReceived\n\n'%s'\n\n", expectedBuff.String(), buff.String())
@@ -234,7 +234,7 @@ func TestGenObjectGormDeleteFunc(t *testing.T) {
 
 	var expectedBuff bytes.Buffer
 
-	expectedBuff.WriteString(fmt.Sprintf("\n\nfunc DeleteCustomer (db *gorm.DB, oldCustomer Customer) {\n\tdb.Delete(&oldCustomer)\n}"))
+	expectedBuff.WriteString(fmt.Sprintf("\n\nfunc DeleteCustomer (db *gorm.DB, oldCustomer Customer) []error {\n\treturn db.Delete(&oldCustomer).GetErrors()\n}"))
 
 	if buff.String() != expectedBuff.String() {
 		t.Errorf("Expected\n\n'%s'\n\nReceived\n\n'%s'\n\n", expectedBuff.String(), buff.String())
@@ -273,15 +273,15 @@ func TestGenObjectGormCrud(t *testing.T) {
 
 	var expectedBuff bytes.Buffer
 
-	expectedBuff.WriteString(fmt.Sprintf("\n\nfunc CreateCustomer (db *gorm.DB, newCustomer Customer) {\n\tdb.Create(&newCustomer)\n}"))
+	expectedBuff.WriteString(fmt.Sprintf("\n\nfunc CreateCustomer (db *gorm.DB, newCustomer Customer) []error {\n\treturn db.Create(&newCustomer).GetErrors()\n}"))
 
-	expectedBuff.WriteString(fmt.Sprintf("\n\nfunc GetCustomer (db *gorm.DB, queryCustomer Customer, resultCustomer *Customer) {\n\tdb.Where(&queryCustomer).First(resultCustomer)\n}"))
+	expectedBuff.WriteString(fmt.Sprintf("\n\nfunc GetCustomer (db *gorm.DB, queryCustomer Customer, resultCustomer *Customer) []error {\n\treturn db.Where(&queryCustomer).First(resultCustomer).GetErrors()\n}"))
 
-	expectedBuff.WriteString(fmt.Sprintf("\n\nfunc GetAllCustomer (db *gorm.DB, queryCustomer Customer, resultCustomer []Customer) {\n\tdb.Where(&queryCustomer).Find(resultCustomer)\n}"))
+	expectedBuff.WriteString(fmt.Sprintf("\n\nfunc GetAllCustomer (db *gorm.DB, queryCustomer Customer, resultCustomer []Customer) []error {\n\treturn db.Where(&queryCustomer).Find(resultCustomer).GetErrors()\n}"))
 
-	expectedBuff.WriteString(fmt.Sprintf("\n\nfunc UpdateCustomer (db *gorm.DB, oldCustomer Customer, newCustomer Customer, resultCustomer *Customer) {\n\tvar oldResultCustomer Customer\n\tdb.Where(&oldCustomer).First(&oldResultCustomer)\n\tif oldResultCustomer.FirstName == newCustomer.FirstName {\n\t\toldResultCustomer = newCustomer\n\t\tdb.Save(oldResultCustomer)\n\t}\n\tGetCustomer(db, newCustomer, resultCustomer)\n}"))
+	expectedBuff.WriteString(fmt.Sprintf("\n\nfunc UpdateCustomer (db *gorm.DB, oldCustomer Customer, newCustomer Customer, resultCustomer *Customer) []error {\n\tvar oldResultCustomer Customer\n\terr := db.Where(&oldCustomer).First(&oldResultCustomer).GetErrors()\n\tif oldResultCustomer.FirstName == newCustomer.FirstName {\n\t\toldResultCustomer = newCustomer\n\t\terr = append(err,db.Save(oldResultCustomer).GetErrors()...)\n\t}\n\terr = append(err,GetCustomer(db, newCustomer, resultCustomer)...)\n\treturn err\n}"))
 
-	expectedBuff.WriteString(fmt.Sprintf("\n\nfunc DeleteCustomer (db *gorm.DB, oldCustomer Customer) {\n\tdb.Delete(&oldCustomer)\n}"))
+	expectedBuff.WriteString(fmt.Sprintf("\n\nfunc DeleteCustomer (db *gorm.DB, oldCustomer Customer) []error {\n\treturn db.Delete(&oldCustomer).GetErrors()\n}"))
 
 	if buff.String() != expectedBuff.String() {
 		t.Errorf("Expected\n\n'%s'\n\nReceived\n\n'%s'\n\n", expectedBuff.String(), buff.String())
