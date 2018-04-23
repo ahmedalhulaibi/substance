@@ -41,7 +41,7 @@ func TestGenGraphqlGoSampleQueryFunc(t *testing.T) {
 
 	var expectedBuff bytes.Buffer
 
-	expectedBuff.WriteString(fmt.Sprintf("Customer{FirstName,ShoppingList,},"))
+	expectedBuff.WriteString(fmt.Sprintf("GetCustomer{FirstName,ShoppingList,},"))
 
 	if buff.String() != expectedBuff.String() {
 		t.Errorf("Expected\n\n'%s'\n\nReceived\n\n'%s'\n\n", expectedBuff.String(), buff.String())
@@ -230,7 +230,7 @@ func main() {
 	defer DB.Close()
 
 
-	fmt.Println("Test with Get	:	curl -g 'http://localhost:8080/graphql?query={ Customer{FirstName,}, }'")
+	fmt.Println("Test with Get	:	curl -g 'http://localhost:8080/graphql?query={ GetCustomer{FirstName,}, }'")
 
 	rootQuery := graphql.ObjectConfig{Name: "RootQuery", Fields: QueryFields}
 	schemaConfig := graphql.SchemaConfig{Query: graphql.NewObject(rootQuery)}

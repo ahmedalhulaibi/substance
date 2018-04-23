@@ -68,7 +68,7 @@ func init() {
 }
 `
 
-var graphqlQueryTemplate = `{{range $key, $value := . }}{{.Name}} { {{range .Properties}}{{if not .IsObjectType}}{{.ScalarName}},{{end}} {{end}}},{{end}}`
+var graphqlQueryTemplate = `{{range $key, $value := . }}Get{{.Name}} { {{range .Properties}}{{if not .IsObjectType}}{{.ScalarName}},{{end}} {{end}}},{{end}}`
 
 var graphqlGoQueryFieldsGetTemplate = `{{define "graphqlFieldsGet"}}{{range $key, $value := . }}
 	QueryFields["Get{{.Name}}"] = &graphql.Field{
