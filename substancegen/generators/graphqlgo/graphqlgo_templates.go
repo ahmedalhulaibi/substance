@@ -107,6 +107,7 @@ func init() {
 	MutationFields = make(graphql.Fields,1)
 	{{template "graphqlFieldsCreate" .}}
 	{{template "graphqlFieldsDelete" .}}
+	{{template "graphqlFieldsUpdate" .}}
 }
 `
 

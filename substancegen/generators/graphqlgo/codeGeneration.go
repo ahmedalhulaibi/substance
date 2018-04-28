@@ -192,7 +192,7 @@ func GenGraphqlGoMutationsFunc(gqlObjectTypes map[string]substancegen.GenObjectT
 		"goType": GetGoNumericAliasType,
 	}
 	tmpl := template.New("graphqlGoFieldsMutation").Funcs(funcMap)
-	tmpl, err := tmpl.Parse(strings.Join([]string{graphqlGoFieldsMutationTemplate, graphqlGoMutationCreateTemplate, graphqlGoMutationDeleteTemplate}, ""))
+	tmpl, err := tmpl.Parse(strings.Join([]string{graphqlGoFieldsMutationTemplate, graphqlGoMutationCreateTemplate, graphqlGoMutationDeleteTemplate, graphqlGoMutationUpdateTemplate}, ""))
 	if err != nil {
 		log.Fatal("Parse: ", err)
 		return
