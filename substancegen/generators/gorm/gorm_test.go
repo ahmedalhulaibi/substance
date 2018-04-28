@@ -161,7 +161,7 @@ func TestGenObjectGormReadAllFunc(t *testing.T) {
 
 	var expectedBuff bytes.Buffer
 
-	expectedBuff.WriteString(fmt.Sprintf("\n\nfunc GetAllCustomer (db *gorm.DB, queryCustomer Customer, resultCustomer []Customer) []error {\n\treturn db.Where(&queryCustomer).Find(resultCustomer).GetErrors()\n}"))
+	expectedBuff.WriteString(fmt.Sprintf("\n\nfunc GetAllCustomer (db *gorm.DB, queryCustomer Customer, resultCustomer *[]Customer) []error {\n\treturn db.Where(&queryCustomer).Find(resultCustomer).GetErrors()\n}"))
 
 	if buff.String() != expectedBuff.String() {
 		t.Errorf("Expected\n\n'%s'\n\nReceived\n\n'%s'\n\n", expectedBuff.String(), buff.String())
@@ -282,7 +282,7 @@ func TestGenObjectGormCrud(t *testing.T) {
 
 	expectedBuff.WriteString(fmt.Sprintf("\n\nfunc GetCustomer (db *gorm.DB, queryCustomer Customer, resultCustomer *Customer) []error {\n\treturn db.Where(&queryCustomer).First(resultCustomer).GetErrors()\n}"))
 
-	expectedBuff.WriteString(fmt.Sprintf("\n\nfunc GetAllCustomer (db *gorm.DB, queryCustomer Customer, resultCustomer []Customer) []error {\n\treturn db.Where(&queryCustomer).Find(resultCustomer).GetErrors()\n}"))
+	expectedBuff.WriteString(fmt.Sprintf("\n\nfunc GetAllCustomer (db *gorm.DB, queryCustomer Customer, resultCustomer *[]Customer) []error {\n\treturn db.Where(&queryCustomer).Find(resultCustomer).GetErrors()\n}"))
 
 	expectedBuff.WriteString(fmt.Sprintf("\n\nfunc UpdateCustomer (db *gorm.DB, oldCustomer Customer, newCustomer Customer, resultCustomer *Customer) []error {\n\tvar oldResultCustomer Customer\n\terr := db.Where(&oldCustomer).First(&oldResultCustomer).GetErrors()\n\tif oldResultCustomer.FirstName == newCustomer.FirstName {\n\t\toldResultCustomer = newCustomer\n\t\terr = append(err,db.Save(oldResultCustomer).GetErrors()...)\n\t}\n\terr = append(err,GetCustomer(db, newCustomer, resultCustomer)...)\n\treturn err\n}"))
 
