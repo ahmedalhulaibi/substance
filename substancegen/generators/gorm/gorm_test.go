@@ -118,7 +118,12 @@ func TestGenObjectGormReadFunc(t *testing.T) {
 
 	var expectedBuff bytes.Buffer
 
-	expectedBuff.WriteString(fmt.Sprintf("\n\nfunc GetCustomer (db *gorm.DB, queryCustomer Customer, resultCustomer *Customer) []error {\n\treturn db.Where(&queryCustomer).First(resultCustomer).GetErrors()\n}"))
+	//expectedBuff.WriteString(fmt.Sprintf("\n\nfunc GetCustomer (db *gorm.DB, queryCustomer Customer, resultCustomer *Customer) []error {\n\treturn db.Where(&queryCustomer).First(resultCustomer).GetErrors()\n}"))
+	expectedBuff.WriteString(fmt.Sprintf(`
+
+func GetCustomer (db *gorm.DB, queryCustomer Customer, resultCustomer *Customer) []error {
+	return db.Where(&queryCustomer).First(resultCustomer).GetErrors()
+}`))
 
 	if buff.String() != expectedBuff.String() {
 		t.Errorf("Expected\n\n'%s'\n\nReceived\n\n'%s'\n\n", expectedBuff.String(), buff.String())
