@@ -243,3 +243,24 @@ func GenGraphqlGoFieldsDeleteFunc(gqlObjectTypes map[string]substancegen.GenObje
 		log.Fatal("Execute: ", err1)
 	}
 }
+
+/*GenGraphqlGoFieldsUpdateFunc generates a basic graphql-go mutation
+to update an object and save it to a database*/
+func GenGraphqlGoFieldsUpdateFunc(gqlObjectTypes map[string]substancegen.GenObjectType, buff *bytes.Buffer) {
+	funcMap := template.FuncMap{
+		"goType":     GetGoNumericAliasType,
+		"getPkeyCol": substancegen.SearchForKeyColumnByKeyType,
+	}
+	tmpl := template.New("graphqlFieldsUpdate").Funcs(funcMap)
+
+	tmpl, err := tmpl.Parse(graphqlGoMutationUpdateTemplate)
+	if err != nil {
+		log.Fatal("Parse: ", err)
+		return
+	}
+	//print schema
+	err1 := tmpl.Execute(buff, gqlObjectTypes)
+	if err1 != nil {
+		log.Fatal("Execute: ", err1)
+	}
+}
