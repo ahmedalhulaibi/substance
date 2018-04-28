@@ -66,6 +66,7 @@ var QueryFields graphql.Fields
 func init() {
 	QueryFields = make(graphql.Fields,1)
 	{{template "graphqlFieldsGet" .}}
+	{{template "graphqlFieldsGetAll" .}}
 }
 `
 

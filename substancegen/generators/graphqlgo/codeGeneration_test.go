@@ -117,7 +117,32 @@ func init() {
 		},
 	}
 
+	
+	QueryFields["GetAllCustomer"] = &graphql.Field{
+		Type: graphql.NewList(customerType),
+		Args: graphql.FieldConfigArgument{
+			"FirstName": &graphql.ArgumentConfig{
+					Type: graphql.String,
+			},
+			
+		},
+		Resolve: func(p graphql.ResolveParams) (interface{}, error) {
+			QueryCustomerObj := Customer{}
+			if val, ok := p.Args["FirstName"]; ok {
+				QueryCustomerObj.FirstName = val.(string)
+			}
+			
+			var ResultCustomerObj []Customer
+			err := GetAllCustomer(DB,QueryCustomerObj,&ResultCustomerObj)
+			if len(err) > 0 {
+				return ResultCustomerObj, err[len(err)-1]
+			}
+			return ResultCustomerObj, nil
+		},
+	}
+
 }
+
 
 `)
 

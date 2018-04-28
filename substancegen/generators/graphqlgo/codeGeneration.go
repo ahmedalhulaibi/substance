@@ -96,7 +96,7 @@ func GenGraphqlGoFieldsFunc(gqlObjectTypes map[string]substancegen.GenObjectType
 		"goType": GetGoNumericAliasType,
 	}
 	tmpl := template.New("graphqlFields").Funcs(funcMap)
-	tmpl, err := tmpl.Parse(strings.Join([]string{graphqlGoFieldsQueryTemplate, graphqlGoQueryFieldsGetTemplate}, ""))
+	tmpl, err := tmpl.Parse(strings.Join([]string{graphqlGoFieldsQueryTemplate, graphqlGoQueryFieldsGetTemplate, graphqlGoQueryFieldsGetAllTemplate}, ""))
 	if err != nil {
 		log.Fatal("Parse: ", err)
 		return
