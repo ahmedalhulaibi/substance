@@ -189,7 +189,8 @@ func GenGraphqlGoFieldsGetFunc(gqlObjectTypes map[string]substancegen.GenObjectT
 to rCreate, Update and Delete*/
 func GenGraphqlGoMutationsFunc(gqlObjectTypes map[string]substancegen.GenObjectType, buff *bytes.Buffer) {
 	funcMap := template.FuncMap{
-		"goType": GetGoNumericAliasType,
+		"goType":     GetGoNumericAliasType,
+		"getPkeyCol": substancegen.SearchForKeyColumnByKeyType,
 	}
 	tmpl := template.New("graphqlGoFieldsMutation").Funcs(funcMap)
 	tmpl, err := tmpl.Parse(strings.Join([]string{graphqlGoFieldsMutationTemplate, graphqlGoMutationCreateTemplate, graphqlGoMutationDeleteTemplate, graphqlGoMutationUpdateTemplate}, ""))
