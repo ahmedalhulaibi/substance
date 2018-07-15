@@ -3,9 +3,9 @@ package graphqlgo
 import (
 	"bytes"
 
+	"github.com/ahmedalhulaibi/substance-structgen/gostruct"
 	"github.com/ahmedalhulaibi/substance/substancegen"
 	"github.com/ahmedalhulaibi/substance/substancegen/generators/gorm"
-	"github.com/ahmedalhulaibi/substance/substancegen/generators/gostruct"
 )
 
 func init() {
