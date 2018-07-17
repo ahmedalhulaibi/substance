@@ -21,9 +21,3 @@ script:
   - bash <(curl -s https://codecov.io/bash)
   - go test -v ./substancegen/ -coverprofile=coverage.txt -covermode=atomic
   - bash <(curl -s https://codecov.io/bash)
-  - go test -v ./substancegen/generators/gorm/ -coverprofile=coverage.txt -covermode=atomic
-  - bash <(curl -s https://codecov.io/bash)
-  - go test -v ./substancegen/generators/gostruct/ -coverprofile=coverage.txt -covermode=atomic
-  - bash <(curl -s https://codecov.io/bash)
-  - go test -v ./substancegen/generators/graphqlgo/ -coverprofile=coverage.txt -covermode=atomic
-  - bash <(curl -s https://codecov.io/bash)
