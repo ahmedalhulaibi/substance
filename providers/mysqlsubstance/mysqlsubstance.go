@@ -153,6 +153,8 @@ func (m mysql) DescribeTableFunc(dbType string, connectionString string, tableNa
 					if err != nil {
 						fmt.Printf("Warning: %s", err.Error())
 					}
+				case "Default":
+					newColDesc.DefaultValue = string(value.([]byte))
 				case "Key":
 					newColDesc.KeyType = string(value.([]byte))
 				case "Null":
@@ -272,6 +274,7 @@ func (m mysql) DescribeTableConstraintsFunc(dbType string, connectionString stri
 	return columnCon, nil
 }
 
+/*GetGoDataType returns the go data type for the equivalent mysql data type*/
 func (m mysql) GetGoDataType(sqlType string) (string, error) {
 	for pattern, value := range regexDataTypePatterns {
 		match, err := regexp.MatchString(pattern, sqlType)
