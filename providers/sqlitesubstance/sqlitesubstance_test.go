@@ -249,7 +249,7 @@ func TestDescribeTableContraints(t *testing.T) {
 	myColumnConstraint = append(myColumnConstraint, substance.ColumnConstraint{
 		TableName:      "AntiOrders",
 		ColumnName:     "AntiOrderID",
-		ConstraintType: "pk",
+		ConstraintType: "p",
 	}, substance.ColumnConstraint{
 		TableName:      "AntiOrders",
 		ColumnName:     "AntiOrderID",

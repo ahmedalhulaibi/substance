@@ -252,6 +252,9 @@ func (p sqlite) DescribeTableConstraintsFunc(dbType string, connectionString str
 		if err != nil {
 			return nil, err
 		}
+		if origin == "pk" {
+			origin = "p"
+		}
 
 		indexInfoResult := substance.ExecuteQuery(dbType, connectionString, "", strings.Replace(SQLLiteIndexInfo, "$1", name, -1))
 		for indexInfoResult.Rows.Next() {
