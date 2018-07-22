@@ -37,6 +37,6 @@ func main() {
 		fmt.Println(err)
 	} else {
 		fmt.Println(string(jsonB))
-		err = ioutil.WriteFile("output.json", jsonB, 0644)
+		err = ioutil.WriteFile("substance-objects.json", jsonB, 0644)
 	}
 }
