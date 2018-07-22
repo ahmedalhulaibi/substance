@@ -25,10 +25,14 @@ SubstanceGen provides an interface for implementations to use data produced by S
 
 - MySQL/MariaDB
 - Postgres
+- Sqlite3
 - JSON _planned_
 
 ## SubstanceGen Code Generators
 
-- GraphQL-Go Server 
-- GoStructs 
-- GORM CRUD functions_WIP_
+Substancegen code generators:
+
+- [GORM](https://github.com/ahmedalhulaibi/substance-gormgen) Generates CRUD functions from the database model
+- [Go Struct](https://github.com/ahmedalhulaibi/substance-structgen) Generates Go structs from the database model
+- [graphql-go](https://github.com/ahmedalhulaibi/substance-graphqlgogen) Generates source code for graphql-go
+- [gqlscehma](https://github.com/ahmedalhulaibi/substance-gqlschemagen) Generates graphql schema files
