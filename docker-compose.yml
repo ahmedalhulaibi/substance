@@ -13,7 +13,7 @@ services:
   mysqldbsubstance:
     restart: always
     container_name: mysqldbsubstance
-    image: mysql
+    image: mysql:5.7
     environment:
       - MYSQL_DATABASE=delivery
       - MYSQL_ALLOW_EMPTY_PASSWORD=yes
