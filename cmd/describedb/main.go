@@ -5,10 +5,13 @@ import (
 	"flag"
 	"fmt"
 	"io/ioutil"
+	"log"
 
 	"github.com/ahmedalhulaibi/substance/substancegen"
 
 	"github.com/ahmedalhulaibi/substance"
+	_ "github.com/ahmedalhulaibi/substance/providers/mysqlsubstance"
+	_ "github.com/ahmedalhulaibi/substance/providers/pgsqlsubstance"
 	_ "github.com/ahmedalhulaibi/substance/providers/sqlitesubstance"
 )
 
@@ -18,7 +21,7 @@ func main() {
 	flag.Parse()
 	results, err := substance.DescribeDatabase(*dbtype, *connString)
 	if err != nil {
-		panic(err)
+		log.Fatalf("Error describing db: %v", err)
 	}
 	if len(results) > 0 {
 		fmt.Println("Database: ", results[0].DatabaseName)
