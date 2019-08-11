@@ -5,10 +5,10 @@ import "database/sql"
 /*SubstanceProviderInterface */
 type SubstanceProviderInterface interface {
 	DatabaseName(dbType string, db *sql.DB) (string, error)
-	DescribeDatabase(dbType string, db *sql.DB) ([]ColumnDescription, error)
-	DescribeTable(dbType string, db *sql.DB, tableName string) ([]ColumnDescription, error)
-	TableRelationships(dbType string, db *sql.DB, tableName string) ([]ColumnRelationship, error)
-	TableConstraints(dbType string, db *sql.DB, tableName string) ([]ColumnConstraint, error)
+	DescribeDatabase(dbType string, db *sql.DB) ([]*ColumnDescription, error)
+	DescribeTable(dbType string, db *sql.DB, tableName string) ([]*ColumnDescription, error)
+	TableRelationships(dbType string, db *sql.DB, tableName string) ([]*ColumnRelationship, error)
+	TableConstraints(dbType string, db *sql.DB, tableName string) ([]*ColumnConstraint, error)
 	ToGoDataType(sqlType string) (string, error)
 }
 
@@ -62,22 +62,22 @@ func GetCurrentDatabaseName(dbType string, db *sql.DB) (string, error) {
 }
 
 /*DescribeDatabase returns tables in database*/
-func DescribeDatabase(dbType string, db *sql.DB) ([]ColumnDescription, error) {
+func DescribeDatabase(dbType string, db *sql.DB) ([]*ColumnDescription, error) {
 	return substancePlugins[dbType].DescribeDatabase(dbType, db)
 }
 
 /*DescribeTable returns columns of a table*/
-func DescribeTable(dbType string, db *sql.DB, tableName string) ([]ColumnDescription, error) {
+func DescribeTable(dbType string, db *sql.DB, tableName string) ([]*ColumnDescription, error) {
 	return substancePlugins[dbType].DescribeTable(dbType, db, tableName)
 }
 
 /*DescribeTableRelationship returns all foreign column references in database table*/
-func DescribeTableRelationship(dbType string, db *sql.DB, tableName string) ([]ColumnRelationship, error) {
+func DescribeTableRelationship(dbType string, db *sql.DB, tableName string) ([]*ColumnRelationship, error) {
 	return substancePlugins[dbType].TableRelationships(dbType, db, tableName)
 }
 
 /*DescribeTableConstraints returns all column constraints in a database table*/
-func DescribeTableConstraints(dbType string, db *sql.DB, tableName string) ([]ColumnConstraint, error) {
+func DescribeTableConstraints(dbType string, db *sql.DB, tableName string) ([]*ColumnConstraint, error) {
 	return substancePlugins[dbType].TableConstraints(dbType, db, tableName)
 }
 

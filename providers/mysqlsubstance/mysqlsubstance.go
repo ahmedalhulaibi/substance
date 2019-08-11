@@ -54,21 +54,21 @@ func (m mysql) DatabaseName(dbType string, db *sql.DB) (string, error) {
 }
 
 /*DescribeDatabase returns tables in database*/
-func (m mysql) DescribeDatabase(dbType string, db *sql.DB) ([]substance.ColumnDescription, error) {
+func (m mysql) DescribeDatabase(dbType string, db *sql.DB) ([]*substance.ColumnDescription, error) {
 	queryResult := substance.ExecuteQuery(dbType, db, "", DescribeDatabaseQuery)
 	if queryResult.Err != nil {
 		return nil, queryResult.Err
 	}
 
-	columnDesc := []substance.ColumnDescription{}
+	columnDesc := []*substance.ColumnDescription{}
 
 	databaseName, err := m.DatabaseName(dbType, db)
 	if err != nil {
 		return nil, err
 	}
-	newColDesc := substance.ColumnDescription{DatabaseName: databaseName, PropertyType: "Table"}
 
 	for queryResult.Rows.Next() {
+		newColDesc := &substance.ColumnDescription{DatabaseName: databaseName, PropertyType: "Table"}
 		err = queryResult.Rows.Scan(queryResult.ScanArgs...)
 		if err != nil {
 			return nil, err
@@ -100,23 +100,22 @@ func (m mysql) DescribeDatabase(dbType string, db *sql.DB) ([]substance.ColumnDe
 }
 
 /*DescribeTable returns columns of a table*/
-func (m mysql) DescribeTable(dbType string, db *sql.DB, tableName string) ([]substance.ColumnDescription, error) {
+func (m mysql) DescribeTable(dbType string, db *sql.DB, tableName string) ([]*substance.ColumnDescription, error) {
 	query := fmt.Sprintf(DescribeTableQuery, tableName)
 	queryResult := substance.ExecuteQuery(dbType, db, "", query)
 	if queryResult.Err != nil {
 		return nil, queryResult.Err
 	}
 
-	columnDesc := []substance.ColumnDescription{}
+	columnDesc := []*substance.ColumnDescription{}
 
 	databaseName, err := m.DatabaseName(dbType, db)
 	if err != nil {
 		return nil, err
 	}
 
-	newColDesc := substance.ColumnDescription{DatabaseName: databaseName, TableName: tableName}
-
 	for queryResult.Rows.Next() {
+		newColDesc := &substance.ColumnDescription{DatabaseName: databaseName, TableName: tableName}
 		err = queryResult.Rows.Scan(queryResult.ScanArgs...)
 		if err != nil {
 			return nil, err
@@ -157,7 +156,7 @@ func (m mysql) DescribeTable(dbType string, db *sql.DB, tableName string) ([]sub
 }
 
 /*TableRelationships returns all foreign column references in database table*/
-func (m mysql) TableRelationships(dbType string, db *sql.DB, tableName string) ([]substance.ColumnRelationship, error) {
+func (m mysql) TableRelationships(dbType string, db *sql.DB, tableName string) ([]*substance.ColumnRelationship, error) {
 	databaseName, err := m.DatabaseName(dbType, db)
 	if err != nil {
 		return nil, err
@@ -169,10 +168,10 @@ func (m mysql) TableRelationships(dbType string, db *sql.DB, tableName string) (
 		return nil, queryResult.Err
 	}
 
-	columnRel := []substance.ColumnRelationship{}
-	newColRel := substance.ColumnRelationship{}
+	columnRel := []*substance.ColumnRelationship{}
 
 	for queryResult.Rows.Next() {
+		newColRel := &substance.ColumnRelationship{}
 		err = queryResult.Rows.Scan(queryResult.ScanArgs...)
 		if err != nil {
 			return nil, err
@@ -209,16 +208,16 @@ func (m mysql) TableRelationships(dbType string, db *sql.DB, tableName string) (
 }
 
 /*DescribeTableRelationship returns all foreign column references in database table*/
-func (m mysql) TableConstraints(dbType string, db *sql.DB, tableName string) ([]substance.ColumnConstraint, error) {
+func (m mysql) TableConstraints(dbType string, db *sql.DB, tableName string) ([]*substance.ColumnConstraint, error) {
 	queryResult := substance.ExecuteQuery(dbType, db, tableName, DescribeTableConstraintsQuery)
 	if queryResult.Err != nil {
 		return nil, queryResult.Err
 	}
 
-	columnCon := []substance.ColumnConstraint{}
-	newColCon := substance.ColumnConstraint{}
+	columnCon := []*substance.ColumnConstraint{}
 
 	for queryResult.Rows.Next() {
+		newColCon := &substance.ColumnConstraint{}
 		err := queryResult.Rows.Scan(queryResult.ScanArgs...)
 		if err != nil {
 			return nil, err

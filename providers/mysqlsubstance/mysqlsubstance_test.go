@@ -112,18 +112,18 @@ func TestDescribeDb(t *testing.T) {
 	defer db.Close()
 
 	mysqlProvider := mysql{}
-	myColumnDesc := []substance.ColumnDescription{}
-	myColumnDesc = append(myColumnDesc, substance.ColumnDescription{
+	myColumnDesc := []*substance.ColumnDescription{}
+	myColumnDesc = append(myColumnDesc, &substance.ColumnDescription{
 		DatabaseName: "delivery",
 		PropertyType: "Table",
 		PropertyName: "AntiOrders",
 		TableName:    "AntiOrders",
-	}, substance.ColumnDescription{
+	}, &substance.ColumnDescription{
 		DatabaseName: "delivery",
 		PropertyType: "Table",
 		PropertyName: "Orders",
 		TableName:    "Orders",
-	}, substance.ColumnDescription{
+	}, &substance.ColumnDescription{
 		DatabaseName: "delivery",
 		PropertyType: "Table",
 		PropertyName: "Persons",
@@ -158,33 +158,33 @@ func TestDescribeTable(t *testing.T) {
 	defer db.Close()
 
 	mysqlProvider := mysql{}
-	myColumnDesc := []substance.ColumnDescription{}
-	myColumnDesc = append(myColumnDesc, substance.ColumnDescription{
+	myColumnDesc := []*substance.ColumnDescription{}
+	myColumnDesc = append(myColumnDesc, &substance.ColumnDescription{
 		DatabaseName: "delivery",
 		PropertyType: "int32",
 		PropertyName: "ID",
 		TableName:    "Persons",
 		Nullable:     false,
 		KeyType:      "PRI",
-	}, substance.ColumnDescription{
+	}, &substance.ColumnDescription{
 		DatabaseName: "delivery",
 		PropertyType: "string",
 		PropertyName: "LastName",
 		TableName:    "Persons",
 		Nullable:     true,
-	}, substance.ColumnDescription{
+	}, &substance.ColumnDescription{
 		DatabaseName: "delivery",
 		PropertyType: "string",
 		PropertyName: "FirstName",
 		TableName:    "Persons",
 		Nullable:     true,
-	}, substance.ColumnDescription{
+	}, &substance.ColumnDescription{
 		DatabaseName: "delivery",
 		PropertyType: "string",
 		PropertyName: "Address",
 		TableName:    "Persons",
 		Nullable:     true,
-	}, substance.ColumnDescription{
+	}, &substance.ColumnDescription{
 		DatabaseName: "delivery",
 		PropertyType: "string",
 		PropertyName: "City",
@@ -221,13 +221,13 @@ func TestDescribeTableRelationship(t *testing.T) {
 	defer db.Close()
 
 	mysqlProvider := mysql{}
-	myColumnRel := []substance.ColumnRelationship{}
-	myColumnRel = append(myColumnRel, substance.ColumnRelationship{
+	myColumnRel := []*substance.ColumnRelationship{}
+	myColumnRel = append(myColumnRel, &substance.ColumnRelationship{
 		TableName:           "AntiOrders",
 		ColumnName:          "PersonID",
 		ReferenceTableName:  "Persons",
 		ReferenceColumnName: "ID",
-	}, substance.ColumnRelationship{
+	}, &substance.ColumnRelationship{
 		TableName:           "Orders",
 		ColumnName:          "PersonID",
 		ReferenceTableName:  "Persons",
@@ -263,20 +263,20 @@ func TestDescribeTableContraints(t *testing.T) {
 	defer db.Close()
 
 	mysqlProvider := mysql{}
-	myColumnConstraint := []substance.ColumnConstraint{}
-	myColumnConstraint = append(myColumnConstraint, substance.ColumnConstraint{
+	myColumnConstraint := []*substance.ColumnConstraint{}
+	myColumnConstraint = append(myColumnConstraint, &substance.ColumnConstraint{
 		TableName:      "AntiOrders",
 		ColumnName:     "AntiOrderID",
 		ConstraintType: "PRIMARY KEY",
-	}, substance.ColumnConstraint{
+	}, &substance.ColumnConstraint{
 		TableName:      "AntiOrders",
 		ColumnName:     "AntiOrderID",
 		ConstraintType: "UNIQUE",
-	}, substance.ColumnConstraint{
+	}, &substance.ColumnConstraint{
 		TableName:      "AntiOrders",
 		ColumnName:     "PersonID",
 		ConstraintType: "FOREIGN KEY",
-	}, substance.ColumnConstraint{
+	}, &substance.ColumnConstraint{
 		TableName:      "AntiOrders",
 		ColumnName:     "PersonID",
 		ConstraintType: "UNIQUE",

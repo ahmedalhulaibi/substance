@@ -68,18 +68,18 @@ func TestDescribeDb(t *testing.T) {
 	}
 
 	sqliteProvider := sqlite{}
-	myColumnDesc := []substance.ColumnDescription{}
-	myColumnDesc = append(myColumnDesc, substance.ColumnDescription{
+	myColumnDesc := []*substance.ColumnDescription{}
+	myColumnDesc = append(myColumnDesc, &substance.ColumnDescription{
 		DatabaseName: "test.db",
 		PropertyType: "Table",
 		PropertyName: "Persons",
 		TableName:    "Persons",
-	}, substance.ColumnDescription{
+	}, &substance.ColumnDescription{
 		DatabaseName: "test.db",
 		PropertyType: "Table",
 		PropertyName: "Orders",
 		TableName:    "Orders",
-	}, substance.ColumnDescription{
+	}, &substance.ColumnDescription{
 		DatabaseName: "test.db",
 		PropertyType: "Table",
 		PropertyName: "AntiOrders",
@@ -128,32 +128,32 @@ func TestDescribeTable(t *testing.T) {
 	}
 
 	sqliteProvider := sqlite{}
-	myColumnDesc := []substance.ColumnDescription{}
-	myColumnDesc = append(myColumnDesc, substance.ColumnDescription{
+	myColumnDesc := []*substance.ColumnDescription{}
+	myColumnDesc = append(myColumnDesc, &substance.ColumnDescription{
 		DatabaseName: "test.db",
 		PropertyType: "int32",
 		PropertyName: "ID",
 		TableName:    "Persons",
 		Nullable:     false,
-	}, substance.ColumnDescription{
+	}, &substance.ColumnDescription{
 		DatabaseName: "test.db",
 		PropertyType: "string",
 		PropertyName: "LastName",
 		TableName:    "Persons",
 		Nullable:     true,
-	}, substance.ColumnDescription{
+	}, &substance.ColumnDescription{
 		DatabaseName: "test.db",
 		PropertyType: "string",
 		PropertyName: "FirstName",
 		TableName:    "Persons",
 		Nullable:     true,
-	}, substance.ColumnDescription{
+	}, &substance.ColumnDescription{
 		DatabaseName: "test.db",
 		PropertyType: "string",
 		PropertyName: "Address",
 		TableName:    "Persons",
 		Nullable:     true,
-	}, substance.ColumnDescription{
+	}, &substance.ColumnDescription{
 		DatabaseName: "test.db",
 		PropertyType: "string",
 		PropertyName: "City",
@@ -202,8 +202,8 @@ func TestDescribeTableRelationship(t *testing.T) {
 	}
 
 	sqliteProvider := sqlite{}
-	myColumnRel := []substance.ColumnRelationship{}
-	myColumnRel = append(myColumnRel, substance.ColumnRelationship{
+	myColumnRel := []*substance.ColumnRelationship{}
+	myColumnRel = append(myColumnRel, &substance.ColumnRelationship{
 		TableName:           "Orders",
 		ColumnName:          "PersonID",
 		ReferenceTableName:  "Persons",
@@ -251,20 +251,20 @@ func TestDescribeTableContraints(t *testing.T) {
 	}
 
 	sqliteProvider := sqlite{}
-	myColumnConstraint := []substance.ColumnConstraint{}
-	myColumnConstraint = append(myColumnConstraint, substance.ColumnConstraint{
+	myColumnConstraint := []*substance.ColumnConstraint{}
+	myColumnConstraint = append(myColumnConstraint, &substance.ColumnConstraint{
 		TableName:      "AntiOrders",
 		ColumnName:     "AntiOrderID",
 		ConstraintType: "p",
-	}, substance.ColumnConstraint{
+	}, &substance.ColumnConstraint{
 		TableName:      "AntiOrders",
 		ColumnName:     "AntiOrderID",
 		ConstraintType: "u",
-	}, substance.ColumnConstraint{
+	}, &substance.ColumnConstraint{
 		TableName:      "AntiOrders",
 		ColumnName:     "PersonID",
 		ConstraintType: "f",
-	}, substance.ColumnConstraint{
+	}, &substance.ColumnConstraint{
 		TableName:      "AntiOrders",
 		ColumnName:     "PersonID",
 		ConstraintType: "u",

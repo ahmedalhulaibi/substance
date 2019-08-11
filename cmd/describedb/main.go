@@ -5,8 +5,10 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
-	"io/ioutil"
 	"log"
+	"os"
+	"runtime"
+	"time"
 
 	"github.com/ahmedalhulaibi/substance/substancegen"
 
@@ -14,6 +16,7 @@ import (
 	_ "github.com/ahmedalhulaibi/substance/providers/mysqlsubstance"
 	_ "github.com/ahmedalhulaibi/substance/providers/pgsqlsubstance"
 	_ "github.com/ahmedalhulaibi/substance/providers/sqlitesubstance"
+	_ "github.com/lib/pq"
 )
 
 func main() {
@@ -27,27 +30,65 @@ func main() {
 		log.Fatalf("Error opening database: %s\n", err.Error())
 	}
 
-	results, err := substance.DescribeDatabase(*dbtype, db)
-	if err != nil {
-		log.Fatalf("Error describing db: %v", err)
-	}
-	if len(results) > 0 {
-		fmt.Println("Database: ", results[0].DatabaseName)
-	}
-	var tables []string
-	for _, result := range results {
-		fmt.Printf("Table: %s\n", result.TableName)
-		tables = append(tables, result.TableName)
-	}
-	fmt.Println("=====================")
+	done := make(chan bool)
 
-	tableObjects := substancegen.GetObjectTypesFunc(*dbtype, db, tables)
+	go func() {
+		results, err := substance.DescribeDatabase(*dbtype, db)
+		fmt.Fprintf(os.Stderr, "Results: %+v\n", results)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Error describing db: %v", err)
+			done <- false
+		}
+		if len(results) > 0 {
+			fmt.Fprintf(os.Stderr, "Database: %v", results[0].DatabaseName)
+		}
+		var tables []string
+		for idx := range results {
+			fmt.Fprintf(os.Stderr, "Table: %s\n", results[idx].TableName)
+			tables = append(tables, results[idx].TableName)
+		}
+		fmt.Fprintln(os.Stderr, "=====================")
 
-	jsonB, err := json.Marshal(tableObjects)
-	if err != nil {
-		fmt.Println(err)
-	} else {
-		fmt.Println(string(jsonB))
-		err = ioutil.WriteFile("substance-objects.json", jsonB, 0644)
+		tableObjects := substancegen.GetObjectTypesFunc(*dbtype, db, tables)
+
+		enc := json.NewEncoder(os.Stdout)
+		enc.SetIndent("", "\t")
+		if err := enc.Encode(tableObjects); err != nil {
+			fmt.Fprintf(os.Stderr, "Error marhsalling to json: %v", err)
+			done <- false
+		}
+		done <- true
+	}()
+
+	ticker := time.NewTicker(500 * time.Millisecond)
+	PrintMemUsage()
+
+Loop:
+	for {
+		select {
+		case <-ticker.C:
+			PrintMemUsage()
+		case exitCode := <-done:
+			if !exitCode {
+				os.Exit(1)
+			}
+			os.Exit(0)
+			break Loop
+		}
+
 	}
+}
+
+func PrintMemUsage() {
+	var m runtime.MemStats
+	runtime.ReadMemStats(&m)
+	// For info on each, see: https://golang.org/pkg/runtime/#MemStats
+	fmt.Fprintf(os.Stderr, "Alloc = %v MiB", bToMb(m.Alloc))
+	fmt.Fprintf(os.Stderr, "\tTotalAlloc = %v MiB", bToMb(m.TotalAlloc))
+	fmt.Fprintf(os.Stderr, "\tSys = %v MiB", bToMb(m.Sys))
+	fmt.Fprintf(os.Stderr, "\tNumGC = %v\n", m.NumGC)
+}
+
+func bToMb(b uint64) uint64 {
+	return b / 1024 / 1024
 }

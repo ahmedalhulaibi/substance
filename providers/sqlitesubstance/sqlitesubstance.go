@@ -58,7 +58,7 @@ func (p sqlite) DatabaseName(dbType string, db *sql.DB) (string, error) {
 }
 
 /*DescribeDatabase returns tables in database*/
-func (p sqlite) DescribeDatabase(dbType string, db *sql.DB) ([]substance.ColumnDescription, error) {
+func (p sqlite) DescribeDatabase(dbType string, db *sql.DB) ([]*substance.ColumnDescription, error) {
 	queryResult := substance.ExecuteQuery(dbType, db, "", DescribeDatabaseQuery)
 
 	if queryResult.Err != nil {
@@ -66,7 +66,7 @@ func (p sqlite) DescribeDatabase(dbType string, db *sql.DB) ([]substance.ColumnD
 	}
 
 	//setup array of column descriptions
-	columnDesc := []substance.ColumnDescription{}
+	columnDesc := []*substance.ColumnDescription{}
 
 	//get database name
 	databaseName, err := p.DatabaseName(dbType, db)
@@ -74,9 +74,8 @@ func (p sqlite) DescribeDatabase(dbType string, db *sql.DB) ([]substance.ColumnD
 		return nil, err
 	}
 
-	newColDesc := substance.ColumnDescription{DatabaseName: databaseName, PropertyType: "Table"}
-
 	for queryResult.Rows.Next() {
+		newColDesc := &substance.ColumnDescription{DatabaseName: databaseName, PropertyType: "Table"}
 		err = queryResult.Rows.Scan(queryResult.ScanArgs...)
 		if err != nil {
 			return nil, err
@@ -105,22 +104,21 @@ func (p sqlite) DescribeDatabase(dbType string, db *sql.DB) ([]substance.ColumnD
 }
 
 /*DescribeTable returns columns in database*/
-func (p sqlite) DescribeTable(dbType string, db *sql.DB, tableName string) ([]substance.ColumnDescription, error) {
+func (p sqlite) DescribeTable(dbType string, db *sql.DB, tableName string) ([]*substance.ColumnDescription, error) {
 	queryResult := substance.ExecuteQuery(dbType, db, tableName, strings.Replace(DescribeTableQuery, "$1", tableName, -1))
 	if queryResult.Err != nil {
 		return nil, queryResult.Err
 	}
 
-	columnDesc := []substance.ColumnDescription{}
+	columnDesc := []*substance.ColumnDescription{}
 
 	databaseName, err := p.DatabaseName(dbType, db)
 	if err != nil {
 		return nil, err
 	}
 
-	newColDesc := substance.ColumnDescription{DatabaseName: databaseName, TableName: tableName}
-
 	for queryResult.Rows.Next() {
+		newColDesc := &substance.ColumnDescription{DatabaseName: databaseName, TableName: tableName}
 		err := queryResult.Rows.Scan(queryResult.ScanArgs...)
 		if err != nil {
 			return nil, err
@@ -162,16 +160,16 @@ func (p sqlite) DescribeTable(dbType string, db *sql.DB, tableName string) ([]su
 }
 
 /*TableRelationships returns all foreign column references in database table*/
-func (p sqlite) TableRelationships(dbType string, db *sql.DB, tableName string) ([]substance.ColumnRelationship, error) {
+func (p sqlite) TableRelationships(dbType string, db *sql.DB, tableName string) ([]*substance.ColumnRelationship, error) {
 	queryResult := substance.ExecuteQuery(dbType, db, tableName, strings.Replace(DescribeTableRelationshipQuery, "$1", tableName, -1))
 	if queryResult.Err != nil {
 		return nil, queryResult.Err
 	}
 
-	columnRel := []substance.ColumnRelationship{}
-	newColRel := substance.ColumnRelationship{}
+	columnRel := []*substance.ColumnRelationship{}
 
 	for queryResult.Rows.Next() {
+		newColRel := &substance.ColumnRelationship{}
 		err := queryResult.Rows.Scan(queryResult.ScanArgs...)
 		if err != nil {
 			return nil, err
@@ -214,9 +212,8 @@ func (p sqlite) TableRelationships(dbType string, db *sql.DB, tableName string) 
 }
 
 /*TableConstraints returns an array of ColumnConstraint objects*/
-func (p sqlite) TableConstraints(dbType string, db *sql.DB, tableName string) ([]substance.ColumnConstraint, error) {
-	columnCon := []substance.ColumnConstraint{}
-	newColCon := substance.ColumnConstraint{}
+func (p sqlite) TableConstraints(dbType string, db *sql.DB, tableName string) ([]*substance.ColumnConstraint, error) {
+	columnCon := []*substance.ColumnConstraint{}
 
 	//getting column relationships to retrieve foreign key constraints
 	columnRels, err := p.TableRelationships(dbType, db, tableName)
@@ -226,6 +223,7 @@ func (p sqlite) TableConstraints(dbType string, db *sql.DB, tableName string) ([
 
 	//populate foreign keys using column relationships
 	for _, columnRel := range columnRels {
+		newColCon := &substance.ColumnConstraint{}
 		if columnRel.TableName == tableName {
 			newColCon.TableName = tableName
 			newColCon.ColumnName = columnRel.ColumnName
@@ -262,11 +260,14 @@ func (p sqlite) TableConstraints(dbType string, db *sql.DB, tableName string) ([
 			if err != nil {
 				return nil, err
 			}
+
+			newColCon := &substance.ColumnConstraint{}
 			newColCon.ColumnName = colName
 			newColCon.ConstraintType = origin
 			newColCon.TableName = tableName
 			columnCon = append(columnCon, newColCon)
 			if unique == 1 && origin != "u" {
+				newColCon := &substance.ColumnConstraint{}
 				newColCon.ColumnName = colName
 				newColCon.ConstraintType = "u"
 				newColCon.TableName = tableName

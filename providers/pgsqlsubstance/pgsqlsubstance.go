@@ -53,7 +53,7 @@ func (p pgsql) DatabaseName(dbType string, db *sql.DB) (string, error) {
 }
 
 /*DescribeDatabase returns tables in database*/
-func (p pgsql) DescribeDatabase(dbType string, db *sql.DB) ([]substance.ColumnDescription, error) {
+func (p pgsql) DescribeDatabase(dbType string, db *sql.DB) ([]*substance.ColumnDescription, error) {
 	queryResult := substance.ExecuteQuery(dbType, db, "", DescribeDatabaseQuery)
 
 	if queryResult.Err != nil {
@@ -61,7 +61,7 @@ func (p pgsql) DescribeDatabase(dbType string, db *sql.DB) ([]substance.ColumnDe
 	}
 
 	//setup array of column descriptions
-	columnDesc := []substance.ColumnDescription{}
+	columnDesc := []*substance.ColumnDescription{}
 
 	//get database name
 	databaseName, err := p.DatabaseName(dbType, db)
@@ -69,9 +69,8 @@ func (p pgsql) DescribeDatabase(dbType string, db *sql.DB) ([]substance.ColumnDe
 		return nil, err
 	}
 
-	newColDesc := substance.ColumnDescription{DatabaseName: databaseName, PropertyType: "Table"}
-
 	for queryResult.Rows.Next() {
+		newColDesc := &substance.ColumnDescription{DatabaseName: databaseName, PropertyType: "Table"}
 		err = queryResult.Rows.Scan(queryResult.ScanArgs...)
 		if err != nil {
 			return nil, err
@@ -94,23 +93,22 @@ func (p pgsql) DescribeDatabase(dbType string, db *sql.DB) ([]substance.ColumnDe
 }
 
 /*DescribeTable returns columns in database*/
-func (p pgsql) DescribeTable(dbType string, db *sql.DB, tableName string) ([]substance.ColumnDescription, error) {
+func (p pgsql) DescribeTable(dbType string, db *sql.DB, tableName string) ([]*substance.ColumnDescription, error) {
 	queryResult := substance.ExecuteQuery(dbType, db, tableName, DescribeTableQuery)
 
 	if queryResult.Err != nil {
 		return nil, queryResult.Err
 	}
 
-	columnDesc := []substance.ColumnDescription{}
+	columnDesc := []*substance.ColumnDescription{}
 
 	databaseName, err := p.DatabaseName(dbType, db)
 	if err != nil {
 		return nil, err
 	}
 
-	newColDesc := substance.ColumnDescription{DatabaseName: databaseName, TableName: tableName}
-
 	for queryResult.Rows.Next() {
+		newColDesc := &substance.ColumnDescription{DatabaseName: databaseName, TableName: tableName}
 		err = queryResult.Rows.Scan(queryResult.ScanArgs...)
 		if err != nil {
 			return nil, err
@@ -140,7 +138,7 @@ func (p pgsql) DescribeTable(dbType string, db *sql.DB, tableName string) ([]sub
 }
 
 /*TableRelationships returns all foreign column references in database table*/
-func (p pgsql) TableRelationships(dbType string, db *sql.DB, tableName string) ([]substance.ColumnRelationship, error) {
+func (p pgsql) TableRelationships(dbType string, db *sql.DB, tableName string) ([]*substance.ColumnRelationship, error) {
 	queryResult := substance.ExecuteQuery(dbType, db, tableName, DescribeTableRelationshipQuery)
 	if queryResult.Err != nil {
 		return nil, queryResult.Err
@@ -150,10 +148,10 @@ func (p pgsql) TableRelationships(dbType string, db *sql.DB, tableName string) (
 	if err != nil {
 		return nil, err
 	}
-	columnDesc := []substance.ColumnRelationship{}
-	newColDesc := substance.ColumnRelationship{}
+	columnDesc := []*substance.ColumnRelationship{}
 
 	for queryResult.Rows.Next() {
+		newColDesc := &substance.ColumnRelationship{}
 		err = queryResult.Rows.Scan(queryResult.ScanArgs...)
 		if err != nil {
 			return nil, err
@@ -202,15 +200,15 @@ func (p pgsql) TableRelationships(dbType string, db *sql.DB, tableName string) (
 }
 
 /*TableConstraints returns an array of ColumnConstraint objects*/
-func (p pgsql) TableConstraints(dbType string, db *sql.DB, tableName string) ([]substance.ColumnConstraint, error) {
+func (p pgsql) TableConstraints(dbType string, db *sql.DB, tableName string) ([]*substance.ColumnConstraint, error) {
 	queryResult := substance.ExecuteQuery(dbType, db, tableName, DescribeTableConstraintsQuery)
 	if queryResult.Err != nil {
 		return nil, queryResult.Err
 	}
-	columnDesc := []substance.ColumnConstraint{}
-	newColDesc := substance.ColumnConstraint{}
+	columnDesc := []*substance.ColumnConstraint{}
 
 	for queryResult.Rows.Next() {
+		newColDesc := &substance.ColumnConstraint{}
 		err := queryResult.Rows.Scan(queryResult.ScanArgs...)
 		if err != nil {
 			return nil, err

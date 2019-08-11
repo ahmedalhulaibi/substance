@@ -115,18 +115,18 @@ func TestDescribeDb(t *testing.T) {
 	defer db.Close()
 
 	pgsqlProvider := pgsql{}
-	myColumnDesc := []substance.ColumnDescription{}
-	myColumnDesc = append(myColumnDesc, substance.ColumnDescription{
+	myColumnDesc := []*substance.ColumnDescription{}
+	myColumnDesc = append(myColumnDesc, &substance.ColumnDescription{
 		DatabaseName: "postgres",
 		PropertyType: "Table",
 		PropertyName: "persons",
 		TableName:    "persons",
-	}, substance.ColumnDescription{
+	}, &substance.ColumnDescription{
 		DatabaseName: "postgres",
 		PropertyType: "Table",
 		PropertyName: "orders",
 		TableName:    "orders",
-	}, substance.ColumnDescription{
+	}, &substance.ColumnDescription{
 		DatabaseName: "postgres",
 		PropertyType: "Table",
 		PropertyName: "antiorders",
@@ -165,32 +165,32 @@ func TestDescribeTable(t *testing.T) {
 	defer db.Close()
 
 	pgsqlProvider := pgsql{}
-	myColumnDesc := []substance.ColumnDescription{}
-	myColumnDesc = append(myColumnDesc, substance.ColumnDescription{
+	myColumnDesc := []*substance.ColumnDescription{}
+	myColumnDesc = append(myColumnDesc, &substance.ColumnDescription{
 		DatabaseName: "postgres",
 		PropertyType: "int32",
 		PropertyName: "id",
 		TableName:    "persons",
 		Nullable:     false,
-	}, substance.ColumnDescription{
+	}, &substance.ColumnDescription{
 		DatabaseName: "postgres",
 		PropertyType: "string",
 		PropertyName: "lastname",
 		TableName:    "persons",
 		Nullable:     true,
-	}, substance.ColumnDescription{
+	}, &substance.ColumnDescription{
 		DatabaseName: "postgres",
 		PropertyType: "string",
 		PropertyName: "firstname",
 		TableName:    "persons",
 		Nullable:     true,
-	}, substance.ColumnDescription{
+	}, &substance.ColumnDescription{
 		DatabaseName: "postgres",
 		PropertyType: "string",
 		PropertyName: "address",
 		TableName:    "persons",
 		Nullable:     true,
-	}, substance.ColumnDescription{
+	}, &substance.ColumnDescription{
 		DatabaseName: "postgres",
 		PropertyType: "string",
 		PropertyName: "city",
@@ -227,8 +227,8 @@ func TestDescribeTableRelationship(t *testing.T) {
 	defer db.Close()
 
 	pgsqlProvider := pgsql{}
-	myColumnRel := []substance.ColumnRelationship{}
-	myColumnRel = append(myColumnRel, substance.ColumnRelationship{
+	myColumnRel := []*substance.ColumnRelationship{}
+	myColumnRel = append(myColumnRel, &substance.ColumnRelationship{
 		TableName:           "orders",
 		ColumnName:          "personid",
 		ReferenceTableName:  "persons",
@@ -264,16 +264,16 @@ func TestDescribeTableContraints(t *testing.T) {
 	defer db.Close()
 
 	pgsqlProvider := pgsql{}
-	myColumnConstraint := []substance.ColumnConstraint{}
-	myColumnConstraint = append(myColumnConstraint, substance.ColumnConstraint{
+	myColumnConstraint := []*substance.ColumnConstraint{}
+	myColumnConstraint = append(myColumnConstraint, &substance.ColumnConstraint{
 		TableName:      "antiorders",
 		ColumnName:     "antiorderid",
 		ConstraintType: "p",
-	}, substance.ColumnConstraint{
+	}, &substance.ColumnConstraint{
 		TableName:      "antiorders",
 		ColumnName:     "personid",
 		ConstraintType: "u",
-	}, substance.ColumnConstraint{
+	}, &substance.ColumnConstraint{
 		TableName:      "antiorders",
 		ColumnName:     "personid",
 		ConstraintType: "f",

@@ -13,7 +13,7 @@ import (
 
 /*GeneratorInterface describes the implementation required to generate code from substance objects*/
 type GeneratorInterface interface {
-	OutputCodeFunc(dbType string, db *sql.DB, gqlObjectTypes map[string]GenObjectType) bytes.Buffer
+	OutputCodeFunc(dbType string, db *sql.DB, gqlObjectTypes map[string]*GenObjectType) bytes.Buffer
 }
 
 /*SubstanceGenPlugins is a map storing a reference to the current plugins
@@ -69,12 +69,12 @@ func Generate(generatorName string, dbType string, db *sql.DB, tableNames []stri
 }
 
 /*GetObjectTypesFunc returns all object definitions as a map given tableNames and db*/
-func GetObjectTypesFunc(dbType string, db *sql.DB, tableNames []string) map[string]GenObjectType {
+func GetObjectTypesFunc(dbType string, db *sql.DB, tableNames []string) map[string]*GenObjectType {
 	//init array of column descriptions for all tables
-	tableDesc := []substance.ColumnDescription{}
+	tableDesc := []*substance.ColumnDescription{}
 
 	//init array of graphql types
-	gqlObjectTypes := make(map[string]GenObjectType)
+	gqlObjectTypes := make(map[string]*GenObjectType)
 
 	//for each table name add a new graphql type and init its properties
 	for _, tableName := range tableNames {
@@ -85,7 +85,7 @@ func GetObjectTypesFunc(dbType string, db *sql.DB, tableNames []string) map[stri
 		genObjectTypeNameLower := string(a)
 		newGqlObj := GenObjectType{Name: genObjectTypeNameUpper, LowerName: genObjectTypeNameLower, SourceTableName: tableName}
 		newGqlObj.Properties = make(GenObjectProperties)
-		gqlObjectTypes[tableName] = newGqlObj
+		gqlObjectTypes[tableName] = &newGqlObj
 		//describe each table
 		_results, err := substance.DescribeTable(dbType, db, tableName)
 		if err != nil {
@@ -123,9 +123,9 @@ func GetObjectTypesFunc(dbType string, db *sql.DB, tableNames []string) map[stri
 }
 
 /*ResolveRelationshipsFunc calls out to multiple functions to orchestrate the resolution of constraints and relationships*/
-func ResolveRelationshipsFunc(dbType string, db *sql.DB, tableNames []string, gqlObjectTypes map[string]GenObjectType) map[string]GenObjectType {
-	relationshipDesc := []substance.ColumnRelationship{}
-	constraintDesc := []substance.ColumnConstraint{}
+func ResolveRelationshipsFunc(dbType string, db *sql.DB, tableNames []string, gqlObjectTypes map[string]*GenObjectType) map[string]*GenObjectType {
+	relationshipDesc := []*substance.ColumnRelationship{}
+	constraintDesc := []*substance.ColumnConstraint{}
 
 	for _, tableName := range tableNames {
 		relResults, err := substance.DescribeTableRelationship(dbType, db, tableName)
@@ -151,7 +151,7 @@ func ResolveRelationshipsFunc(dbType string, db *sql.DB, tableNames []string, gq
 
 /*ResolveConstraintsFunc maps assigns key constraints received from ColumnConstraint and appends them to an array for the corresponding property
 This function also appends gorm tags for primary_key constraints*/
-func ResolveConstraintsFunc(dbType string, constraintDesc []substance.ColumnConstraint, gqlObjectTypes map[string]GenObjectType) {
+func ResolveConstraintsFunc(dbType string, constraintDesc []*substance.ColumnConstraint, gqlObjectTypes map[string]*GenObjectType) {
 	for _, constraint := range constraintDesc {
 		gqlKeyTypes := &gqlObjectTypes[constraint.TableName].Properties[constraint.ColumnName].KeyType
 		gqlTags := &gqlObjectTypes[constraint.TableName].Properties[constraint.ColumnName].Tags
@@ -210,7 +210,7 @@ Untested is the many-to-many assocation using a cross-reference table. For examp
 		CustomerToAccount []CustomerToAccountType
 	}
 */
-func ResolveForeignRefsFunc(dbType string, relationshipDesc []substance.ColumnRelationship, gqlObjectTypes map[string]GenObjectType) {
+func ResolveForeignRefsFunc(dbType string, relationshipDesc []*substance.ColumnRelationship, gqlObjectTypes map[string]*GenObjectType) {
 	for _, colRel := range relationshipDesc {
 		_, colRelTableOk := gqlObjectTypes[colRel.TableName]
 		_, colRelRefTableOk := gqlObjectTypes[colRel.ReferenceTableName]
