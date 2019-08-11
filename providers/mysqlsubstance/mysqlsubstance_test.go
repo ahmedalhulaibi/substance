@@ -1,6 +1,7 @@
 package mysqlsubstance
 
 import (
+	"database/sql"
 	"fmt"
 	"os"
 	"reflect"
@@ -12,9 +13,15 @@ import (
 )
 
 func TestGetCurrDbName(t *testing.T) {
+	db, err := sql.Open("mysql", os.Getenv("SUBSTANCE_MYSQL"))
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+	defer db.Close()
+
 	mysqlProvider := mysql{}
 	nameExpected := "delivery"
-	nameResult, err := mysqlProvider.DatabaseName("mysql", os.Getenv("SUBSTANCE_MYSQL"))
+	nameResult, err := mysqlProvider.DatabaseName("mysql", db)
 	t.Log(os.Getenv("SUBSTANCE_MYSQL"))
 	if nameResult != nameExpected {
 		t.Errorf("Expected '%s' as database name but got '%s'.", nameExpected, nameResult)
@@ -98,6 +105,12 @@ func TestGetGoDataType(t *testing.T) {
 	}
 }
 func TestDescribeDb(t *testing.T) {
+	db, err := sql.Open("mysql", os.Getenv("SUBSTANCE_MYSQL"))
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+	defer db.Close()
+
 	mysqlProvider := mysql{}
 	myColumnDesc := []substance.ColumnDescription{}
 	myColumnDesc = append(myColumnDesc, substance.ColumnDescription{
@@ -116,7 +129,7 @@ func TestDescribeDb(t *testing.T) {
 		PropertyName: "Persons",
 		TableName:    "Persons",
 	})
-	columnDescResult, err := mysqlProvider.DescribeDatabase("mysql", os.Getenv("SUBSTANCE_MYSQL"))
+	columnDescResult, err := mysqlProvider.DescribeDatabase("mysql", db)
 	if err != nil {
 		t.Error(err)
 	}
@@ -138,6 +151,12 @@ func TestDescribeDb(t *testing.T) {
 }
 
 func TestDescribeTable(t *testing.T) {
+	db, err := sql.Open("mysql", os.Getenv("SUBSTANCE_MYSQL"))
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+	defer db.Close()
+
 	mysqlProvider := mysql{}
 	myColumnDesc := []substance.ColumnDescription{}
 	myColumnDesc = append(myColumnDesc, substance.ColumnDescription{
@@ -172,7 +191,7 @@ func TestDescribeTable(t *testing.T) {
 		TableName:    "Persons",
 		Nullable:     true,
 	})
-	columnDescResult, err := mysqlProvider.DescribeTable("mysql", os.Getenv("SUBSTANCE_MYSQL"), "Persons")
+	columnDescResult, err := mysqlProvider.DescribeTable("mysql", db, "Persons")
 	if err != nil {
 		t.Error(err)
 	}
@@ -195,6 +214,12 @@ func TestDescribeTable(t *testing.T) {
 }
 
 func TestDescribeTableRelationship(t *testing.T) {
+	db, err := sql.Open("mysql", os.Getenv("SUBSTANCE_MYSQL"))
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+	defer db.Close()
+
 	mysqlProvider := mysql{}
 	myColumnRel := []substance.ColumnRelationship{}
 	myColumnRel = append(myColumnRel, substance.ColumnRelationship{
@@ -208,7 +233,7 @@ func TestDescribeTableRelationship(t *testing.T) {
 		ReferenceTableName:  "Persons",
 		ReferenceColumnName: "ID",
 	})
-	columnRelResult, err := mysqlProvider.TableRelationships("mysql", os.Getenv("SUBSTANCE_MYSQL"), "Persons")
+	columnRelResult, err := mysqlProvider.TableRelationships("mysql", db, "Persons")
 	if err != nil {
 		t.Error(err)
 	}
@@ -231,6 +256,12 @@ func TestDescribeTableRelationship(t *testing.T) {
 }
 
 func TestDescribeTableContraints(t *testing.T) {
+	db, err := sql.Open("mysql", os.Getenv("SUBSTANCE_MYSQL"))
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+	defer db.Close()
+
 	mysqlProvider := mysql{}
 	myColumnConstraint := []substance.ColumnConstraint{}
 	myColumnConstraint = append(myColumnConstraint, substance.ColumnConstraint{
@@ -250,7 +281,7 @@ func TestDescribeTableContraints(t *testing.T) {
 		ColumnName:     "PersonID",
 		ConstraintType: "UNIQUE",
 	})
-	columnConstraintResult, err := mysqlProvider.TableConstraints("mysql", os.Getenv("SUBSTANCE_MYSQL"), "AntiOrders")
+	columnConstraintResult, err := mysqlProvider.TableConstraints("mysql", db, "AntiOrders")
 	if err != nil {
 		t.Error(err)
 	}

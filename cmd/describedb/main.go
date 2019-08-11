@@ -1,6 +1,7 @@
 package main
 
 import (
+	"database/sql"
 	"encoding/json"
 	"flag"
 	"fmt"
@@ -18,8 +19,15 @@ import (
 func main() {
 	dbtype := flag.String("db", "", "Database driver name.\nSupported databases types:\n\t- mysql\n\t- postgres \n\t- sqlite3\n")
 	connString := flag.String("cnstr", "", "Connection string to connect to database.")
+
 	flag.Parse()
-	results, err := substance.DescribeDatabase(*dbtype, *connString)
+
+	db, err := sql.Open(*dbtype, *connString)
+	if err != nil {
+		log.Fatalf("Error opening database: %s\n", err.Error())
+	}
+
+	results, err := substance.DescribeDatabase(*dbtype, db)
 	if err != nil {
 		log.Fatalf("Error describing db: %v", err)
 	}
@@ -33,7 +41,7 @@ func main() {
 	}
 	fmt.Println("=====================")
 
-	tableObjects := substancegen.GetObjectTypesFunc(*dbtype, *connString, tables)
+	tableObjects := substancegen.GetObjectTypesFunc(*dbtype, db, tables)
 
 	jsonB, err := json.Marshal(tableObjects)
 	if err != nil {

@@ -1,6 +1,8 @@
 package testsubstance
 
 import (
+	"database/sql"
+
 	"github.com/ahmedalhulaibi/substance"
 )
 

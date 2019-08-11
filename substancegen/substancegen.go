@@ -2,6 +2,7 @@ package substancegen
 
 import (
 	"bytes"
+	"database/sql"
 	"fmt"
 	"unicode"
 

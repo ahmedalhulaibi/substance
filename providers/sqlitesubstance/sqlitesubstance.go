@@ -91,6 +91,12 @@ func (p sqlite) DescribeDatabase(dbType string, db *sql.DB) ([]substance.ColumnD
 					newColDesc.TableName = string(value.([]byte))
 					newColDesc.PropertyName = string(value.([]byte))
 				}
+			case string:
+				switch queryResult.Columns[i] {
+				case "name":
+					newColDesc.TableName = value.(string)
+					newColDesc.PropertyName = value.(string)
+				}
 			}
 		}
 		columnDesc = append(columnDesc, newColDesc)
@@ -137,7 +143,17 @@ func (p sqlite) DescribeTable(dbType string, db *sql.DB, tableName string) ([]su
 				case "dflt_value":
 					newColDesc.DefaultValue = string(value.([]byte))
 				}
+			case string:
+				switch queryResult.Columns[i] {
+				case "name":
+					newColDesc.PropertyName = value.(string)
+				case "type":
+					newColDesc.PropertyType, _ = p.ToGoDataType(value.(string))
+				case "dflt_value":
+					newColDesc.DefaultValue = value.(string)
+				}
 			}
+
 		}
 		columnDesc = append(columnDesc, newColDesc)
 
@@ -169,8 +185,6 @@ func (p sqlite) TableRelationships(dbType string, db *sql.DB, tableName string) 
 				err := fmt.Errorf("Null column value found at column: '%s' index: '%d'", queryResult.Columns[i], i)
 				return nil, error(err)
 			case []byte:
-				//fmt.Println("\t", columns[i], ": ", string(value.([]byte)))
-
 				switch queryResult.Columns[i] {
 				case "from":
 					newColRel.ColumnName = string(value.([]byte))
@@ -178,6 +192,15 @@ func (p sqlite) TableRelationships(dbType string, db *sql.DB, tableName string) 
 					newColRel.ReferenceTableName = string(value.([]byte))
 				case "to":
 					newColRel.ReferenceColumnName = string(value.([]byte))
+				}
+			case string:
+				switch queryResult.Columns[i] {
+				case "from":
+					newColRel.ColumnName = value.(string)
+				case "table":
+					newColRel.ReferenceTableName = value.(string)
+				case "to":
+					newColRel.ReferenceColumnName = value.(string)
 				}
 			default:
 				//fmt.Println("\t", columns[i], ": ", value)

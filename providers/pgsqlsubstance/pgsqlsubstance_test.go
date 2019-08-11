@@ -1,6 +1,7 @@
 package pgsqlsubstance
 
 import (
+	"database/sql"
 	"fmt"
 	"os"
 	"reflect"
@@ -12,9 +13,16 @@ import (
 )
 
 func TestGetCurrDbName(t *testing.T) {
+	db, err := sql.Open("postgres", os.Getenv("SUBSTANCE_PGSQL"))
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+	defer db.Close()
+
 	pgsqlProvider := pgsql{}
 	nameExpected := "postgres"
-	nameResult, err := pgsqlProvider.DatabaseName("postgres", os.Getenv("SUBSTANCE_PGSQL"))
+
+	nameResult, err := pgsqlProvider.DatabaseName("postgres", db)
 	fmt.Println(os.Getenv("SUBSTANCE_PGSQL"))
 	if nameResult != nameExpected {
 		t.Errorf("Expected '%s' as database name but got '%s'.", nameExpected, nameResult)
@@ -100,6 +108,12 @@ func TestGetGoDataType(t *testing.T) {
 	}
 }
 func TestDescribeDb(t *testing.T) {
+	db, err := sql.Open("postgres", os.Getenv("SUBSTANCE_PGSQL"))
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+	defer db.Close()
+
 	pgsqlProvider := pgsql{}
 	myColumnDesc := []substance.ColumnDescription{}
 	myColumnDesc = append(myColumnDesc, substance.ColumnDescription{
@@ -118,16 +132,19 @@ func TestDescribeDb(t *testing.T) {
 		PropertyName: "antiorders",
 		TableName:    "antiorders",
 	})
-	columnDescResult, err := pgsqlProvider.DescribeDatabase("postgres", os.Getenv("SUBSTANCE_PGSQL"))
+
+	columnDescResult, err := pgsqlProvider.DescribeDatabase("postgres", db)
 	if err != nil {
 		t.Error(err)
 	}
+
 	sort.Slice(myColumnDesc, func(i, j int) bool {
 		return myColumnDesc[i].PropertyName < myColumnDesc[j].PropertyName
 	})
 	sort.Slice(columnDescResult, func(i, j int) bool {
 		return columnDescResult[i].PropertyName < columnDescResult[j].PropertyName
 	})
+
 	if len(columnDescResult) != len(myColumnDesc) {
 		t.Errorf("Result length does not match expected length: \nExpected:\n%v\nResult:\n%v", len(myColumnDesc), len(columnDescResult))
 		t.Errorf("Result does not match expected result: \nExpected:\n%v\nResult:\n%v", myColumnDesc, columnDescResult)
@@ -141,6 +158,12 @@ func TestDescribeDb(t *testing.T) {
 }
 
 func TestDescribeTable(t *testing.T) {
+	db, err := sql.Open("postgres", os.Getenv("SUBSTANCE_PGSQL"))
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+	defer db.Close()
+
 	pgsqlProvider := pgsql{}
 	myColumnDesc := []substance.ColumnDescription{}
 	myColumnDesc = append(myColumnDesc, substance.ColumnDescription{
@@ -174,7 +197,7 @@ func TestDescribeTable(t *testing.T) {
 		TableName:    "persons",
 		Nullable:     true,
 	})
-	columnDescResult, err := pgsqlProvider.DescribeTable("postgres", os.Getenv("SUBSTANCE_PGSQL"), "persons")
+	columnDescResult, err := pgsqlProvider.DescribeTable("postgres", db, "persons")
 	if err != nil {
 		t.Error(err)
 	}
@@ -197,6 +220,12 @@ func TestDescribeTable(t *testing.T) {
 }
 
 func TestDescribeTableRelationship(t *testing.T) {
+	db, err := sql.Open("postgres", os.Getenv("SUBSTANCE_PGSQL"))
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+	defer db.Close()
+
 	pgsqlProvider := pgsql{}
 	myColumnRel := []substance.ColumnRelationship{}
 	myColumnRel = append(myColumnRel, substance.ColumnRelationship{
@@ -205,7 +234,7 @@ func TestDescribeTableRelationship(t *testing.T) {
 		ReferenceTableName:  "persons",
 		ReferenceColumnName: "id",
 	})
-	columnRelResult, err := pgsqlProvider.TableRelationships("postgres", os.Getenv("SUBSTANCE_PGSQL"), "orders")
+	columnRelResult, err := pgsqlProvider.TableRelationships("postgres", db, "orders")
 	if err != nil {
 		t.Error(err)
 	}
@@ -228,6 +257,12 @@ func TestDescribeTableRelationship(t *testing.T) {
 }
 
 func TestDescribeTableContraints(t *testing.T) {
+	db, err := sql.Open("postgres", os.Getenv("SUBSTANCE_PGSQL"))
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+	defer db.Close()
+
 	pgsqlProvider := pgsql{}
 	myColumnConstraint := []substance.ColumnConstraint{}
 	myColumnConstraint = append(myColumnConstraint, substance.ColumnConstraint{
@@ -243,7 +278,7 @@ func TestDescribeTableContraints(t *testing.T) {
 		ColumnName:     "personid",
 		ConstraintType: "f",
 	})
-	columnConstraintResult, err := pgsqlProvider.TableConstraints("postgres", os.Getenv("SUBSTANCE_PGSQL"), "antiorders")
+	columnConstraintResult, err := pgsqlProvider.TableConstraints("postgres", db, "antiorders")
 	if err != nil {
 		t.Error(err)
 	}

@@ -10,7 +10,7 @@ import (
 
 func TestGetCurrDbName(t *testing.T) {
 	testProvider := testsql{}
-	name, _ := testProvider.DatabaseName("", "")
+	name, _ := testProvider.DatabaseName("", nil)
 	expectedName := "testDatabase"
 	if name != expectedName {
 		t.Errorf("Result does not match expected result: \nExpected:\n%s\nResult:\n%s", expectedName, name)
@@ -45,7 +45,7 @@ func TestDescribeDb(t *testing.T) {
 		PropertyName: "TableNumberThree",
 		TableName:    "TableNumberThree",
 	})
-	columnDescResult, _ := testProvider.DescribeDatabase("", "")
+	columnDescResult, _ := testProvider.DescribeDatabase("", nil)
 	for i := range columnDescResult {
 		if columnDescResult[i] != myColumnDesc[i] {
 			t.Errorf("Result does not match expected result: \nExpected:\n%v\nResult:\n%v", myColumnDesc, columnDescResult)
@@ -105,9 +105,9 @@ func TestDescribeTable(t *testing.T) {
 		PropertyType: "int32",
 		Nullable:     true,
 	})
-	columnDescResultOne, _ := testProvider.DescribeTable("", "", "TableNumberOne")
-	columnDescResultTwo, _ := testProvider.DescribeTable("", "", "TableNumberTwo")
-	columnDescResultThree, _ := testProvider.DescribeTable("", "", "TableNumberThree")
+	columnDescResultOne, _ := testProvider.DescribeTable("", nil, "TableNumberOne")
+	columnDescResultTwo, _ := testProvider.DescribeTable("", nil, "TableNumberTwo")
+	columnDescResultThree, _ := testProvider.DescribeTable("", nil, "TableNumberThree")
 	columnDescResult := append(columnDescResultOne, columnDescResultTwo...)
 	columnDescResult = append(columnDescResult, columnDescResultThree...)
 
@@ -147,9 +147,9 @@ func TestDescribeTableRelationship(t *testing.T) {
 		ReferenceTableName:  "TableNumberTwo",
 		ReferenceColumnName: "UniqueIdTwo",
 	})
-	columnRelResultOne, _ := testProvider.TableRelationships("", "", "TableNumberOne")
-	columnRelResultTwo, _ := testProvider.TableRelationships("", "", "TableNumberTwo")
-	columnRelResultThree, _ := testProvider.TableRelationships("", "", "TableNumberThree")
+	columnRelResultOne, _ := testProvider.TableRelationships("", nil, "TableNumberOne")
+	columnRelResultTwo, _ := testProvider.TableRelationships("", nil, "TableNumberTwo")
+	columnRelResultThree, _ := testProvider.TableRelationships("", nil, "TableNumberThree")
 	columnRelResult := append(columnRelResultOne, columnRelResultTwo...)
 	columnRelResult = append(columnRelResult, columnRelResultThree...)
 
@@ -202,9 +202,9 @@ func TestDescribeTableContraints(t *testing.T) {
 		ColumnName:     "ForeignIdTwo",
 		ConstraintType: "FOREIGN KEY",
 	})
-	columnConstraintResultOne, _ := testProvider.TableConstraints("", "", "TableNumberOne")
-	columnConstraintResultTwo, _ := testProvider.TableConstraints("", "", "TableNumberTwo")
-	columnConstraintResultThree, _ := testProvider.TableConstraints("", "", "TableNumberThree")
+	columnConstraintResultOne, _ := testProvider.TableConstraints("", nil, "TableNumberOne")
+	columnConstraintResultTwo, _ := testProvider.TableConstraints("", nil, "TableNumberTwo")
+	columnConstraintResultThree, _ := testProvider.TableConstraints("", nil, "TableNumberThree")
 	columnConstraintResult := append(columnConstraintResultOne, columnConstraintResultTwo...)
 	columnConstraintResult = append(columnConstraintResult, columnConstraintResultThree...)
 

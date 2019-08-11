@@ -29,10 +29,16 @@ func TestGetCurrDbName(t *testing.T) {
 	// 	t.Errorf("%q: %s\n", err, sqlStmt)
 	// 	return
 	// }
+	db, err := sql.Open("sqlite3", "./test.db")
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+	defer db.Close()
 
 	sqliteProvider := sqlite{}
 	nameExpected := "test.db"
-	nameResult, err := sqliteProvider.DatabaseName("sqlite3", "./test.db")
+
+	nameResult, err := sqliteProvider.DatabaseName("sqlite3", db)
 	t.Logf("Expected '%s' as database name got '%s'.", nameExpected, nameResult)
 	if nameResult != nameExpected {
 		t.Errorf("Expected '%s' as database name but got '%s'.", nameExpected, nameResult)
@@ -80,7 +86,7 @@ func TestDescribeDb(t *testing.T) {
 		TableName:    "AntiOrders",
 	})
 
-	columnDescResult, err := sqliteProvider.DescribeDatabase("sqlite3", "./test.db")
+	columnDescResult, err := sqliteProvider.DescribeDatabase("sqlite3", db)
 	if err != nil {
 		t.Error(err)
 	}
@@ -154,7 +160,7 @@ func TestDescribeTable(t *testing.T) {
 		TableName:    "Persons",
 		Nullable:     true,
 	})
-	columnDescResult, err := sqliteProvider.DescribeTable("sqlite3", "./test.db", "Persons")
+	columnDescResult, err := sqliteProvider.DescribeTable("sqlite3", db, "Persons")
 	if err != nil {
 		t.Error(err)
 	}
@@ -203,7 +209,7 @@ func TestDescribeTableRelationship(t *testing.T) {
 		ReferenceTableName:  "Persons",
 		ReferenceColumnName: "ID",
 	})
-	columnRelResult, err := sqliteProvider.TableRelationships("sqlite3", "./test.db", "Orders")
+	columnRelResult, err := sqliteProvider.TableRelationships("sqlite3", db, "Orders")
 	if err != nil {
 		t.Error(err)
 	}
@@ -263,7 +269,7 @@ func TestDescribeTableContraints(t *testing.T) {
 		ColumnName:     "PersonID",
 		ConstraintType: "u",
 	})
-	columnConstraintResult, err := sqliteProvider.TableConstraints("sqlite3", "./test.db", "AntiOrders")
+	columnConstraintResult, err := sqliteProvider.TableConstraints("sqlite3", db, "AntiOrders")
 	if err != nil {
 		t.Error(err)
 	}
