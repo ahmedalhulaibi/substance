@@ -14,14 +14,14 @@ type testsql struct {
 }
 
 /*GetCurrentDatabaseName returns currrent database schema name as string*/
-func (t testsql) DatabaseName(dbType string, connectionString string) (string, error) {
+func (t testsql) DatabaseName(dbType string, db *sql.DB) (string, error) {
 	returnValue := "testDatabase"
 	var err error
 	return returnValue, err
 }
 
 /*DescribeDatabase returns tables in database*/
-func (t testsql) DescribeDatabase(dbType string, connectionString string) ([]substance.ColumnDescription, error) {
+func (t testsql) DescribeDatabase(dbType string, db *sql.DB) ([]substance.ColumnDescription, error) {
 	columnDesc := []substance.ColumnDescription{}
 	columnDesc = append(columnDesc, substance.ColumnDescription{
 		DatabaseName: "testDatabase",
@@ -43,7 +43,7 @@ func (t testsql) DescribeDatabase(dbType string, connectionString string) ([]sub
 }
 
 /*DescribeTable returns columns in database*/
-func (t testsql) DescribeTable(dbType string, connectionString string, tableName string) ([]substance.ColumnDescription, error) {
+func (t testsql) DescribeTable(dbType string, db *sql.DB, tableName string) ([]substance.ColumnDescription, error) {
 	columnDesc := []substance.ColumnDescription{}
 	switch tableName {
 	case "TableNumberOne":
@@ -105,7 +105,7 @@ func (t testsql) DescribeTable(dbType string, connectionString string, tableName
 }
 
 /*TableRelationships returns all foreign column references in database table*/
-func (t testsql) TableRelationships(dbType string, connectionString string, tableName string) ([]substance.ColumnRelationship, error) {
+func (t testsql) TableRelationships(dbType string, db *sql.DB, tableName string) ([]substance.ColumnRelationship, error) {
 	columnRel := []substance.ColumnRelationship{}
 	switch tableName {
 	case "TableNumberOne":
@@ -132,7 +132,7 @@ func (t testsql) TableRelationships(dbType string, connectionString string, tabl
 	return columnRel, nil
 }
 
-func (t testsql) TableConstraints(dbType string, connectionString string, tableName string) ([]substance.ColumnConstraint, error) {
+func (t testsql) TableConstraints(dbType string, db *sql.DB, tableName string) ([]substance.ColumnConstraint, error) {
 	columnConstraint := []substance.ColumnConstraint{}
 	switch tableName {
 	case "TableNumberOne":

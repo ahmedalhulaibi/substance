@@ -22,23 +22,16 @@ type sqlite struct {
 }
 
 /*GetCurrentDatabaseName returns currrent database schema name as string*/
-func (p sqlite) DatabaseName(dbType string, connectionString string) (string, error) {
+func (p sqlite) DatabaseName(dbType string, db *sql.DB) (string, error) {
 	returnValue := "placeholder"
-
-	db, err := sql.Open(dbType, connectionString)
-	defer db.Close()
-	if err != nil {
-		return "", err
-	}
-
-	queryResult := substance.ExecuteQuery(dbType, connectionString, "", GetCurrentDatabaseNameQuery)
+	queryResult := substance.ExecuteQuery(dbType, db, "", GetCurrentDatabaseNameQuery)
 
 	if queryResult.Err != nil {
 		return "", queryResult.Err
 	}
 
 	for queryResult.Rows.Next() {
-		err = queryResult.Rows.Scan(queryResult.ScanArgs...)
+		err := queryResult.Rows.Scan(queryResult.ScanArgs...)
 		if err != nil {
 			return "", err
 		}
@@ -51,24 +44,22 @@ func (p sqlite) DatabaseName(dbType string, connectionString string) (string, er
 				case "file":
 					returnValue = path.Base(string(value.([]byte)))
 				}
+			case string:
+				switch queryResult.Columns[i] {
+				case "file":
+					returnValue = path.Base(string(value.(string)))
+				}
 			}
 		}
 
 	}
 
-	return returnValue, err
+	return returnValue, nil
 }
 
 /*DescribeDatabase returns tables in database*/
-func (p sqlite) DescribeDatabase(dbType string, connectionString string) ([]substance.ColumnDescription, error) {
-	//opening connection
-	db, err := sql.Open(dbType, connectionString)
-	defer db.Close()
-	if err != nil {
-		return nil, err
-	}
-
-	queryResult := substance.ExecuteQuery(dbType, connectionString, "", DescribeDatabaseQuery)
+func (p sqlite) DescribeDatabase(dbType string, db *sql.DB) ([]substance.ColumnDescription, error) {
+	queryResult := substance.ExecuteQuery(dbType, db, "", DescribeDatabaseQuery)
 
 	if queryResult.Err != nil {
 		return nil, queryResult.Err
@@ -78,7 +69,7 @@ func (p sqlite) DescribeDatabase(dbType string, connectionString string) ([]subs
 	columnDesc := []substance.ColumnDescription{}
 
 	//get database name
-	databaseName, err := p.DatabaseName(dbType, connectionString)
+	databaseName, err := p.DatabaseName(dbType, db)
 	if err != nil {
 		return nil, err
 	}
@@ -108,21 +99,15 @@ func (p sqlite) DescribeDatabase(dbType string, connectionString string) ([]subs
 }
 
 /*DescribeTable returns columns in database*/
-func (p sqlite) DescribeTable(dbType string, connectionString string, tableName string) ([]substance.ColumnDescription, error) {
-	db, err := sql.Open(dbType, connectionString)
-	defer db.Close()
-	if err != nil {
-		return nil, err
-	}
-
-	queryResult := substance.ExecuteQuery(dbType, connectionString, tableName, strings.Replace(DescribeTableQuery, "$1", tableName, -1))
+func (p sqlite) DescribeTable(dbType string, db *sql.DB, tableName string) ([]substance.ColumnDescription, error) {
+	queryResult := substance.ExecuteQuery(dbType, db, tableName, strings.Replace(DescribeTableQuery, "$1", tableName, -1))
 	if queryResult.Err != nil {
 		return nil, queryResult.Err
 	}
 
 	columnDesc := []substance.ColumnDescription{}
 
-	databaseName, err := p.DatabaseName(dbType, connectionString)
+	databaseName, err := p.DatabaseName(dbType, db)
 	if err != nil {
 		return nil, err
 	}
@@ -130,7 +115,7 @@ func (p sqlite) DescribeTable(dbType string, connectionString string, tableName 
 	newColDesc := substance.ColumnDescription{DatabaseName: databaseName, TableName: tableName}
 
 	for queryResult.Rows.Next() {
-		err = queryResult.Rows.Scan(queryResult.ScanArgs...)
+		err := queryResult.Rows.Scan(queryResult.ScanArgs...)
 		if err != nil {
 			return nil, err
 		}
@@ -161,14 +146,8 @@ func (p sqlite) DescribeTable(dbType string, connectionString string, tableName 
 }
 
 /*TableRelationships returns all foreign column references in database table*/
-func (p sqlite) TableRelationships(dbType string, connectionString string, tableName string) ([]substance.ColumnRelationship, error) {
-	db, err := sql.Open(dbType, connectionString)
-	defer db.Close()
-	if err != nil {
-		return nil, err
-	}
-
-	queryResult := substance.ExecuteQuery(dbType, connectionString, tableName, strings.Replace(DescribeTableRelationshipQuery, "$1", tableName, -1))
+func (p sqlite) TableRelationships(dbType string, db *sql.DB, tableName string) ([]substance.ColumnRelationship, error) {
+	queryResult := substance.ExecuteQuery(dbType, db, tableName, strings.Replace(DescribeTableRelationshipQuery, "$1", tableName, -1))
 	if queryResult.Err != nil {
 		return nil, queryResult.Err
 	}
@@ -177,7 +156,7 @@ func (p sqlite) TableRelationships(dbType string, connectionString string, table
 	newColRel := substance.ColumnRelationship{}
 
 	for queryResult.Rows.Next() {
-		err = queryResult.Rows.Scan(queryResult.ScanArgs...)
+		err := queryResult.Rows.Scan(queryResult.ScanArgs...)
 		if err != nil {
 			return nil, err
 		}
@@ -212,17 +191,12 @@ func (p sqlite) TableRelationships(dbType string, connectionString string, table
 }
 
 /*TableConstraints returns an array of ColumnConstraint objects*/
-func (p sqlite) TableConstraints(dbType string, connectionString string, tableName string) ([]substance.ColumnConstraint, error) {
-	db, err := sql.Open(dbType, connectionString)
-	defer db.Close()
-	if err != nil {
-		return nil, err
-	}
+func (p sqlite) TableConstraints(dbType string, db *sql.DB, tableName string) ([]substance.ColumnConstraint, error) {
 	columnCon := []substance.ColumnConstraint{}
 	newColCon := substance.ColumnConstraint{}
 
 	//getting column relationships to retrieve foreign key constraints
-	columnRels, err := p.TableRelationships(dbType, connectionString, tableName)
+	columnRels, err := p.TableRelationships(dbType, db, tableName)
 	if err != nil {
 		return nil, err
 	}
@@ -237,7 +211,7 @@ func (p sqlite) TableConstraints(dbType string, connectionString string, tableNa
 		columnCon = append(columnCon, newColCon)
 	}
 
-	indexListResult := substance.ExecuteQuery(dbType, connectionString, tableName, strings.Replace(SQLLiteIndexList, "$1", tableName, -1))
+	indexListResult := substance.ExecuteQuery(dbType, db, tableName, strings.Replace(SQLLiteIndexList, "$1", tableName, -1))
 	if indexListResult.Err != nil {
 		return nil, indexListResult.Err
 	}
@@ -256,7 +230,7 @@ func (p sqlite) TableConstraints(dbType string, connectionString string, tableNa
 			origin = "p"
 		}
 
-		indexInfoResult := substance.ExecuteQuery(dbType, connectionString, "", strings.Replace(SQLLiteIndexInfo, "$1", name, -1))
+		indexInfoResult := substance.ExecuteQuery(dbType, db, "", strings.Replace(SQLLiteIndexInfo, "$1", name, -1))
 		for indexInfoResult.Rows.Next() {
 			var seqno int64
 			var cid int64

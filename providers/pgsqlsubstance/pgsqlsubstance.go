@@ -22,21 +22,16 @@ type pgsql struct {
 }
 
 /*GetCurrentDatabaseName returns currrent database schema name as string*/
-func (p pgsql) DatabaseName(dbType string, connectionString string) (string, error) {
+func (p pgsql) DatabaseName(dbType string, db *sql.DB) (string, error) {
 	returnValue := "placeholder"
-	db, err := sql.Open(dbType, connectionString)
-	defer db.Close()
-	if err != nil {
-		return "", err
-	}
 
-	queryResult := substance.ExecuteQuery(dbType, connectionString, "", GetCurrentDatabaseNameQuery)
+	queryResult := substance.ExecuteQuery(dbType, db, "", GetCurrentDatabaseNameQuery)
 	if queryResult.Err != nil {
 		return "", queryResult.Err
 	}
 
 	for queryResult.Rows.Next() {
-		err = queryResult.Rows.Scan(queryResult.ScanArgs...)
+		err := queryResult.Rows.Scan(queryResult.ScanArgs...)
 		if err != nil {
 			return "", err
 		}
@@ -54,19 +49,12 @@ func (p pgsql) DatabaseName(dbType string, connectionString string) (string, err
 
 	}
 
-	return returnValue, err
+	return returnValue, nil
 }
 
 /*DescribeDatabase returns tables in database*/
-func (p pgsql) DescribeDatabase(dbType string, connectionString string) ([]substance.ColumnDescription, error) {
-	//opening connection
-	db, err := sql.Open(dbType, connectionString)
-	defer db.Close()
-	if err != nil {
-		return nil, err
-	}
-
-	queryResult := substance.ExecuteQuery(dbType, connectionString, "", DescribeDatabaseQuery)
+func (p pgsql) DescribeDatabase(dbType string, db *sql.DB) ([]substance.ColumnDescription, error) {
+	queryResult := substance.ExecuteQuery(dbType, db, "", DescribeDatabaseQuery)
 
 	if queryResult.Err != nil {
 		return nil, queryResult.Err
@@ -76,7 +64,7 @@ func (p pgsql) DescribeDatabase(dbType string, connectionString string) ([]subst
 	columnDesc := []substance.ColumnDescription{}
 
 	//get database name
-	databaseName, err := p.DatabaseName(dbType, connectionString)
+	databaseName, err := p.DatabaseName(dbType, db)
 	if err != nil {
 		return nil, err
 	}
@@ -106,14 +94,8 @@ func (p pgsql) DescribeDatabase(dbType string, connectionString string) ([]subst
 }
 
 /*DescribeTable returns columns in database*/
-func (p pgsql) DescribeTable(dbType string, connectionString string, tableName string) ([]substance.ColumnDescription, error) {
-	db, err := sql.Open(dbType, connectionString)
-	defer db.Close()
-	if err != nil {
-		return nil, err
-	}
-
-	queryResult := substance.ExecuteQuery(dbType, connectionString, tableName, DescribeTableQuery)
+func (p pgsql) DescribeTable(dbType string, db *sql.DB, tableName string) ([]substance.ColumnDescription, error) {
+	queryResult := substance.ExecuteQuery(dbType, db, tableName, DescribeTableQuery)
 
 	if queryResult.Err != nil {
 		return nil, queryResult.Err
@@ -121,7 +103,7 @@ func (p pgsql) DescribeTable(dbType string, connectionString string, tableName s
 
 	columnDesc := []substance.ColumnDescription{}
 
-	databaseName, err := p.DatabaseName(dbType, connectionString)
+	databaseName, err := p.DatabaseName(dbType, db)
 	if err != nil {
 		return nil, err
 	}
@@ -158,19 +140,13 @@ func (p pgsql) DescribeTable(dbType string, connectionString string, tableName s
 }
 
 /*TableRelationships returns all foreign column references in database table*/
-func (p pgsql) TableRelationships(dbType string, connectionString string, tableName string) ([]substance.ColumnRelationship, error) {
-	db, err := sql.Open(dbType, connectionString)
-	defer db.Close()
-	if err != nil {
-		return nil, err
-	}
-
-	queryResult := substance.ExecuteQuery(dbType, connectionString, tableName, DescribeTableRelationshipQuery)
+func (p pgsql) TableRelationships(dbType string, db *sql.DB, tableName string) ([]substance.ColumnRelationship, error) {
+	queryResult := substance.ExecuteQuery(dbType, db, tableName, DescribeTableRelationshipQuery)
 	if queryResult.Err != nil {
 		return nil, queryResult.Err
 	}
 
-	columnTableDesc, err := substance.DescribeTable(dbType, connectionString, tableName)
+	columnTableDesc, err := substance.DescribeTable(dbType, db, tableName)
 	if err != nil {
 		return nil, err
 	}
@@ -200,7 +176,7 @@ func (p pgsql) TableRelationships(dbType string, connectionString string, tableN
 				switch queryResult.Columns[i] {
 				case "ref_table":
 					newColDesc.ReferenceTableName = string(value.([]byte))
-					columnTableDesc, err = substance.DescribeTable(dbType, connectionString, newColDesc.ReferenceTableName)
+					columnTableDesc, err = substance.DescribeTable(dbType, db, newColDesc.ReferenceTableName)
 					if err != nil {
 						return nil, err
 					}
@@ -226,14 +202,8 @@ func (p pgsql) TableRelationships(dbType string, connectionString string, tableN
 }
 
 /*TableConstraints returns an array of ColumnConstraint objects*/
-func (p pgsql) TableConstraints(dbType string, connectionString string, tableName string) ([]substance.ColumnConstraint, error) {
-	db, err := sql.Open(dbType, connectionString)
-	defer db.Close()
-	if err != nil {
-		return nil, err
-	}
-
-	queryResult := substance.ExecuteQuery(dbType, connectionString, tableName, DescribeTableConstraintsQuery)
+func (p pgsql) TableConstraints(dbType string, db *sql.DB, tableName string) ([]substance.ColumnConstraint, error) {
+	queryResult := substance.ExecuteQuery(dbType, db, tableName, DescribeTableConstraintsQuery)
 	if queryResult.Err != nil {
 		return nil, queryResult.Err
 	}
@@ -241,7 +211,7 @@ func (p pgsql) TableConstraints(dbType string, connectionString string, tableNam
 	newColDesc := substance.ColumnConstraint{}
 
 	for queryResult.Rows.Next() {
-		err = queryResult.Rows.Scan(queryResult.ScanArgs...)
+		err := queryResult.Rows.Scan(queryResult.ScanArgs...)
 		if err != nil {
 			return nil, err
 		}

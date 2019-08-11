@@ -12,7 +12,7 @@ import (
 
 /*GeneratorInterface describes the implementation required to generate code from substance objects*/
 type GeneratorInterface interface {
-	OutputCodeFunc(dbType string, connectionString string, gqlObjectTypes map[string]GenObjectType) bytes.Buffer
+	OutputCodeFunc(dbType string, db *sql.DB, gqlObjectTypes map[string]GenObjectType) bytes.Buffer
 }
 
 /*SubstanceGenPlugins is a map storing a reference to the current plugins
@@ -63,12 +63,12 @@ type GenObjectType struct {
 }
 
 /*Generate is a one stop function to quickly generate code */
-func Generate(generatorName string, dbType string, connectionString string, tableNames []string) bytes.Buffer {
-	return SubstanceGenPlugins[generatorName].OutputCodeFunc(dbType, connectionString, GetObjectTypesFunc(dbType, connectionString, tableNames))
+func Generate(generatorName string, dbType string, db *sql.DB, tableNames []string) bytes.Buffer {
+	return SubstanceGenPlugins[generatorName].OutputCodeFunc(dbType, db, GetObjectTypesFunc(dbType, db, tableNames))
 }
 
-/*GetObjectTypesFunc returns all object definitions as a map given tableNames and connectionString*/
-func GetObjectTypesFunc(dbType string, connectionString string, tableNames []string) map[string]GenObjectType {
+/*GetObjectTypesFunc returns all object definitions as a map given tableNames and db*/
+func GetObjectTypesFunc(dbType string, db *sql.DB, tableNames []string) map[string]GenObjectType {
 	//init array of column descriptions for all tables
 	tableDesc := []substance.ColumnDescription{}
 
@@ -86,7 +86,7 @@ func GetObjectTypesFunc(dbType string, connectionString string, tableNames []str
 		newGqlObj.Properties = make(GenObjectProperties)
 		gqlObjectTypes[tableName] = newGqlObj
 		//describe each table
-		_results, err := substance.DescribeTable(dbType, connectionString, tableName)
+		_results, err := substance.DescribeTable(dbType, db, tableName)
 		if err != nil {
 			panic(err)
 		}
@@ -114,7 +114,7 @@ func GetObjectTypesFunc(dbType string, connectionString string, tableNames []str
 	}
 	//resolve relationships
 	gqlObjectTypes = ResolveRelationshipsFunc(dbType,
-		connectionString,
+		db,
 		tableNames,
 		gqlObjectTypes)
 
@@ -122,19 +122,19 @@ func GetObjectTypesFunc(dbType string, connectionString string, tableNames []str
 }
 
 /*ResolveRelationshipsFunc calls out to multiple functions to orchestrate the resolution of constraints and relationships*/
-func ResolveRelationshipsFunc(dbType string, connectionString string, tableNames []string, gqlObjectTypes map[string]GenObjectType) map[string]GenObjectType {
+func ResolveRelationshipsFunc(dbType string, db *sql.DB, tableNames []string, gqlObjectTypes map[string]GenObjectType) map[string]GenObjectType {
 	relationshipDesc := []substance.ColumnRelationship{}
 	constraintDesc := []substance.ColumnConstraint{}
 
 	for _, tableName := range tableNames {
-		relResults, err := substance.DescribeTableRelationship(dbType, connectionString, tableName)
+		relResults, err := substance.DescribeTableRelationship(dbType, db, tableName)
 
 		if err != nil {
 			panic(err)
 		}
 		relationshipDesc = append(relationshipDesc, relResults...)
 
-		constraintResults, err := substance.DescribeTableConstraints(dbType, connectionString, tableName)
+		constraintResults, err := substance.DescribeTableConstraints(dbType, db, tableName)
 
 		if err != nil {
 			panic(err)

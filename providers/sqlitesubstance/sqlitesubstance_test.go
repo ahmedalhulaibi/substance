@@ -33,7 +33,7 @@ func TestGetCurrDbName(t *testing.T) {
 	sqliteProvider := sqlite{}
 	nameExpected := "test.db"
 	nameResult, err := sqliteProvider.DatabaseName("sqlite3", "./test.db")
-	t.Logf("Expected '%s' as database name but got '%s'.", nameExpected, nameResult)
+	t.Logf("Expected '%s' as database name got '%s'.", nameExpected, nameResult)
 	if nameResult != nameExpected {
 		t.Errorf("Expected '%s' as database name but got '%s'.", nameExpected, nameResult)
 	}

@@ -2,21 +2,21 @@ package substance
 
 import "database/sql"
 
-/*SubstanceInterface defines the functions that must be implemented*/
-type SubstanceInterface interface {
-	DatabaseName(dbType string, connectionString string) (string, error)
-	DescribeDatabase(dbType string, connectionString string) ([]ColumnDescription, error)
-	DescribeTable(dbType string, connectionString string, tableName string) ([]ColumnDescription, error)
-	TableRelationships(dbType string, connectionString string, tableName string) ([]ColumnRelationship, error)
-	TableConstraints(dbType string, connectionString string, tableName string) ([]ColumnConstraint, error)
+/*SubstanceProviderInterface */
+type SubstanceProviderInterface interface {
+	DatabaseName(dbType string, db *sql.DB) (string, error)
+	DescribeDatabase(dbType string, db *sql.DB) ([]ColumnDescription, error)
+	DescribeTable(dbType string, db *sql.DB, tableName string) ([]ColumnDescription, error)
+	TableRelationships(dbType string, db *sql.DB, tableName string) ([]ColumnRelationship, error)
+	TableConstraints(dbType string, db *sql.DB, tableName string) ([]ColumnConstraint, error)
 	ToGoDataType(sqlType string) (string, error)
 }
 
 /*substance plugin map*/
-var substancePlugins = make(map[string]SubstanceInterface)
+var substancePlugins = make(map[string]SubstanceProviderInterface)
 
 /*Register registers a sbustance plugin which implements the Substance interface*/
-func Register(pluginName string, pluginInterface SubstanceInterface) {
+func Register(pluginName string, pluginInterface SubstanceProviderInterface) {
 	//fmt.Println(substancePlugins)
 	substancePlugins[pluginName] = pluginInterface
 }
@@ -57,38 +57,36 @@ type QueryResult struct {
 }
 
 /*GetCurrentDatabaseName returns currrent database schema name as string*/
-func GetCurrentDatabaseName(dbType string, connectionString string) (string, error) {
-	return substancePlugins[dbType].DatabaseName(dbType, connectionString)
+func GetCurrentDatabaseName(dbType string, db *sql.DB) (string, error) {
+	return substancePlugins[dbType].DatabaseName(dbType, db)
 }
 
 /*DescribeDatabase returns tables in database*/
-func DescribeDatabase(dbType string, connectionString string) ([]ColumnDescription, error) {
-	return substancePlugins[dbType].DescribeDatabase(dbType, connectionString)
+func DescribeDatabase(dbType string, db *sql.DB) ([]ColumnDescription, error) {
+	return substancePlugins[dbType].DescribeDatabase(dbType, db)
 }
 
 /*DescribeTable returns columns of a table*/
-func DescribeTable(dbType string, connectionString string, tableName string) ([]ColumnDescription, error) {
-	return substancePlugins[dbType].DescribeTable(dbType, connectionString, tableName)
+func DescribeTable(dbType string, db *sql.DB, tableName string) ([]ColumnDescription, error) {
+	return substancePlugins[dbType].DescribeTable(dbType, db, tableName)
 }
 
 /*DescribeTableRelationship returns all foreign column references in database table*/
-func DescribeTableRelationship(dbType string, connectionString string, tableName string) ([]ColumnRelationship, error) {
-	return substancePlugins[dbType].TableRelationships(dbType, connectionString, tableName)
+func DescribeTableRelationship(dbType string, db *sql.DB, tableName string) ([]ColumnRelationship, error) {
+	return substancePlugins[dbType].TableRelationships(dbType, db, tableName)
 }
 
 /*DescribeTableConstraints returns all column constraints in a database table*/
-func DescribeTableConstraints(dbType string, connectionString string, tableName string) ([]ColumnConstraint, error) {
-	return substancePlugins[dbType].TableConstraints(dbType, connectionString, tableName)
+func DescribeTableConstraints(dbType string, db *sql.DB, tableName string) ([]ColumnConstraint, error) {
+	return substancePlugins[dbType].TableConstraints(dbType, db, tableName)
 }
 
 /*ExecuteQuery executes a sql query with one or no tableName, specific to mysqlsubstnace and pgsqlsubstance*/
-func ExecuteQuery(dbType string, connectionString string, tableName string, query string) QueryResult {
-	db, err := sql.Open(dbType, connectionString)
-	defer db.Close()
-	if err != nil {
-		return QueryResult{Err: err}
-	}
-	var rows *sql.Rows
+func ExecuteQuery(dbType string, db *sql.DB, tableName string, query string) QueryResult {
+	var (
+		rows *sql.Rows
+		err  error
+	)
 	if tableName == "" {
 		rows, err = db.Query(query)
 	} else {

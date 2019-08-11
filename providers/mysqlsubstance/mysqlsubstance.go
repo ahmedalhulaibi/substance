@@ -20,21 +20,15 @@ type mysql struct {
 }
 
 /*GetCurrentDatabaseName returns currrent database schema name as string*/
-func (m mysql) DatabaseName(dbType string, connectionString string) (string, error) {
-	db, err := sql.Open(dbType, connectionString)
-	defer db.Close()
-	if err != nil {
-		return "nil", err
-	}
-
-	queryResult := substance.ExecuteQuery(dbType, connectionString, "", GetCurrentDatabaseNameQuery)
+func (m mysql) DatabaseName(dbType string, db *sql.DB) (string, error) {
+	queryResult := substance.ExecuteQuery(dbType, db, "", GetCurrentDatabaseNameQuery)
 	if queryResult.Err != nil {
 		return "", queryResult.Err
 	}
 
 	var returnValue string
 	for queryResult.Rows.Next() {
-		err = queryResult.Rows.Scan(queryResult.ScanArgs...)
+		err := queryResult.Rows.Scan(queryResult.ScanArgs...)
 		if err != nil {
 			return "nil", err
 		}
@@ -56,25 +50,19 @@ func (m mysql) DatabaseName(dbType string, connectionString string) (string, err
 		}
 		//fmt.Println("-----------------------------------")
 	}
-	return returnValue, err
+	return returnValue, nil
 }
 
 /*DescribeDatabase returns tables in database*/
-func (m mysql) DescribeDatabase(dbType string, connectionString string) ([]substance.ColumnDescription, error) {
-	db, err := sql.Open(dbType, connectionString)
-	defer db.Close()
-	if err != nil {
-		return nil, err
-	}
-
-	queryResult := substance.ExecuteQuery(dbType, connectionString, "", DescribeDatabaseQuery)
+func (m mysql) DescribeDatabase(dbType string, db *sql.DB) ([]substance.ColumnDescription, error) {
+	queryResult := substance.ExecuteQuery(dbType, db, "", DescribeDatabaseQuery)
 	if queryResult.Err != nil {
 		return nil, queryResult.Err
 	}
 
 	columnDesc := []substance.ColumnDescription{}
 
-	databaseName, err := m.DatabaseName(dbType, connectionString)
+	databaseName, err := m.DatabaseName(dbType, db)
 	if err != nil {
 		return nil, err
 	}
@@ -112,22 +100,16 @@ func (m mysql) DescribeDatabase(dbType string, connectionString string) ([]subst
 }
 
 /*DescribeTable returns columns of a table*/
-func (m mysql) DescribeTable(dbType string, connectionString string, tableName string) ([]substance.ColumnDescription, error) {
-
-	db, err := sql.Open(dbType, connectionString)
-	defer db.Close()
-	if err != nil {
-		return nil, err
-	}
+func (m mysql) DescribeTable(dbType string, db *sql.DB, tableName string) ([]substance.ColumnDescription, error) {
 	query := fmt.Sprintf(DescribeTableQuery, tableName)
-	queryResult := substance.ExecuteQuery(dbType, connectionString, "", query)
+	queryResult := substance.ExecuteQuery(dbType, db, "", query)
 	if queryResult.Err != nil {
 		return nil, queryResult.Err
 	}
 
 	columnDesc := []substance.ColumnDescription{}
 
-	databaseName, err := m.DatabaseName(dbType, connectionString)
+	databaseName, err := m.DatabaseName(dbType, db)
 	if err != nil {
 		return nil, err
 	}
@@ -175,21 +157,14 @@ func (m mysql) DescribeTable(dbType string, connectionString string, tableName s
 }
 
 /*TableRelationships returns all foreign column references in database table*/
-func (m mysql) TableRelationships(dbType string, connectionString string, tableName string) ([]substance.ColumnRelationship, error) {
-
-	db, err := sql.Open(dbType, connectionString)
-	defer db.Close()
-	if err != nil {
-		return nil, err
-	}
-
-	databaseName, err := m.DatabaseName(dbType, connectionString)
+func (m mysql) TableRelationships(dbType string, db *sql.DB, tableName string) ([]substance.ColumnRelationship, error) {
+	databaseName, err := m.DatabaseName(dbType, db)
 	if err != nil {
 		return nil, err
 	}
 	query := fmt.Sprintf(DescribeTableRelationshipQuery, databaseName)
 
-	queryResult := substance.ExecuteQuery(dbType, connectionString, tableName, query)
+	queryResult := substance.ExecuteQuery(dbType, db, tableName, query)
 	if queryResult.Err != nil {
 		return nil, queryResult.Err
 	}
@@ -234,14 +209,8 @@ func (m mysql) TableRelationships(dbType string, connectionString string, tableN
 }
 
 /*DescribeTableRelationship returns all foreign column references in database table*/
-func (m mysql) TableConstraints(dbType string, connectionString string, tableName string) ([]substance.ColumnConstraint, error) {
-	db, err := sql.Open(dbType, connectionString)
-	defer db.Close()
-	if err != nil {
-		return nil, err
-	}
-
-	queryResult := substance.ExecuteQuery(dbType, connectionString, tableName, DescribeTableConstraintsQuery)
+func (m mysql) TableConstraints(dbType string, db *sql.DB, tableName string) ([]substance.ColumnConstraint, error) {
+	queryResult := substance.ExecuteQuery(dbType, db, tableName, DescribeTableConstraintsQuery)
 	if queryResult.Err != nil {
 		return nil, queryResult.Err
 	}
@@ -250,7 +219,7 @@ func (m mysql) TableConstraints(dbType string, connectionString string, tableNam
 	newColCon := substance.ColumnConstraint{}
 
 	for queryResult.Rows.Next() {
-		err = queryResult.Rows.Scan(queryResult.ScanArgs...)
+		err := queryResult.Rows.Scan(queryResult.ScanArgs...)
 		if err != nil {
 			return nil, err
 		}
