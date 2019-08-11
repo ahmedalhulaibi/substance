@@ -4,12 +4,12 @@ import "database/sql"
 
 /*SubstanceInterface defines the functions that must be implemented*/
 type SubstanceInterface interface {
-	GetCurrentDatabaseNameFunc(dbType string, connectionString string) (string, error)
-	DescribeDatabaseFunc(dbType string, connectionString string) ([]ColumnDescription, error)
-	DescribeTableFunc(dbType string, connectionString string, tableName string) ([]ColumnDescription, error)
-	DescribeTableRelationshipFunc(dbType string, connectionString string, tableName string) ([]ColumnRelationship, error)
-	DescribeTableConstraintsFunc(dbType string, connectionString string, tableName string) ([]ColumnConstraint, error)
-	GetGoDataType(sqlType string) (string, error)
+	DatabaseName(dbType string, connectionString string) (string, error)
+	DescribeDatabase(dbType string, connectionString string) ([]ColumnDescription, error)
+	DescribeTable(dbType string, connectionString string, tableName string) ([]ColumnDescription, error)
+	TableRelationships(dbType string, connectionString string, tableName string) ([]ColumnRelationship, error)
+	TableConstraints(dbType string, connectionString string, tableName string) ([]ColumnConstraint, error)
+	ToGoDataType(sqlType string) (string, error)
 }
 
 /*substance plugin map*/
@@ -58,27 +58,27 @@ type QueryResult struct {
 
 /*GetCurrentDatabaseName returns currrent database schema name as string*/
 func GetCurrentDatabaseName(dbType string, connectionString string) (string, error) {
-	return substancePlugins[dbType].GetCurrentDatabaseNameFunc(dbType, connectionString)
+	return substancePlugins[dbType].DatabaseName(dbType, connectionString)
 }
 
 /*DescribeDatabase returns tables in database*/
 func DescribeDatabase(dbType string, connectionString string) ([]ColumnDescription, error) {
-	return substancePlugins[dbType].DescribeDatabaseFunc(dbType, connectionString)
+	return substancePlugins[dbType].DescribeDatabase(dbType, connectionString)
 }
 
 /*DescribeTable returns columns of a table*/
 func DescribeTable(dbType string, connectionString string, tableName string) ([]ColumnDescription, error) {
-	return substancePlugins[dbType].DescribeTableFunc(dbType, connectionString, tableName)
+	return substancePlugins[dbType].DescribeTable(dbType, connectionString, tableName)
 }
 
 /*DescribeTableRelationship returns all foreign column references in database table*/
 func DescribeTableRelationship(dbType string, connectionString string, tableName string) ([]ColumnRelationship, error) {
-	return substancePlugins[dbType].DescribeTableRelationshipFunc(dbType, connectionString, tableName)
+	return substancePlugins[dbType].TableRelationships(dbType, connectionString, tableName)
 }
 
 /*DescribeTableConstraints returns all column constraints in a database table*/
 func DescribeTableConstraints(dbType string, connectionString string, tableName string) ([]ColumnConstraint, error) {
-	return substancePlugins[dbType].DescribeTableConstraintsFunc(dbType, connectionString, tableName)
+	return substancePlugins[dbType].TableConstraints(dbType, connectionString, tableName)
 }
 
 /*ExecuteQuery executes a sql query with one or no tableName, specific to mysqlsubstnace and pgsqlsubstance*/

@@ -14,7 +14,7 @@ import (
 func TestGetCurrDbName(t *testing.T) {
 	pgsqlProvider := pgsql{}
 	nameExpected := "postgres"
-	nameResult, err := pgsqlProvider.GetCurrentDatabaseNameFunc("postgres", os.Getenv("SUBSTANCE_PGSQL"))
+	nameResult, err := pgsqlProvider.DatabaseName("postgres", os.Getenv("SUBSTANCE_PGSQL"))
 	fmt.Println(os.Getenv("SUBSTANCE_PGSQL"))
 	if nameResult != nameExpected {
 		t.Errorf("Expected '%s' as database name but got '%s'.", nameExpected, nameResult)
@@ -91,7 +91,7 @@ func TestGetGoDataType(t *testing.T) {
 		"JSON",
 	}
 	for _, sqlDatatype := range sqlDatatypes {
-		goDataType, err := pgsqlProvider.GetGoDataType(strings.ToLower(sqlDatatype))
+		goDataType, err := pgsqlProvider.ToGoDataType(strings.ToLower(sqlDatatype))
 		if err != nil {
 			t.Error(err)
 		} else if testing.Verbose() {
@@ -118,7 +118,7 @@ func TestDescribeDb(t *testing.T) {
 		PropertyName: "antiorders",
 		TableName:    "antiorders",
 	})
-	columnDescResult, err := pgsqlProvider.DescribeDatabaseFunc("postgres", os.Getenv("SUBSTANCE_PGSQL"))
+	columnDescResult, err := pgsqlProvider.DescribeDatabase("postgres", os.Getenv("SUBSTANCE_PGSQL"))
 	if err != nil {
 		t.Error(err)
 	}
@@ -174,7 +174,7 @@ func TestDescribeTable(t *testing.T) {
 		TableName:    "persons",
 		Nullable:     true,
 	})
-	columnDescResult, err := pgsqlProvider.DescribeTableFunc("postgres", os.Getenv("SUBSTANCE_PGSQL"), "persons")
+	columnDescResult, err := pgsqlProvider.DescribeTable("postgres", os.Getenv("SUBSTANCE_PGSQL"), "persons")
 	if err != nil {
 		t.Error(err)
 	}
@@ -205,7 +205,7 @@ func TestDescribeTableRelationship(t *testing.T) {
 		ReferenceTableName:  "persons",
 		ReferenceColumnName: "id",
 	})
-	columnRelResult, err := pgsqlProvider.DescribeTableRelationshipFunc("postgres", os.Getenv("SUBSTANCE_PGSQL"), "orders")
+	columnRelResult, err := pgsqlProvider.TableRelationships("postgres", os.Getenv("SUBSTANCE_PGSQL"), "orders")
 	if err != nil {
 		t.Error(err)
 	}
@@ -243,7 +243,7 @@ func TestDescribeTableContraints(t *testing.T) {
 		ColumnName:     "personid",
 		ConstraintType: "f",
 	})
-	columnConstraintResult, err := pgsqlProvider.DescribeTableConstraintsFunc("postgres", os.Getenv("SUBSTANCE_PGSQL"), "antiorders")
+	columnConstraintResult, err := pgsqlProvider.TableConstraints("postgres", os.Getenv("SUBSTANCE_PGSQL"), "antiorders")
 	if err != nil {
 		t.Error(err)
 	}

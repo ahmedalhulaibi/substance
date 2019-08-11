@@ -14,14 +14,14 @@ type testsql struct {
 }
 
 /*GetCurrentDatabaseName returns currrent database schema name as string*/
-func (t testsql) GetCurrentDatabaseNameFunc(dbType string, connectionString string) (string, error) {
+func (t testsql) DatabaseName(dbType string, connectionString string) (string, error) {
 	returnValue := "testDatabase"
 	var err error
 	return returnValue, err
 }
 
 /*DescribeDatabase returns tables in database*/
-func (t testsql) DescribeDatabaseFunc(dbType string, connectionString string) ([]substance.ColumnDescription, error) {
+func (t testsql) DescribeDatabase(dbType string, connectionString string) ([]substance.ColumnDescription, error) {
 	columnDesc := []substance.ColumnDescription{}
 	columnDesc = append(columnDesc, substance.ColumnDescription{
 		DatabaseName: "testDatabase",
@@ -43,7 +43,7 @@ func (t testsql) DescribeDatabaseFunc(dbType string, connectionString string) ([
 }
 
 /*DescribeTable returns columns in database*/
-func (t testsql) DescribeTableFunc(dbType string, connectionString string, tableName string) ([]substance.ColumnDescription, error) {
+func (t testsql) DescribeTable(dbType string, connectionString string, tableName string) ([]substance.ColumnDescription, error) {
 	columnDesc := []substance.ColumnDescription{}
 	switch tableName {
 	case "TableNumberOne":
@@ -104,8 +104,8 @@ func (t testsql) DescribeTableFunc(dbType string, connectionString string, table
 	return columnDesc, nil
 }
 
-/*DescribeTableRelationship returns all foreign column references in database table*/
-func (t testsql) DescribeTableRelationshipFunc(dbType string, connectionString string, tableName string) ([]substance.ColumnRelationship, error) {
+/*TableRelationships returns all foreign column references in database table*/
+func (t testsql) TableRelationships(dbType string, connectionString string, tableName string) ([]substance.ColumnRelationship, error) {
 	columnRel := []substance.ColumnRelationship{}
 	switch tableName {
 	case "TableNumberOne":
@@ -132,7 +132,7 @@ func (t testsql) DescribeTableRelationshipFunc(dbType string, connectionString s
 	return columnRel, nil
 }
 
-func (t testsql) DescribeTableConstraintsFunc(dbType string, connectionString string, tableName string) ([]substance.ColumnConstraint, error) {
+func (t testsql) TableConstraints(dbType string, connectionString string, tableName string) ([]substance.ColumnConstraint, error) {
 	columnConstraint := []substance.ColumnConstraint{}
 	switch tableName {
 	case "TableNumberOne":
@@ -173,6 +173,6 @@ func (t testsql) DescribeTableConstraintsFunc(dbType string, connectionString st
 	return columnConstraint, nil
 }
 
-func (t testsql) GetGoDataType(sqlType string) (string, error) {
+func (t testsql) ToGoDataType(sqlType string) (string, error) {
 	return "", nil
 }

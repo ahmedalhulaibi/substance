@@ -20,7 +20,7 @@ type mysql struct {
 }
 
 /*GetCurrentDatabaseName returns currrent database schema name as string*/
-func (m mysql) GetCurrentDatabaseNameFunc(dbType string, connectionString string) (string, error) {
+func (m mysql) DatabaseName(dbType string, connectionString string) (string, error) {
 	db, err := sql.Open(dbType, connectionString)
 	defer db.Close()
 	if err != nil {
@@ -60,7 +60,7 @@ func (m mysql) GetCurrentDatabaseNameFunc(dbType string, connectionString string
 }
 
 /*DescribeDatabase returns tables in database*/
-func (m mysql) DescribeDatabaseFunc(dbType string, connectionString string) ([]substance.ColumnDescription, error) {
+func (m mysql) DescribeDatabase(dbType string, connectionString string) ([]substance.ColumnDescription, error) {
 	db, err := sql.Open(dbType, connectionString)
 	defer db.Close()
 	if err != nil {
@@ -74,7 +74,7 @@ func (m mysql) DescribeDatabaseFunc(dbType string, connectionString string) ([]s
 
 	columnDesc := []substance.ColumnDescription{}
 
-	databaseName, err := m.GetCurrentDatabaseNameFunc(dbType, connectionString)
+	databaseName, err := m.DatabaseName(dbType, connectionString)
 	if err != nil {
 		return nil, err
 	}
@@ -112,7 +112,7 @@ func (m mysql) DescribeDatabaseFunc(dbType string, connectionString string) ([]s
 }
 
 /*DescribeTable returns columns of a table*/
-func (m mysql) DescribeTableFunc(dbType string, connectionString string, tableName string) ([]substance.ColumnDescription, error) {
+func (m mysql) DescribeTable(dbType string, connectionString string, tableName string) ([]substance.ColumnDescription, error) {
 
 	db, err := sql.Open(dbType, connectionString)
 	defer db.Close()
@@ -127,7 +127,7 @@ func (m mysql) DescribeTableFunc(dbType string, connectionString string, tableNa
 
 	columnDesc := []substance.ColumnDescription{}
 
-	databaseName, err := m.GetCurrentDatabaseNameFunc(dbType, connectionString)
+	databaseName, err := m.DatabaseName(dbType, connectionString)
 	if err != nil {
 		return nil, err
 	}
@@ -149,7 +149,7 @@ func (m mysql) DescribeTableFunc(dbType string, connectionString string, tableNa
 				case "Field":
 					newColDesc.PropertyName = string(value.([]byte))
 				case "Type":
-					newColDesc.PropertyType, err = m.GetGoDataType(string(value.([]byte)))
+					newColDesc.PropertyType, err = m.ToGoDataType(string(value.([]byte)))
 					if err != nil {
 						fmt.Printf("Warning: %s", err.Error())
 					}
@@ -174,8 +174,8 @@ func (m mysql) DescribeTableFunc(dbType string, connectionString string, tableNa
 	return columnDesc, nil
 }
 
-/*DescribeTableRelationship returns all foreign column references in database table*/
-func (m mysql) DescribeTableRelationshipFunc(dbType string, connectionString string, tableName string) ([]substance.ColumnRelationship, error) {
+/*TableRelationships returns all foreign column references in database table*/
+func (m mysql) TableRelationships(dbType string, connectionString string, tableName string) ([]substance.ColumnRelationship, error) {
 
 	db, err := sql.Open(dbType, connectionString)
 	defer db.Close()
@@ -183,7 +183,7 @@ func (m mysql) DescribeTableRelationshipFunc(dbType string, connectionString str
 		return nil, err
 	}
 
-	databaseName, err := m.GetCurrentDatabaseNameFunc(dbType, connectionString)
+	databaseName, err := m.DatabaseName(dbType, connectionString)
 	if err != nil {
 		return nil, err
 	}
@@ -234,7 +234,7 @@ func (m mysql) DescribeTableRelationshipFunc(dbType string, connectionString str
 }
 
 /*DescribeTableRelationship returns all foreign column references in database table*/
-func (m mysql) DescribeTableConstraintsFunc(dbType string, connectionString string, tableName string) ([]substance.ColumnConstraint, error) {
+func (m mysql) TableConstraints(dbType string, connectionString string, tableName string) ([]substance.ColumnConstraint, error) {
 	db, err := sql.Open(dbType, connectionString)
 	defer db.Close()
 	if err != nil {
@@ -274,8 +274,8 @@ func (m mysql) DescribeTableConstraintsFunc(dbType string, connectionString stri
 	return columnCon, nil
 }
 
-/*GetGoDataType returns the go data type for the equivalent mysql data type*/
-func (m mysql) GetGoDataType(sqlType string) (string, error) {
+/*ToGoDataType returns the go data type for the equivalent mysql data type*/
+func (m mysql) ToGoDataType(sqlType string) (string, error) {
 	for pattern, value := range regexDataTypePatterns {
 		match, err := regexp.MatchString(pattern, sqlType)
 		if match && err == nil {

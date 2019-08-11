@@ -22,7 +22,7 @@ type pgsql struct {
 }
 
 /*GetCurrentDatabaseName returns currrent database schema name as string*/
-func (p pgsql) GetCurrentDatabaseNameFunc(dbType string, connectionString string) (string, error) {
+func (p pgsql) DatabaseName(dbType string, connectionString string) (string, error) {
 	returnValue := "placeholder"
 	db, err := sql.Open(dbType, connectionString)
 	defer db.Close()
@@ -58,7 +58,7 @@ func (p pgsql) GetCurrentDatabaseNameFunc(dbType string, connectionString string
 }
 
 /*DescribeDatabase returns tables in database*/
-func (p pgsql) DescribeDatabaseFunc(dbType string, connectionString string) ([]substance.ColumnDescription, error) {
+func (p pgsql) DescribeDatabase(dbType string, connectionString string) ([]substance.ColumnDescription, error) {
 	//opening connection
 	db, err := sql.Open(dbType, connectionString)
 	defer db.Close()
@@ -76,7 +76,7 @@ func (p pgsql) DescribeDatabaseFunc(dbType string, connectionString string) ([]s
 	columnDesc := []substance.ColumnDescription{}
 
 	//get database name
-	databaseName, err := p.GetCurrentDatabaseNameFunc(dbType, connectionString)
+	databaseName, err := p.DatabaseName(dbType, connectionString)
 	if err != nil {
 		return nil, err
 	}
@@ -106,7 +106,7 @@ func (p pgsql) DescribeDatabaseFunc(dbType string, connectionString string) ([]s
 }
 
 /*DescribeTable returns columns in database*/
-func (p pgsql) DescribeTableFunc(dbType string, connectionString string, tableName string) ([]substance.ColumnDescription, error) {
+func (p pgsql) DescribeTable(dbType string, connectionString string, tableName string) ([]substance.ColumnDescription, error) {
 	db, err := sql.Open(dbType, connectionString)
 	defer db.Close()
 	if err != nil {
@@ -121,7 +121,7 @@ func (p pgsql) DescribeTableFunc(dbType string, connectionString string, tableNa
 
 	columnDesc := []substance.ColumnDescription{}
 
-	databaseName, err := p.GetCurrentDatabaseNameFunc(dbType, connectionString)
+	databaseName, err := p.DatabaseName(dbType, connectionString)
 	if err != nil {
 		return nil, err
 	}
@@ -147,7 +147,7 @@ func (p pgsql) DescribeTableFunc(dbType string, connectionString string, tableNa
 				case "Field":
 					newColDesc.PropertyName = string(value.([]byte))
 				case "Type":
-					newColDesc.PropertyType, _ = p.GetGoDataType(string(value.([]byte)))
+					newColDesc.PropertyType, _ = p.ToGoDataType(string(value.([]byte)))
 				}
 			}
 		}
@@ -157,8 +157,8 @@ func (p pgsql) DescribeTableFunc(dbType string, connectionString string, tableNa
 	return columnDesc, nil
 }
 
-/*DescribeTableRelationship returns all foreign column references in database table*/
-func (p pgsql) DescribeTableRelationshipFunc(dbType string, connectionString string, tableName string) ([]substance.ColumnRelationship, error) {
+/*TableRelationships returns all foreign column references in database table*/
+func (p pgsql) TableRelationships(dbType string, connectionString string, tableName string) ([]substance.ColumnRelationship, error) {
 	db, err := sql.Open(dbType, connectionString)
 	defer db.Close()
 	if err != nil {
@@ -225,8 +225,8 @@ func (p pgsql) DescribeTableRelationshipFunc(dbType string, connectionString str
 	return columnDesc, nil
 }
 
-/*DescribeTableConstraintsFunc returns an array of ColumnConstraint objects*/
-func (p pgsql) DescribeTableConstraintsFunc(dbType string, connectionString string, tableName string) ([]substance.ColumnConstraint, error) {
+/*TableConstraints returns an array of ColumnConstraint objects*/
+func (p pgsql) TableConstraints(dbType string, connectionString string, tableName string) ([]substance.ColumnConstraint, error) {
 	db, err := sql.Open(dbType, connectionString)
 	defer db.Close()
 	if err != nil {
@@ -268,7 +268,7 @@ func (p pgsql) DescribeTableConstraintsFunc(dbType string, connectionString stri
 	return columnDesc, nil
 }
 
-func (p pgsql) GetGoDataType(sqlType string) (string, error) {
+func (p pgsql) ToGoDataType(sqlType string) (string, error) {
 	if regexDataTypePatterns == nil {
 		regexDataTypePatterns["bit.*"] = "int64"
 		regexDataTypePatterns["bool.*|tinyint\\(1\\)"] = "bool"

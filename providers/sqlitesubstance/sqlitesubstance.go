@@ -22,7 +22,7 @@ type sqlite struct {
 }
 
 /*GetCurrentDatabaseName returns currrent database schema name as string*/
-func (p sqlite) GetCurrentDatabaseNameFunc(dbType string, connectionString string) (string, error) {
+func (p sqlite) DatabaseName(dbType string, connectionString string) (string, error) {
 	returnValue := "placeholder"
 
 	db, err := sql.Open(dbType, connectionString)
@@ -60,7 +60,7 @@ func (p sqlite) GetCurrentDatabaseNameFunc(dbType string, connectionString strin
 }
 
 /*DescribeDatabase returns tables in database*/
-func (p sqlite) DescribeDatabaseFunc(dbType string, connectionString string) ([]substance.ColumnDescription, error) {
+func (p sqlite) DescribeDatabase(dbType string, connectionString string) ([]substance.ColumnDescription, error) {
 	//opening connection
 	db, err := sql.Open(dbType, connectionString)
 	defer db.Close()
@@ -78,7 +78,7 @@ func (p sqlite) DescribeDatabaseFunc(dbType string, connectionString string) ([]
 	columnDesc := []substance.ColumnDescription{}
 
 	//get database name
-	databaseName, err := p.GetCurrentDatabaseNameFunc(dbType, connectionString)
+	databaseName, err := p.DatabaseName(dbType, connectionString)
 	if err != nil {
 		return nil, err
 	}
@@ -108,7 +108,7 @@ func (p sqlite) DescribeDatabaseFunc(dbType string, connectionString string) ([]
 }
 
 /*DescribeTable returns columns in database*/
-func (p sqlite) DescribeTableFunc(dbType string, connectionString string, tableName string) ([]substance.ColumnDescription, error) {
+func (p sqlite) DescribeTable(dbType string, connectionString string, tableName string) ([]substance.ColumnDescription, error) {
 	db, err := sql.Open(dbType, connectionString)
 	defer db.Close()
 	if err != nil {
@@ -122,7 +122,7 @@ func (p sqlite) DescribeTableFunc(dbType string, connectionString string, tableN
 
 	columnDesc := []substance.ColumnDescription{}
 
-	databaseName, err := p.GetCurrentDatabaseNameFunc(dbType, connectionString)
+	databaseName, err := p.DatabaseName(dbType, connectionString)
 	if err != nil {
 		return nil, err
 	}
@@ -148,7 +148,7 @@ func (p sqlite) DescribeTableFunc(dbType string, connectionString string, tableN
 				case "name":
 					newColDesc.PropertyName = string(value.([]byte))
 				case "type":
-					newColDesc.PropertyType, _ = p.GetGoDataType(string(value.([]byte)))
+					newColDesc.PropertyType, _ = p.ToGoDataType(string(value.([]byte)))
 				case "dflt_value":
 					newColDesc.DefaultValue = string(value.([]byte))
 				}
@@ -160,8 +160,8 @@ func (p sqlite) DescribeTableFunc(dbType string, connectionString string, tableN
 	return columnDesc, nil
 }
 
-/*DescribeTableRelationship returns all foreign column references in database table*/
-func (p sqlite) DescribeTableRelationshipFunc(dbType string, connectionString string, tableName string) ([]substance.ColumnRelationship, error) {
+/*TableRelationships returns all foreign column references in database table*/
+func (p sqlite) TableRelationships(dbType string, connectionString string, tableName string) ([]substance.ColumnRelationship, error) {
 	db, err := sql.Open(dbType, connectionString)
 	defer db.Close()
 	if err != nil {
@@ -211,8 +211,8 @@ func (p sqlite) DescribeTableRelationshipFunc(dbType string, connectionString st
 	return columnRel, nil
 }
 
-/*DescribeTableConstraintsFunc returns an array of ColumnConstraint objects*/
-func (p sqlite) DescribeTableConstraintsFunc(dbType string, connectionString string, tableName string) ([]substance.ColumnConstraint, error) {
+/*TableConstraints returns an array of ColumnConstraint objects*/
+func (p sqlite) TableConstraints(dbType string, connectionString string, tableName string) ([]substance.ColumnConstraint, error) {
 	db, err := sql.Open(dbType, connectionString)
 	defer db.Close()
 	if err != nil {
@@ -222,7 +222,7 @@ func (p sqlite) DescribeTableConstraintsFunc(dbType string, connectionString str
 	newColCon := substance.ColumnConstraint{}
 
 	//getting column relationships to retrieve foreign key constraints
-	columnRels, err := p.DescribeTableRelationshipFunc(dbType, connectionString, tableName)
+	columnRels, err := p.TableRelationships(dbType, connectionString, tableName)
 	if err != nil {
 		return nil, err
 	}
@@ -281,7 +281,7 @@ func (p sqlite) DescribeTableConstraintsFunc(dbType string, connectionString str
 	return columnCon, nil
 }
 
-func (p sqlite) GetGoDataType(sqlType string) (string, error) {
+func (p sqlite) ToGoDataType(sqlType string) (string, error) {
 	if regexDataTypePatterns == nil {
 		regexDataTypePatterns["bit.*"] = "int64"
 		regexDataTypePatterns["bool.*|tinyint\\(1\\)"] = "bool"

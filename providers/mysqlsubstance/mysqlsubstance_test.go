@@ -14,7 +14,7 @@ import (
 func TestGetCurrDbName(t *testing.T) {
 	mysqlProvider := mysql{}
 	nameExpected := "delivery"
-	nameResult, err := mysqlProvider.GetCurrentDatabaseNameFunc("mysql", os.Getenv("SUBSTANCE_MYSQL"))
+	nameResult, err := mysqlProvider.DatabaseName("mysql", os.Getenv("SUBSTANCE_MYSQL"))
 	t.Log(os.Getenv("SUBSTANCE_MYSQL"))
 	if nameResult != nameExpected {
 		t.Errorf("Expected '%s' as database name but got '%s'.", nameExpected, nameResult)
@@ -89,7 +89,7 @@ func TestGetGoDataType(t *testing.T) {
 		"JSON",
 	}
 	for _, sqlDatatype := range sqlDatatypes {
-		goDataType, err := mysqlProvider.GetGoDataType(strings.ToLower(sqlDatatype))
+		goDataType, err := mysqlProvider.ToGoDataType(strings.ToLower(sqlDatatype))
 		if err != nil {
 			t.Error(err)
 		} else if testing.Verbose() {
@@ -116,7 +116,7 @@ func TestDescribeDb(t *testing.T) {
 		PropertyName: "Persons",
 		TableName:    "Persons",
 	})
-	columnDescResult, err := mysqlProvider.DescribeDatabaseFunc("mysql", os.Getenv("SUBSTANCE_MYSQL"))
+	columnDescResult, err := mysqlProvider.DescribeDatabase("mysql", os.Getenv("SUBSTANCE_MYSQL"))
 	if err != nil {
 		t.Error(err)
 	}
@@ -172,7 +172,7 @@ func TestDescribeTable(t *testing.T) {
 		TableName:    "Persons",
 		Nullable:     true,
 	})
-	columnDescResult, err := mysqlProvider.DescribeTableFunc("mysql", os.Getenv("SUBSTANCE_MYSQL"), "Persons")
+	columnDescResult, err := mysqlProvider.DescribeTable("mysql", os.Getenv("SUBSTANCE_MYSQL"), "Persons")
 	if err != nil {
 		t.Error(err)
 	}
@@ -208,7 +208,7 @@ func TestDescribeTableRelationship(t *testing.T) {
 		ReferenceTableName:  "Persons",
 		ReferenceColumnName: "ID",
 	})
-	columnRelResult, err := mysqlProvider.DescribeTableRelationshipFunc("mysql", os.Getenv("SUBSTANCE_MYSQL"), "Persons")
+	columnRelResult, err := mysqlProvider.TableRelationships("mysql", os.Getenv("SUBSTANCE_MYSQL"), "Persons")
 	if err != nil {
 		t.Error(err)
 	}
@@ -250,7 +250,7 @@ func TestDescribeTableContraints(t *testing.T) {
 		ColumnName:     "PersonID",
 		ConstraintType: "UNIQUE",
 	})
-	columnConstraintResult, err := mysqlProvider.DescribeTableConstraintsFunc("mysql", os.Getenv("SUBSTANCE_MYSQL"), "AntiOrders")
+	columnConstraintResult, err := mysqlProvider.TableConstraints("mysql", os.Getenv("SUBSTANCE_MYSQL"), "AntiOrders")
 	if err != nil {
 		t.Error(err)
 	}
